@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import '../res/theme.dart' as CustomTheme;
 
+import '../pages/VocabBanksPage.dart';
+import '../pages/HomePage.dart';
+
 class CustomBottomNavBar extends StatelessWidget {
   const CustomBottomNavBar({ Key key, this.index }) : super(key: key);
 
   final int index;
+
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +33,13 @@ class CustomBottomNavBar extends StatelessWidget {
             icon: Icon(Icons.pie_chart, size: 25.0),
             title: Text("STATS", style: TextStyle(fontSize: 10.0),),
           ),
-        ]
+        ],
+        onTap: (index){
+          if ( index == 0 )
+            Navigator.pushReplacement(context,  MaterialPageRoute(builder: (context) => HomePage(title: "HOME Page",) ) );
+          else if ( index == 2 )
+            Navigator.pushReplacement(context,  MaterialPageRoute(builder: (context) => VocabCardUIPage(title: "VocabCardUI",) ) ); 
+         },
     );
   }
 }
