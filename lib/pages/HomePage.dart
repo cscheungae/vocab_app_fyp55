@@ -223,6 +223,22 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: CustomBottomNavBar(index: 0,),
       backgroundColor: CustomTheme.GREY,// This trailing comma makes auto-formatting nicer for build methods.
+      drawer: Drawer(
+        child: Column(
+
+          //Settings
+          children:[
+            AppBar(title: Text("Drawer Navigator"),actionsIconTheme: null,),
+            Divider(color:Colors.white24),
+            ListTile(title:Text("")),
+            ListTile(
+              title:Text("Settings"),
+              trailing:Icon(Icons.settings),
+              onTap: ()=>Navigator.pushNamed(context,"/settings"),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
