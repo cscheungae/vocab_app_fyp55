@@ -35,7 +35,7 @@ class _BasePageState extends State<BasePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomTheme.WHITE,
+      backgroundColor: CustomTheme.GREY,
       appBar: CustomAppBar(title: "Home", iconData: Icons.person),
       body: PageView(
           controller: _pageController,
@@ -72,6 +72,21 @@ class _BasePageState extends State<BasePage> {
 //          ),
         ],
         onTap: (index) => this._pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut),
+      ),
+      drawer: Drawer(
+        child: Column(
+          //Settings
+          children:[
+            AppBar(title: Text("Drawer Navigator"),actionsIconTheme: null,),
+            Divider(color:Colors.white24),
+            ListTile(title:Text("")),
+            ListTile(
+              title:Text("Settings"),
+              trailing:Icon(Icons.settings),
+              onTap: ()=>Navigator.pushNamed(context,"/settings"),
+            )
+          ],
+        ),
       ),
     );
   }

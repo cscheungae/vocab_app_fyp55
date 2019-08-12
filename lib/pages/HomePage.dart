@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../res/theme.dart' as CustomTheme;
 import 'package:percent_indicator/percent_indicator.dart';
-import '../components/CustomAppBar.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -163,8 +162,8 @@ class _HomePageState extends State<HomePage> {
               ),
             )),
         Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-            child: ClipRRect(
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+          child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: Container(
                 padding: const EdgeInsets.all(8.0),
@@ -210,8 +209,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-              ),
-            )),
+              )),
+        )
       ],
     );
   }
