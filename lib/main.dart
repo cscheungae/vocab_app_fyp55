@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'res/theme.dart' as CustomTheme;
-import 'pages/HomePage.dart';
+import 'pages/BasePage.dart';
 import 'pages/ArticlesViewPage.dart';
 
 void main() => runApp(MyApp());
@@ -15,8 +15,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         // When navigating to the "/" route, build the HomeScreen
-        '/': (context) => HomePage(title: "HOME"),
-        '/articles': (context) => ArticleViewPage(title: "Article"),
+        '/': (context) => BasePage(title: "Base"),
+        '/articles': (context) => ArticlesViewPage(title: "Article"),
       },
     );
   }
