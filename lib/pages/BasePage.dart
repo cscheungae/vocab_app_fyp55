@@ -6,6 +6,8 @@ import './ArticlesViewPage.dart';
 
 enum Page { home, article }
 
+const pagesTitle = ["home", "article", "study", "stats"];
+
 class BasePage extends StatefulWidget {
   BasePage({ Key key, this.title }) : super(key: key);
 
@@ -36,7 +38,7 @@ class _BasePageState extends State<BasePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CustomTheme.GREY,
-      appBar: CustomAppBar(title: "Home", iconData: Icons.person),
+      appBar: CustomAppBar(title: pagesTitle[_pageIndex], iconData: Icons.person),
       body: PageView(
           controller: _pageController,
           onPageChanged: (newPage){
