@@ -65,8 +65,8 @@ class VocabCard extends StatelessWidget {
                     Card(child: Text(vocabCard.pos))
                   ],
                 ),
-              ...List.generate(vocabCard.definitions.length,(i) => Card(child:Text(vocabCard.definitions.elementAt(i)))),
-              ...List.generate(vocabCard.examples.length,(i) => Card(child:Text(vocabCard.examples.elementAt(i)))),
+              ...List.generate(vocabCard.definitions.length,(i) => Chip(label:Text(vocabCard.definitions.elementAt(i)))),
+              ...List.generate(vocabCard.examples.length,(i) => Chip(label:Text(vocabCard.examples.elementAt(i)))),
               ],
             ),
           ),
