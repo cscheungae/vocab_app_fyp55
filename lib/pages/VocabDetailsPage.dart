@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import '../util/vocabulary.dart';
+import '../States/vocabularyState.dart';
 import '../res/theme.dart' as CustomTheme;
 
 class VocabDetailsUIPage extends StatefulWidget 

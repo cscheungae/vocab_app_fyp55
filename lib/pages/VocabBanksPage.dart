@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import '../services/fetchdata_Datamuse.dart';
 import '../services/fetchimage_Bing.dart';
 import '../util/manage_vocabbank.dart';
-import '../util/vocabulary.dart';
+
+import '../States/vocabularyState.dart';
+import '../States/vocabularyBankState.dart';
+
 import 'VocabDetailsPage.dart';
 import '../components/CustomBottomNavBar.dart';
 import '../components/CustomAppBar.dart';
+import '../components/CustomVocabCard.dart';
+
 import '../res/theme.dart' as CustomTheme;
 
 
@@ -29,33 +34,29 @@ class VocabCardUIPage extends StatefulWidget
 
 class _VocabCardPage extends State<VocabCardUIPage>
 {
-  String _searchResult = "";
-  List<vocabulary> _vocabList = [ ];  //whole list of vocabs, unaltered
-  List<vocabulary> _visibleVocabList = [];   //actual visible vocab through UI
-  Map<String, bool> _isVisibleCardDescript = {};  //Check Hided Description
+   String _searchResult = ""; //Search Input
+
+  vocabularyBankState bank = new vocabularyBankState();
+  List<CustomVocabCard> _VocabCardList = [];   //actual visible vocabs through UI
   
   final TextEditingController _searchController = new TextEditingController();
-  
 
+
+  void UpdateVocabCardList( List<vocabulary> vocablist)
+  {
+    _VocabCardList = [];
+    for ( var vocab in vocablist )
+      _VocabCardList.add( new CustomVocabCard(item:vocab) );
+  }
+
+  
   //Upon creation
   @override
   void initState()
   {
     super.initState();
-
-    _vocabList.add(new vocabulary(word: "Orange") );
-    _vocabList.add(new vocabulary(word: "Apple") );
-    _vocabList.add(new vocabulary(word: "Melon") );
-    _vocabList.add(new vocabulary(word: "Apple1") );
-    _vocabList.add(new vocabulary(word: "Orange1") );
-    _vocabList.add(new vocabulary(word: "Zebra") );
-
-    _visibleVocabList = _vocabList;
-
-    for ( var item in _visibleVocabList )
-    {
-      _isVisibleCardDescript[item.getWord()] = true;
-    }
+    bank.debugAddVocabs();
+    UpdateVocabCardList(bank.vocabList);
   }
 
 
@@ -66,8 +67,8 @@ class _VocabCardPage extends State<VocabCardUIPage>
       switch ( choice )
       {
         case 0: 
-          _visibleVocabList = sortVocabListByWords( _visibleVocabList );
-          _vocabList = sortVocabListByWords( _vocabList );
+          bank.vocabList = sortVocabListByWords( bank.vocabList );
+          UpdateVocabCardList(bank.vocabList);
           break;
         default: {}
       }
@@ -99,14 +100,15 @@ class _VocabCardPage extends State<VocabCardUIPage>
               child: Padding( padding: EdgeInsets.all(3) , child: TextField(
                 controller: _searchController,
                 onChanged: (query){  setState(() {
-                  _visibleVocabList = getSearchResultVocabList( _vocabList, query.toLowerCase() );
+                  List<vocabulary> searchResultVocabList = getSearchResultVocabList( bank.vocabList, query.toLowerCase() );
+                  UpdateVocabCardList(searchResultVocabList);
                 });   },
                 decoration: InputDecoration
                 (
                   border: OutlineInputBorder ( borderSide: BorderSide(color: Colors.grey), ),
                   hintText: "Enter a Search Term",
                   suffixIcon: IconButton(
-                    onPressed: (){ _searchController.clear(); _visibleVocabList = _vocabList; },
+                    onPressed: (){ _searchController.clear(); UpdateVocabCardList(bank.vocabList); },
                     icon: Icon(Icons.clear),
                   )
                 ), 
@@ -116,8 +118,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
             IconButton(
               onPressed: (){
                 setState(() {
-                  for ( var item in _vocabList )
-                    _isVisibleCardDescript[item.getWord()] = !_isVisibleCardDescript[item.getWord()];           
+                  for ( var VocabCard in _VocabCardList ){
+                    VocabCard.isVisibleCardDescription = ! VocabCard.isVisibleCardDescription; //Won't work 
+                  }     
                 });
               },
               icon: Icon(Icons.menu),
@@ -135,9 +138,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
         
         Expanded( child: ListView.builder
         (
-          itemCount: _visibleVocabList.length,
+          itemCount: _VocabCardList.length,
           itemBuilder: (context, position){
-            return getCardStructure( _visibleVocabList[position], context );
+            return _VocabCardList[position];
           },
         ),),
         
@@ -146,102 +149,5 @@ class _VocabCardPage extends State<VocabCardUIPage>
       bottomNavigationBar: CustomBottomNavBar(index: 0,),
     );   
   } 
-
-  
-
-
-
-
-  /* Return the Card Widget Structure of the vocabulary Card */
-  /* Wrong Vocab Card */
-  Card getCardStructure( vocabulary item, BuildContext context,  )
-  { 
-    final cardHeight = MediaQuery.of(context).size.height * 0.25;
-    final cardWidth = MediaQuery.of(context).size.width;  
-
-    return Card 
-    (
-      elevation: 7.0,
-      shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(15.0),  ),
-
-      child: GestureDetector
-      (
-        onTap: (){ Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsUIPage( item, title: item.getImageURL() ) ) ); },
-        child: Wrap
-        (
-          children: <Widget>
-          [
-            /* FirstRow */
-            Container
-            (
-              color: CustomTheme.WHITE,
-              height: cardHeight * 0.30,
-              width: cardWidth,
-              alignment: Alignment.topLeft,
-
-              child: Row(
-                children: <Widget>[
-                  Container
-                  (
-                    width: cardWidth * 0.35,
-                    child: item.getImage(),
-                  ),
-                  
-                  Container
-                  ( 
-                    alignment: Alignment.centerLeft,
-                    width: cardWidth * 0.45,
-                    child: Padding
-                    (
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text
-                      (
-                        item.getWord(),  
-                        style: TextStyle( 
-                          fontSize: 20.0, 
-                          fontWeight: FontWeight.bold,
-                          color: CustomTheme.BLACK, 
-                        ),
-                      ),
-                    ), 
-                  ),
-                      
-                  Expanded 
-                  (
-                    child: IconButton( 
-                      icon: Icon(Icons.menu,), 
-                      onPressed:(){  setState(() {
-                       _isVisibleCardDescript[item.getWord()] = ! _isVisibleCardDescript[item.getWord()];
-                      });  },  
-                    ), 
-                  ),
-                ],
-              ),
-            ),
-          
-
-            Visibility
-            (
-              visible: _isVisibleCardDescript[item.getWord()],
-              child: Container
-              (
-                decoration: new BoxDecoration
-                ( 
-                  color: Color.fromRGBO(200, 200, 250, 0.6),
-                  //borderRadius: new BorderRadius.all(const Radius.circular(15.0)),
-                ),
-                alignment: Alignment.topLeft,
-                height: cardHeight * 0.75,
-                width: cardWidth,
-                child: Text( "Hello Everyone this is a lovely vocab card description about " + item.getWord() + ", you can learn more about it in here",  ),               
-              ),
-            ),
-
-          ],
-        ),
-
-      ),
-    );
-  }
   
 }

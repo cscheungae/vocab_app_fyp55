@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'vocabulary.dart';
+import '../States/vocabularyState.dart';
 
 
 /* Compare Vocab based on Word */

@@ -8,7 +8,7 @@ import 'dart:math';
 enum Wordform { Noun, Verb, Pronoun, Adjective, Adverb, Preposition, Conjunction, Interjection }
 List ColorsList = [ Colors.pink[100], Colors.lightGreen[100], Colors.lightBlue[100], Colors.cyan[100], Colors.red[100], Colors.yellow[100], Colors.green[100], Colors.blue[100]  ];
 
-class vocabulary
+class vocabulary extends ChangeNotifier
 {
   String _word;     //The word itself
   Wordform _form;   //form of the word, referred to enum Wordform
@@ -25,7 +25,7 @@ class vocabulary
   String getImageURL() => _imageURL;
   FadeInImage getImage() => FadeInImage(image: NetworkImage(_imageURL), placeholder: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover ) ;
 
-  void setImageURL(String url){ this._imageURL = url; }
+  void setImageURL(String url){ this._imageURL = url; notifyListeners(); }
 
   //Normal Constructor
   vocabulary( { word="",  meaning="", imageURL = "", }  )

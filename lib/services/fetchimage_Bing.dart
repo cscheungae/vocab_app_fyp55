@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../util/vocabulary.dart';
+import '../States/vocabularyState.dart';
 
 /* Prevent Over-Pulling of new photos */
 int Limit = 0;
