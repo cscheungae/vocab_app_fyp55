@@ -3,11 +3,10 @@ import 'package:vocab_app_fyp55/pages/VocabStudyPage.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../components/CustomAppBar.dart';
 import './HomePage.dart';
-import './ArticlesViewPage.dart';
 
-enum Page { home, article }
+enum Page { home, study }
 
-const pagesTitle = ["home", "article", "study", "stats"];
+const pagesTitle = ["home", "study", "stats"];
 
 class BasePage extends StatefulWidget {
   BasePage({Key key, this.title}) : super(key: key);
@@ -49,9 +48,8 @@ class _BasePageState extends State<BasePage> {
           });
         },
         children: <Widget>[
-          HomePage(title: "HOME"),
-          ArticlesViewPage(title: "Articles"),
-          VocabStudyPage(title: "Study")
+          HomePage(title: "home"),
+          VocabStudyPage(title: "study")
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -63,13 +61,6 @@ class _BasePageState extends State<BasePage> {
             icon: Icon(Icons.home, size: 25.0),
             title: Text(
               "HOME",
-              style: TextStyle(fontSize: 10.0),
-            ),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school, size: 25.0),
-            title: Text(
-              "STUDY",
               style: TextStyle(fontSize: 10.0),
             ),
           ),
