@@ -1,0 +1,41 @@
+
+{
+  "project_info": {
+    "project_number": "494194297111",
+    "firebase_url": "https://vocab-36e2a.firebaseio.com",
+    "project_id": "vocab-36e2a",
+    "storage_bucket": "vocab-36e2a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:494194297111:android:6efa5dc4bd87bd33c5cf52",
+        "android_client_info": {
+          "package_name": "com.example.vocab_app_fyp55"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "494194297111-36qa3s28hvgm5m1cl5d5ivbr6gb3nfcp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4A3lqCQR794C_10XON_mkNw8ki7gI7KI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "494194297111-36qa3s28hvgm5m1cl5d5ivbr6gb3nfcp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
