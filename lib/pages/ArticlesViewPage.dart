@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../components/CustomAppBar.dart';
 import 'package:vocab_app_fyp55/bloc/articles_bloc/articles.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 
 class ArticlesViewPage extends StatelessWidget {
   final String title;
@@ -29,18 +30,26 @@ class ArticlesViewPage extends StatelessWidget {
                 itemBuilder: (BuildContext context, int index) {
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(8.0, 3.0, 8.0, 3.0),
-                    child: Card(
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
-                            child: Text(
-                              state.articles[index],
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                    child: GestureDetector(
+                      onTap: () {print("clicked");_launchURL(context, state.articles[index].url);},
+                      child: Card(
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 4.0),
+                              child: Text(
+                                state.articles[index].title,
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
                             ),
-                          )
-                        ],
-                      )
+                            Text(state.articles[index].source?.name ?? "Unknown source"),
+                            Text(state.articles[index]?.author ?? "Anonymous"),
+                            Text(state.articles[index]?.publishedAt ?? ""),
+                            Text(state.articles[index]?.content ?? ""),
+
+                          ],
+                        )
+                      ),
                     ),
                   );
                 }
@@ -54,5 +63,29 @@ class ArticlesViewPage extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+_launchURL(BuildContext context, String url) async {
+  try {
+    await launch(
+      url,
+      option: new CustomTabsOption(
+        toolbarColor: Theme.of(context).primaryColor,
+        enableDefaultShare: true,
+        enableUrlBarHiding: true,
+        showPageTitle: true,
+        animation: new CustomTabsAnimation.slideIn(),
+      extraCustomTabs: <String>[
+        // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
+        'org.mozilla.firefox',
+        // ref. https://play.google.com/store/apps/details?id=com.microsoft.emmx
+        'com.microsoft.emmx',
+      ],
+    ),
+  );
+  } catch (e) {
+  // An exception is thrown if browser app is not installed on Android device.
+  debugPrint(e.toString());
   }
 }

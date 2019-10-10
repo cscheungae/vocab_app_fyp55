@@ -1,12 +1,29 @@
 import 'package:meta/meta.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:vocab_app_fyp55/bloc/articles_bloc/ArticlesSource.dart';
 
 class ArticlesWorker {
-  Future<List<String>> fetch({@required List<String> categories}) {
-    return Future.delayed(Duration(seconds: 4), () => [
-      'Article A',
-      'Article B',
-      'Article C'
-    ]);
+//  final String NEWSAPI_KEY = "072857d78a3a4bb8b0e16443390aac76";
+//  final String requestLink = "https://newsapi.org/v2/sources?language=en&apiKey=072857d78a3a4bb8b0e16443390aac76";
+  final String requestLink = "https://newsapi.org/v2/top-headlines?country=us&apiKey=072857d78a3a4bb8b0e16443390aac76";
+
+  Future<ArticlesResponse> fetch({@required List<String> categories}) async{
+    http.Response rsp = await http.get(requestLink);
+
+    if(rsp.statusCode == 200) {
+      print(json.decode(rsp.body));
+      return ArticlesResponse.fromJson(json.decode(rsp.body));
+    } else {
+      throw Exception('Failed to load articles sources');
+    }
+
+
+//    return Future.delayed(Duration(seconds: 4), () => [
+//      'Article A',
+//      'Article B',
+//      'Article C'
+//    ]);
   }
 }
 

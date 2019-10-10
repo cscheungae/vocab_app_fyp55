@@ -29,6 +29,9 @@ dependencies:
   bloc:
   flutter_bloc:
   equatable: ^0.2.0
+  http:
+  json_annotation: ^3.0.0
+  flutter_custom_tabs: "^0.6.0"
 
 dev_dependencies:
   flutter_test:

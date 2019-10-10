@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
+import 'package:vocab_app_fyp55/bloc/articles_bloc/ArticlesSource.dart';
 
 abstract class ArticlesState extends Equatable {
   ArticlesState([List props = const []]) : super(props);
@@ -11,7 +12,7 @@ class ArticlesUninitialized extends ArticlesState {
 }
 
 class ArticlesLoaded extends ArticlesState {
-  final List<String> articles;
+  final List<Article> articles;
 
   ArticlesLoaded({@required this.articles}) : super([articles]);
 
