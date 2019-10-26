@@ -23,6 +23,8 @@ class FetchImage
 }
 
 
+/*
+
 //Update The Image by Bing API
 void UpdateImageByAPI( List<vocabulary> vocablist ) async
 {
@@ -82,3 +84,5 @@ Future<String> Debug_UpdateImageByAPI( ) async
   }
   else { return "Something went wrong + \n" + response.body; }
 }
+
+*/

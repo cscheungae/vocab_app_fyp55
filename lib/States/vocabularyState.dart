@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:convert';
+
+import 'package:http/http.dart';
 
 
 /* The Main Class of Vocabulary */
@@ -35,6 +38,21 @@ class vocabulary extends ChangeNotifier
     this._color  = ColorsList[ Random().nextInt(ColorsList.length -1 ) ];
     this._imageURL = imageURL;
   }
+
+  //From Json to Dart Map Data
+  factory vocabulary.fromJson( Map<String, dynamic> json ) => new vocabulary(
+    word: json["word"],
+    meaning: json["meaning"],
+    imageURL: json["imageSource"],
+  );
+  
+
+  //From Dart Map Data to Json
+  Map<String, dynamic> toJson() => {
+    "word" : _word,
+    "meaning" : _meaning,
+    "imageSource": _imageURL,
+  };
 
 }
 

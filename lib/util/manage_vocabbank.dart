@@ -24,7 +24,7 @@ bool isShorterThan( String a, String b )
 }
 
 
-/* Sort Vocab List */
+/* Sort Vocab List by Letter, Linear Sorting */
 List<vocabulary> sortVocabListByWords( List<vocabulary> originalList )
 {
   var resultList = originalList;
@@ -46,21 +46,23 @@ List<vocabulary> sortVocabListByWords( List<vocabulary> originalList )
       {break;}   
     }
   }
-
   return resultList;
 }
 
 
+
+/* A linear Search of Vocab List */
 List<vocabulary> getSearchResultVocabList( List<vocabulary> originalList , final String query )
 {
-  
-  final int queryLength = query.length;
   List<vocabulary> resultList = [];
 
   for ( int i = 0; i < originalList.length; i++ )
   {
-    if ( originalList[i].getWord().substring(0,queryLength).toLowerCase() == query )
-    { resultList.add(originalList[i]);  }
+    if ( query.length <= originalList[i].getWord().length  )
+    {
+      if ( originalList[i].getWord().substring(0, query.length).toLowerCase() == query )
+      { resultList.add(originalList[i]);  }
+    }
   }
 
   return resultList;

@@ -9,7 +9,6 @@ class CustomBottomNavBar extends StatelessWidget {
 
   final int index;
 
-
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(

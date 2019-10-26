@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../services/fetchdata_Datamuse.dart';
-import '../services/fetchimage_Bing.dart';
 import '../util/manage_vocabbank.dart';
 
 import '../States/vocabularyState.dart';
@@ -13,10 +11,9 @@ import '../components/CustomVocabCard.dart';
 
 import '../res/theme.dart' as CustomTheme;
 
-
-
+import 'AddNewVocabPage.dart';
 import 'dart:async';
-import 'dart:math';
+
 
 
 class VocabCardUIPage extends StatefulWidget 
@@ -34,45 +31,60 @@ class VocabCardUIPage extends StatefulWidget
 
 class _VocabCardPage extends State<VocabCardUIPage>
 {
-   String _searchResult = ""; //Search Input
-
-  vocabularyBankState bank = new vocabularyBankState();
-  List<CustomVocabCard> _VocabCardList = [];   //actual visible vocabs through UI
+  //vocabs through UI
+  List<vocabulary> _VocabCardList;   
   
+  //search Constructor
   final TextEditingController _searchController = new TextEditingController();
 
-
-  void UpdateVocabCardList( List<vocabulary> vocablist)
+  //initialize the vocab list 
+  Future<List<vocabulary>> initVocabCardList() async
   {
-    _VocabCardList = [];
-    for ( var vocab in vocablist )
-      _VocabCardList.add( new CustomVocabCard(item:vocab) );
+    if (_VocabCardList == null)
+      _VocabCardList = await vocabularyBankState.instance.getVocabList();
+    
+    return _VocabCardList;
   }
 
   
-  //Upon creation
   @override
-  void initState()
+  void initState();
+
+  @override
+  void dispose()
   {
-    super.initState();
-    bank.debugAddVocabs();
-    UpdateVocabCardList(bank.vocabList);
+    _searchController.dispose();
+    super.dispose();
   }
 
-
   //Function for Selecting list item
-  void _select(int choice)
+  void _select(int choice) async
   {
-    setState(() {
-      switch ( choice )
-      {
-        case 0: 
-          bank.vocabList = sortVocabListByWords( bank.vocabList );
-          UpdateVocabCardList(bank.vocabList);
-          break;
-        default: {}
-      }
-    });
+    switch ( choice )
+    {
+      case 0: 
+        _VocabCardList = sortVocabListByWords( _VocabCardList );        
+        break;
+      case 1:
+        Navigator.push(context,  MaterialPageRoute(builder: (context) => AddNewVocabPage() ) )
+        .then((value){ setState((){ /* Do Something */  });  }  );
+        break;
+      case 2:
+        await vocabularyBankState.instance.createNewVocab(new vocabulary(word: "Apple"));
+        _VocabCardList = await vocabularyBankState.instance.getVocabList();   
+        break;
+      case 3:
+        await vocabularyBankState.instance.createNewVocab(new vocabulary(word: "Orange"));
+        _VocabCardList = await vocabularyBankState.instance.getVocabList();
+        break;
+      case 4:
+        await vocabularyBankState.instance.deleteVocab("Apple");
+        _VocabCardList = await vocabularyBankState.instance.getVocabList();
+        break;
+
+      default: {}
+    }
+    setState(() {});
   }
 
 
@@ -96,19 +108,25 @@ class _VocabCardPage extends State<VocabCardUIPage>
               width: MediaQuery.of(context).size.width * 0.72,
               height: MediaQuery.of(context).size.width * 0.15,
               
-
               child: Padding( padding: EdgeInsets.all(3) , child: TextField(
                 controller: _searchController,
-                onChanged: (query){  setState(() {
-                  List<vocabulary> searchResultVocabList = getSearchResultVocabList( bank.vocabList, query.toLowerCase() );
-                  UpdateVocabCardList(searchResultVocabList);
-                });   },
+                onChanged: (query) async {
+
+                  var vocabList = await vocabularyBankState.instance.getVocabList(forceUpdate: false);
+                  _VocabCardList =getSearchResultVocabList( vocabList, query.toLowerCase());
+                  setState((){ });   
+                },
                 decoration: InputDecoration
                 (
                   border: OutlineInputBorder ( borderSide: BorderSide(color: Colors.grey), ),
                   hintText: "Enter a Search Term",
                   suffixIcon: IconButton(
-                    onPressed: (){ _searchController.clear(); UpdateVocabCardList(bank.vocabList); },
+                    onPressed: () async { 
+
+                      _searchController.clear(); 
+                      _VocabCardList = await vocabularyBankState.instance.getVocabList(forceUpdate: false); 
+                      setState(() {});  
+                    },
                     icon: Icon(Icons.clear),
                   )
                 ), 
@@ -118,9 +136,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
             IconButton(
               onPressed: (){
                 setState(() {
-                  for ( var VocabCard in _VocabCardList ){
-                    VocabCard.isVisibleCardDescription = ! VocabCard.isVisibleCardDescription; //Won't work 
-                  }     
+                  
                 });
               },
               icon: Icon(Icons.menu),
@@ -130,20 +146,35 @@ class _VocabCardPage extends State<VocabCardUIPage>
               onSelected: _select,
               itemBuilder: (context) => [
                 PopupMenuItem(value: 0, child: Text("Sorted By Letters"),  ),
-                PopupMenuItem(value: 1, child: Text("Hello World"), ),
+                PopupMenuItem(value: 1, child: Text("Add New Vocabulary"), ),
+                PopupMenuItem(value: 2, child: Text("Debug - Add Apple"), ),
+                PopupMenuItem(value: 3, child: Text("Debug - Add Orange"), ),
+                PopupMenuItem(value: 4, child: Text("Debug - Delete Apple"), ),
               ],
             ),
           ],
         ),
         
-        Expanded( child: ListView.builder
-        (
-          itemCount: _VocabCardList.length,
-          itemBuilder: (context, position){
-            return _VocabCardList[position];
-          },
-        ),),
         
+        Expanded(
+          child: FutureBuilder<List<vocabulary>>(
+          future: initVocabCardList(),
+            builder: ( context, AsyncSnapshot<List<vocabulary>> snapshot ){
+              if ( snapshot.hasData )
+              {
+                return  ListView.builder
+                (
+                  itemCount: _VocabCardList.length,
+                  itemBuilder: (context, position){
+                    return new CustomVocabCard(item: _VocabCardList[position],);
+                  },
+                );
+              } else { return Center(child: CircularProgressIndicator()); } //no result
+            }  
+          ),
+        ),
+        
+
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(index: 0,),
