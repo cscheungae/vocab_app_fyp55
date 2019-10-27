@@ -7,13 +7,15 @@ import '../pages/VocabDetailsPage.dart';
 class CustomVocabCard extends StatefulWidget
 {
   vocabulary item;
-  bool isVisibleCardDescription = true;
-  
-  
-  CustomVocabCard({ Key key, this.item}): super(key: key);
+
+  bool isVisibleCardDescription;
+
+  //Constructor  
+  CustomVocabCard({ Key key, this.item, this.isVisibleCardDescription = true }): super(key: key);
 
   @override
   _CustomVocabCard createState() => _CustomVocabCard();
+
 }
 
   
@@ -78,8 +80,8 @@ class _CustomVocabCard extends State<CustomVocabCard>
                     child: IconButton( 
                       icon: Icon(Icons.menu,),
                       color: Colors.black, 
-                      onPressed:(){  setState(() {
-                        widget.isVisibleCardDescription = ! widget.isVisibleCardDescription;
+                      onPressed:(){  setState(() {  
+                        widget.isVisibleCardDescription = (! widget.isVisibleCardDescription );
                       });  },  
                     ), 
                   ),

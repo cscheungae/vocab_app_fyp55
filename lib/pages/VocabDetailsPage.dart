@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import '../States/vocabularyState.dart';
+import '../components/DefinitionBlock.dart';
 import '../res/theme.dart' as CustomTheme;
 
 class VocabDetailsUIPage extends StatefulWidget 
@@ -16,29 +17,22 @@ class VocabDetailsUIPage extends StatefulWidget
 }
 
 
+
 class _VocabDetailsUIPage extends State<VocabDetailsUIPage>
 {
   vocabulary TargetWord; 
+
 
   //Constructor
   @override
   _VocabDetailsUIPage( vocabulary vocab ){  this.TargetWord = vocab; }
 
-
   @override
   void initState(){ super.initState(); }
 
-
-  //Widget Building
-  @override
-  Widget build( BuildContext context )
-  {
-    return Scaffold
-    (        
-      backgroundColor: Colors.white, 
-      body: Stack
-      (
-        children: <Widget>
+  
+  List<Widget> buildBackground(){
+    return <Widget>
         [ 
           //BackgroundImage
           Container
@@ -68,87 +62,123 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage>
             ),
           ),
 
-          //Information Body
-          Column
-          (    
-            children: <Widget>
-            [
-              //Appbar
-              Container
-              (
-                height: MediaQuery.of(context).size.height * 0.10,
-                child: AppBar
-                ( 
-                  title: Text(TargetWord.getWord() ),
-                  backgroundColor: Color.fromRGBO(0, 0, 0, 0.4),
-                  elevation: 0, 
-                ),
+          Padding
+          (
+            padding: EdgeInsets.fromLTRB(5, 110, 5, 0),
+            child:Container
+            (
+              width: MediaQuery.of(context).size.width * 0.98,
+              height: MediaQuery.of(context).size.height * 0.98,
+              
+              decoration: new BoxDecoration
+              ( 
+                color: Color.fromRGBO(255, 255, 255, 0.7),
+                //color: Colors.blue,
+                borderRadius: new BorderRadius.all(const Radius.circular(10.0)),
               ),
-
-              Padding
-              (
-                padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                child:Container
-                (
-                  width: MediaQuery.of(context).size.width * 0.98,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  padding: EdgeInsets.fromLTRB(15, 15, 0, 0),
-                  decoration: new BoxDecoration
-                  ( 
-                    color: Color.fromRGBO(255, 255, 255, 0.7),
-                    borderRadius: new BorderRadius.all(const Radius.circular(10.0)),
-                  ),
-                  alignment: Alignment.topLeft,
-
-                  child: Column
-                  (
-                    children: <Widget>
-                    [
-                      Container
-                      (
-                        alignment: Alignment.topLeft,
-                        child: Text ( TargetWord.getWord(), style: TextStyle(color: Colors.blue, fontSize: 28, fontWeight: FontWeight.bold, ),  ),
-                      ),
-                      
-                      Container
-                      (
-                        alignment: Alignment.topLeft,
-                        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                        child: Text( "Some Form of Speech", style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
-                      ),
-
-                      Container
-                      (
-                        alignment: Alignment.topLeft,
-                        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                        child: Icon(Icons.audiotrack, color: CustomTheme.BLACK,),
-                      ),
-
-                      Container
-                      (
-                        alignment: Alignment.topLeft,
-                        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                        child: Text( "Hello Everyone this is a lovely vocab card description about " + TargetWord.getWord() + ", you can learn more about it in here", 
-                        style: TextStyle(
-                          color: CustomTheme.BLACK, 
-                          fontSize: 18, 
-                          ),  
-                        ),
-                      ),
-                                          
-                    ],
-                  )
-                  
-                ),
-              ),
-
-            ],
+              alignment: Alignment.topLeft,
+            ),
           ),
+        ];      
+  }
 
-        ],
-      ),
+  
+
+  
+
+
+
+  //Widget Building
+  @override
+  Widget build( BuildContext context )
+  {
+    return Scaffold
+    (        
+      backgroundColor: Colors.white, 
+      body: SingleChildScrollView ( child: Stack
+      (
+        children: List.from(buildBackground())..addAll( <Widget>[ 
+
+
+              Column(    
+                children: <Widget>[
+                  //Appbar
+                  Container
+                  (
+                    height: MediaQuery.of(context).size.height * 0.10,
+                    child: AppBar
+                    ( 
+                      title: Text(TargetWord.getWord() ),
+                      backgroundColor: Color.fromRGBO(0, 0, 0, 0.4),
+                      elevation: 0, 
+                    ),
+                  ),
+
+                  Container
+                  (
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(15, 80, 0, 0),
+                    child: Text ( TargetWord.getWord(), style: TextStyle(color: Colors.blue, fontSize: 28, fontWeight: FontWeight.bold, ),  ),
+                  ),
+                  
+                  Container
+                  (
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(15, 10, 0, 0),
+                    child: Text( TargetWord.getWordForm(), style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
+                  ),
+
+
+                  Container
+                  (
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(15, 10, 0, 0),
+                    child: Icon(Icons.audiotrack, color: CustomTheme.BLACK,),
+                  ),
+
+
+                  //HardCoded Example
+                  Container
+                  (
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: new DefinitionBlock( header: "Meaning", body: TargetWord.getMeaning() ),                        
+                  ),
+
+                  Container
+                  (
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: new DefinitionBlock( header: "Example Sentence", body: TargetWord.getSampleSentence() ),                        
+                  ), 
+                  
+                  Container
+                  (
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: new DefinitionBlock( header: "Synonyms", body: TargetWord.printSynonyms()),                        
+                  ),
+
+                  Container
+                  (
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: new DefinitionBlock( header: "Synonyms", body: TargetWord.printAntonyms()),                        
+                  ),
+
+                  //HardCoded Example 
+                
+              ],
+            ),
+
+
+
+        ],),
+      ),),
 
     );   
   }         
                          
 }
+
+

@@ -32,23 +32,29 @@ class VocabCardUIPage extends StatefulWidget
 class _VocabCardPage extends State<VocabCardUIPage>
 {
   //vocabs through UI
-  List<vocabulary> _VocabCardList;   
+  List<vocabulary> _vocabList;
+
+  bool allCardsVisible = true;   
   
   //search Constructor
   final TextEditingController _searchController = new TextEditingController();
 
+
+
   //initialize the vocab list 
   Future<List<vocabulary>> initVocabCardList() async
   {
-    if (_VocabCardList == null)
-      _VocabCardList = await vocabularyBankState.instance.getVocabList();
+    if (_vocabList == null)
+      _vocabList = await vocabularyBankState.instance.getVocabList();
     
-    return _VocabCardList;
+    return _vocabList;
   }
+
 
   
   @override
   void initState();
+
 
   @override
   void dispose()
@@ -57,31 +63,20 @@ class _VocabCardPage extends State<VocabCardUIPage>
     super.dispose();
   }
 
+
+
   //Function for Selecting list item
   void _select(int choice) async
   {
     switch ( choice )
     {
       case 0: 
-        _VocabCardList = sortVocabListByWords( _VocabCardList );        
+        _vocabList = sortVocabListByWords( _vocabList );        
         break;
       case 1:
         Navigator.push(context,  MaterialPageRoute(builder: (context) => AddNewVocabPage() ) )
         .then((value){ setState((){ /* Do Something */  });  }  );
         break;
-      case 2:
-        await vocabularyBankState.instance.createNewVocab(new vocabulary(word: "Apple"));
-        _VocabCardList = await vocabularyBankState.instance.getVocabList();   
-        break;
-      case 3:
-        await vocabularyBankState.instance.createNewVocab(new vocabulary(word: "Orange"));
-        _VocabCardList = await vocabularyBankState.instance.getVocabList();
-        break;
-      case 4:
-        await vocabularyBankState.instance.deleteVocab("Apple");
-        _VocabCardList = await vocabularyBankState.instance.getVocabList();
-        break;
-
       default: {}
     }
     setState(() {});
@@ -113,7 +108,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
                 onChanged: (query) async {
 
                   var vocabList = await vocabularyBankState.instance.getVocabList(forceUpdate: false);
-                  _VocabCardList =getSearchResultVocabList( vocabList, query.toLowerCase());
+                  _vocabList =getSearchResultVocabList( vocabList, query.toLowerCase());
                   setState((){ });   
                 },
                 decoration: InputDecoration
@@ -124,7 +119,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
                     onPressed: () async { 
 
                       _searchController.clear(); 
-                      _VocabCardList = await vocabularyBankState.instance.getVocabList(forceUpdate: false); 
+                      _vocabList = await vocabularyBankState.instance.getVocabList(forceUpdate: false); 
                       setState(() {});  
                     },
                     icon: Icon(Icons.clear),
@@ -133,23 +128,23 @@ class _VocabCardPage extends State<VocabCardUIPage>
               ), ),
             ),
             
+
+            /* For Changing all cards visibility */
             IconButton(
               onPressed: (){
-                setState(() {
-                  
-                });
+                allCardsVisible = ! allCardsVisible;
+                initVocabCardList();
+                setState(() { });
               },
               icon: Icon(Icons.menu),
             ),
+
 
             PopupMenuButton<int>(
               onSelected: _select,
               itemBuilder: (context) => [
                 PopupMenuItem(value: 0, child: Text("Sorted By Letters"),  ),
                 PopupMenuItem(value: 1, child: Text("Add New Vocabulary"), ),
-                PopupMenuItem(value: 2, child: Text("Debug - Add Apple"), ),
-                PopupMenuItem(value: 3, child: Text("Debug - Add Orange"), ),
-                PopupMenuItem(value: 4, child: Text("Debug - Delete Apple"), ),
               ],
             ),
           ],
@@ -164,9 +159,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
               {
                 return  ListView.builder
                 (
-                  itemCount: _VocabCardList.length,
-                  itemBuilder: (context, position){
-                    return new CustomVocabCard(item: _VocabCardList[position],);
+                  itemCount: _vocabList.length,
+                  itemBuilder: (context, position){                  
+                    return CustomVocabCard(item: _vocabList[position], isVisibleCardDescription: allCardsVisible,);
                   },
                 );
               } else { return Center(child: CircularProgressIndicator()); } //no result

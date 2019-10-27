@@ -2,14 +2,17 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../States/vocabularyState.dart';
 
-/* Prevent Over-Pulling of new photos */
-int Limit = 0;
-final int LIMIT = 12;
+
 
 class FetchImage 
 {
   //Field Members
   vocabulary UpdateVocab;
+
+  /* Prevent Over-Pulling of new photos */
+  static int Limit = 0;
+  static final int LIMIT = 12;
+
 
   //Constructor
   FetchImage( fetchedvocabs  ){this.UpdateVocab = fetchedvocabs; }
@@ -39,7 +42,7 @@ void UpdateImageByAPI( List<vocabulary> vocablist ) async
     query = vocablist[i].getWord();
     
     var response = await http.get(APIaddress + query, 
-    headers: { "Ocp-Apim-Subscription-Key": "b09b679ff49942b6a88c0186f3f8b89c", },    
+    headers: { "Ocp-Apim-Subscription-Key": "", },    
     );
 
     if ( true )

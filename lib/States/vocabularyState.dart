@@ -8,42 +8,59 @@ import 'package:http/http.dart';
 
 /* The Main Class of Vocabulary */
 
-enum Wordform { Noun, Verb, Pronoun, Adjective, Adverb, Preposition, Conjunction, Interjection }
-List ColorsList = [ Colors.pink[100], Colors.lightGreen[100], Colors.lightBlue[100], Colors.cyan[100], Colors.red[100], Colors.yellow[100], Colors.green[100], Colors.blue[100]  ];
-
 class vocabulary extends ChangeNotifier
 {
   String _word;     //The word itself
-  Wordform _form;   //form of the word, referred to enum Wordform
-
-  String _meaning;  //Description of the Word
-  Color _color;     //Color of the vocabulary Card
-
+  String _form;   //form of the word, referred to enum Wordform
   String _imageURL; //URL link of the image
+  String _meaning;  //Description of the Word
+  String _sampleSentence; 
+
+  List<String> _synonyms = [];
+  List<String> _antonyms = [];
 
   String getWord() => _word;
   String getMeaning() => _meaning;
-  Color getColor() => _color;
-  Wordform getWordForm() => _form; 
+  String getWordForm() => _form; 
   String getImageURL() => _imageURL;
+  String getSampleSentence() => _sampleSentence;
   FadeInImage getImage() => FadeInImage(image: NetworkImage(_imageURL), placeholder: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover ) ;
+
+  String printSynonyms(){
+    String result = "";
+    for ( String item in _synonyms)
+      result = result + item + " ";
+    return result;
+  }
+
+  String printAntonyms(){
+    String result = "";
+    for ( String item in _antonyms)
+      result = result + item + " ";
+    return result;
+  }
+
 
   void setImageURL(String url){ this._imageURL = url; notifyListeners(); }
 
   //Normal Constructor
-  vocabulary( { word="",  meaning="", imageURL = "", }  )
+  vocabulary( { word="",  meaning="", imageURL = "", wordForm = "", sampleSentence =" " }  )
   {  
     this._word = word; 
     this._meaning = meaning; 
-    this._color  = ColorsList[ Random().nextInt(ColorsList.length -1 ) ];
+    this._form = wordForm;
     this._imageURL = imageURL;
+    this._sampleSentence =sampleSentence;
   }
 
   //From Json to Dart Map Data
   factory vocabulary.fromJson( Map<String, dynamic> json ) => new vocabulary(
-    word: json["word"],
-    meaning: json["meaning"],
-    imageURL: json["imageSource"],
+    
+    word: (json["word"] != null) ? json["word"] : " - null - ",
+    meaning: (json["meaning"] != null) ? json["meaning"] :" - null - " ,
+    imageURL: (json["imageSource"] != null ) ? json["imageSource"] : "- null -" ,
+    sampleSentence: (json["sampleSentence"] != null ) ? json["sampleSentence"] : " - null -",
+    wordForm: (json["wordForm"] != null ) ? json["wordForm"] : "- null -",
   );
   
 
@@ -52,10 +69,13 @@ class vocabulary extends ChangeNotifier
     "word" : _word,
     "meaning" : _meaning,
     "imageSource": _imageURL,
+    "sampleSentence" : _sampleSentence,
+    "wordForm" : _form,
   };
 
 }
 
 
 
-
+//enum Wordform { Noun, Verb, Pronoun, Adjective, Adverb, Preposition, Conjunction, Interjection, Others }
+//String wordFormToString(Wordform f ) => f.toString().split('.').last;
