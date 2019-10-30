@@ -29,14 +29,14 @@ class vocabulary extends ChangeNotifier
   String printSynonyms(){
     String result = "";
     for ( String item in _synonyms)
-      result = result + item + " ";
+      result = result + item + ", ";
     return result;
   }
 
   String printAntonyms(){
     String result = "";
     for ( String item in _antonyms)
-      result = result + item + " ";
+      result = result + item + ", ";
     return result;
   }
 
@@ -44,23 +44,29 @@ class vocabulary extends ChangeNotifier
   void setImageURL(String url){ this._imageURL = url; notifyListeners(); }
 
   //Normal Constructor
-  vocabulary( { word="",  meaning="", imageURL = "", wordForm = "", sampleSentence =" " }  )
+  vocabulary( { word="",  meaning="", imageURL = "", wordForm = "", sampleSentence =" ", 
+  synonyms = const <String> [], antonyms = const <String> [] })
   {  
     this._word = word; 
     this._meaning = meaning; 
     this._form = wordForm;
     this._imageURL = imageURL;
     this._sampleSentence =sampleSentence;
+    this._antonyms = antonyms;
+    this._synonyms =synonyms;
   }
 
   //From Json to Dart Map Data
   factory vocabulary.fromJson( Map<String, dynamic> json ) => new vocabulary(
     
-    word: (json["word"] != null) ? json["word"] : " - null - ",
-    meaning: (json["meaning"] != null) ? json["meaning"] :" - null - " ,
-    imageURL: (json["imageSource"] != null ) ? json["imageSource"] : "- null -" ,
-    sampleSentence: (json["sampleSentence"] != null ) ? json["sampleSentence"] : " - null -",
-    wordForm: (json["wordForm"] != null ) ? json["wordForm"] : "- null -",
+    word: json["word"] ?? " - null - ",
+    meaning: json["meaning"] ?? " - null - " ,
+    imageURL: json["imageSource"] ?? "- null -" ,
+    sampleSentence: json["sampleSentence"] ?? " - null -",
+    wordForm: json["wordForm"] ?? "- null -",
+
+    antonyms: const <String> [],
+    synonyms: const <String> [],
   );
   
 

@@ -47,12 +47,19 @@ class vocabularyBankState
       version: dbVersion, 
       onOpen:(db){},
       onCreate: (Database db, int version ) async {
-        await db.execute(
-          "CREATE TABLE "+ tableName + " (word TEXT, meaning TEXT, imageSource TEXT)"
-        );
+        _initializeVocabTable(db);
       }
     );
   }
+
+
+
+  Future<void> _initializeVocabTable(Database db) async{
+    await db.execute( 
+      "CREATE TABLE "+ tableName + " (word TEXT, meaning TEXT, imageSource TEXT, sampleSentence TEXT, wordForm TEXT)");
+  }
+
+
 
 
   //get vocablist, which is always fetched from SQLite by default  
@@ -63,6 +70,7 @@ class vocabularyBankState
     return _vocabList; 
   }
 
+
   //getting the string list of the vocabulary words
   List<String> getVocabStringList()
   {
@@ -72,6 +80,8 @@ class vocabularyBankState
     }
     return resultVocabStringList;
   }
+
+
 
 
   /* CRUD Operation */
@@ -87,22 +97,37 @@ class vocabularyBankState
     return response;
   }
 
+
   Future<vocabulary> readVocab(String word) async
   {
     final db = await database;
-    var response = await db.query( tableName, where: "word = ?", whereArgs:[word]);
+    List<Map> response;
+
+    try { response = await db.query( tableName, where: "word = ?", whereArgs:[word]); }
+    catch (SqfliteDatabaseException ){ //table doesn't exist
+      await _initializeVocabTable(db);
+      response = await db.query( tableName, where: "word = ?", whereArgs:[word]);
+    }
     
+
     if ( response.isNotEmpty )
       return vocabulary.fromJson(response.first);
     else
       return null;
   }
 
+
   Future<List<vocabulary>> readAllVocabs() async
   {
     final db = await database;
-    var response = await db.query( tableName );
+    List<Map> response;
     
+    try { response = await db.query( tableName );
+    } catch ( SqfliteDatabaseException ){
+      await _initializeVocabTable(db);
+      response = await db.query(tableName );
+    }
+
     List<vocabulary> resultVocabList = [];
 
     for ( int i = 0; i < response.length; i++ )
@@ -112,12 +137,14 @@ class vocabularyBankState
     return resultVocabList;
   }
 
+
   Future<int> updateVocab( vocabulary vocab ) async
   {
     final db = await database;
     var response = await db.update(tableName, vocab.toJson(), where: "word = ?", whereArgs: [vocab.getWord()]);
     return response;
   }
+
 
   Future<int> deleteVocab( String word ) async
   {
@@ -126,11 +153,12 @@ class vocabularyBankState
     return response;
   }
 
+
   Future<int> deleteAllVocabs() async
   {
     final db = await database;
-    var response = db.rawDelete("Delete * from " + tableName );
-    return response;
+    await db.execute("DROP TABLE IF EXISTS " + tableName);
+    return 0;
   }
 
 

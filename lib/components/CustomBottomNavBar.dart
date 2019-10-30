@@ -2,12 +2,23 @@ import 'package:flutter/material.dart';
 import '../res/theme.dart' as CustomTheme;
 
 import '../pages/VocabBanksPage.dart';
+import '../pages/StatisticsPage.dart';
 import '../pages/HomePage.dart';
 
-class CustomBottomNavBar extends StatelessWidget {
-  const CustomBottomNavBar({ Key key, this.index }) : super(key: key);
 
-  final int index;
+
+class CustomBottomNavBar extends StatelessWidget {
+  
+  CustomBottomNavBar({ Key key,}) : super(key: key);
+
+  static int index = 0;
+
+
+  void _selectIndex(BuildContext context, Widget widget , int index ){
+    CustomBottomNavBar.index = index;
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => widget)); 
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +45,11 @@ class CustomBottomNavBar extends StatelessWidget {
           ),
         ],
         onTap: (index){
-          if ( index == 0 )
-            Navigator.pushReplacement(context,  MaterialPageRoute(builder: (context) => HomePage(title: "HOME Page",) ) );
-          else if ( index == 2 )
-            Navigator.pushReplacement(context,  MaterialPageRoute(builder: (context) => VocabCardUIPage(title: "VocabCardUI",) ) ); 
+          switch (index){
+            case 0: _selectIndex(context, HomePage(title: "HOME Page",), index); break;
+            case 2: _selectIndex(context, VocabCardUIPage(title: "VocabCardUI",), index); break;
+            case 3: _selectIndex(context, StatisticsPage(), index); break;
+          }          
          },
     );
   }

@@ -7,85 +7,49 @@ import '../States/vocabularyState.dart';
 class FetchImage 
 {
   //Field Members
-  vocabulary UpdateVocab;
+  String wordQueryURL;
 
   /* Prevent Over-Pulling of new photos */
-  static int Limit = 0;
-  static final int LIMIT = 12;
+  static int _limit = 0;
+  static final int _LIMIT = 5;
 
 
   //Constructor
-  FetchImage( fetchedvocabs  ){this.UpdateVocab = fetchedvocabs; }
+  FetchImage(url){this.wordQueryURL = url; }
 
-  factory FetchImage.fromJson( Map<String, dynamic> json, vocabulary vocab ) 
+
+  factory FetchImage.fromJson( Map<String, dynamic> json ) 
   {
-    var FirstImage = json["value"][0];
-    vocab.setImageURL( FirstImage["contentUrl"] );
-    return FetchImage(vocab);
+    var valueJson = json["value"] ?? [];
+    var firstImageJson = valueJson[0] ?? [];
+    String url = firstImageJson["contentUrl"] ?? "";
+
+    return FetchImage(url);
   }
-}
 
 
-/*
-
-//Update The Image by Bing API
-void UpdateImageByAPI( List<vocabulary> vocablist ) async
-{
-  if ( Limit > LIMIT ) return;  //Prevent OverRequesting
-
-  final String APIaddress = "https://api.cognitive.microsoft.com/bing/v7.0/images/search" + "?q=";
-  
-  String query = "Word";  
-  
-  for ( int i = 0; i < vocablist.length; i++ )
+  //Update The Image by Bing API
+  static Future<String> requestImgURL( String word ) async
   {
-    query = vocablist[i].getWord();
+    //Prevent OverRequesting
+    _limit++;
+    if ( _limit > _LIMIT ) return null;  
     
-    var response = await http.get(APIaddress + query, 
-    headers: { "Ocp-Apim-Subscription-Key": "", },    
+    final String APIaddress = "https://api.cognitive.microsoft.com/bing/v7.0/images/search" + "?q=";
+      
+    //Very Dangerous!
+    var response = await http.get(APIaddress + word, 
+    headers: { "Ocp-Apim-Subscription-Key": "",
+               "license" : "ShareCommercially",
+    },    
     );
-
-    if ( true )
+      
+    if ( response.statusCode == 200 )
     {
-      if ( response.statusCode == 200 )
-      {
-        FetchImage fi = FetchImage.fromJson( json.decode(response.body), vocablist[i] );
-        vocablist[i].setImageURL( fi.UpdateVocab.getImageURL() );
-        print(fi.UpdateVocab.getImageURL());
-      }
+      FetchImage fi = FetchImage.fromJson( json.decode(response.body) );
+      return fi.wordQueryURL;
     }
+    else return null;
   }
 }
 
-
-
-
-Future<String> Debug_UpdateImageByAPI( ) async
-{
-  if ( Limit > LIMIT ) return "Reaching the Limit";  //Prevent OverRequesting
-
-  String query = "iPhone";
-  String APIaddress = "https://api.cognitive.microsoft.com/bing/v7.0/images/search" + "?q=";
-
-  var response = await http.get(APIaddress + query, 
-  headers: { 
-    "Ocp-Apim-Subscription-Key": "b09b679ff49942b6a88c0186f3f8b89c",
-    "license" : "Share"  
-  },    
-  );
-
-  if ( response.statusCode == 200 )
-  {
-    Limit++;
-
-    var vocab = new vocabulary(word: query);
-    FetchImage fi = FetchImage.fromJson( json.decode(response.body), vocab );
-    vocab = fi.UpdateVocab;
-
-    print(vocab.getImageURL());
-    return "Success! + \n" + vocab.getImageURL() ;
-  }
-  else { return "Something went wrong + \n" + response.body; }
-}
-
-*/

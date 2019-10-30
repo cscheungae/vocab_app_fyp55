@@ -42,9 +42,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
 
 
   //initialize the vocab list 
-  Future<List<vocabulary>> initVocabCardList() async
+  Future<List<vocabulary>> initVocabCardList( {forceUpdate = false} ) async
   {
-    if (_vocabList == null)
+    if (_vocabList == null || forceUpdate == true )
       _vocabList = await vocabularyBankState.instance.getVocabList();
     
     return _vocabList;
@@ -64,6 +64,36 @@ class _VocabCardPage extends State<VocabCardUIPage>
   }
 
 
+  Future<void> _deleteAllVocabs() async{
+    showDialog(
+      context: context,
+      builder: (BuildContext context ){
+        return AlertDialog(
+          title: new Text("Delete All Vocabs"),
+          content: new Text("Are you sure about that? "),
+          actions: <Widget>[
+            new FlatButton(
+              child: Text("Close"),
+              onPressed: (){Navigator.of(context).pop();},
+            ),
+
+            new FlatButton(
+              child: Text("Accept"),
+              onPressed: () async { 
+                await vocabularyBankState.instance.deleteAllVocabs(); 
+                Navigator.of(context).pop();
+                await initVocabCardList(forceUpdate: true);
+                setState(() { });
+              },
+            )
+          ]
+        );
+      }
+    );
+
+  }
+
+
 
   //Function for Selecting list item
   void _select(int choice) async
@@ -75,12 +105,16 @@ class _VocabCardPage extends State<VocabCardUIPage>
         break;
       case 1:
         Navigator.push(context,  MaterialPageRoute(builder: (context) => AddNewVocabPage() ) )
-        .then((value){ setState((){ /* Do Something */  });  }  );
+        .then((value) async { await initVocabCardList(forceUpdate: true); setState((){  });  }  );
         break;
+      case 2:
+          await _deleteAllVocabs();
+          break;
       default: {}
     }
     setState(() {});
   }
+
 
 
 
@@ -90,7 +124,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
   {
     return Scaffold
     (
-      appBar: CustomAppBar(title: "home", iconData: Icons.person),  
+      appBar: CustomAppBar(title: "Vocabulary Bank", iconData: Icons.person),  
       body: Column
       (
         children: <Widget>[
@@ -145,6 +179,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
               itemBuilder: (context) => [
                 PopupMenuItem(value: 0, child: Text("Sorted By Letters"),  ),
                 PopupMenuItem(value: 1, child: Text("Add New Vocabulary"), ),
+                PopupMenuItem(value: 2, child: Text("Delete All Vocabularies", style: TextStyle(color: Colors.red),), ),
               ],
             ),
           ],
@@ -172,7 +207,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
 
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(index: 0,),
+      bottomNavigationBar: CustomBottomNavBar(),
     );   
   } 
   

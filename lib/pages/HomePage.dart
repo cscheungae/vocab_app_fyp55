@@ -221,7 +221,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(index: 0,),
+      bottomNavigationBar: CustomBottomNavBar(),
       backgroundColor: CustomTheme.GREY,// This trailing comma makes auto-formatting nicer for build methods.
       drawer: Drawer(
         child: Column(

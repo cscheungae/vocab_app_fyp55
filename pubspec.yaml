@@ -21,6 +21,7 @@ dependencies:
   flutter:
     sdk: flutter
   camera:
+  charts_flutter: 
   path_provider:
   shared_preferences:
   sqflite:

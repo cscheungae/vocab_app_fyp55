@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/services/fetchdata_WordsAPI.dart';
+import 'package:vocab_app_fyp55/services/fetchimage_Bing.dart';
 import '../States/vocabularyState.dart';
 import '../res/theme.dart' as CustomTheme;
 
@@ -21,24 +23,39 @@ class AddNewVocabPage extends StatefulWidget
 class _AddNewVocabPage extends State <AddNewVocabPage>
 with AutomaticKeepAliveClientMixin
 {  
-  final _wordKey = GlobalKey();
-  final _meaningKey = GlobalKey();
-  final _wordformKey = GlobalKey();
-  final _sampleSentenceKey = GlobalKey();
-  final _synonymsKey = GlobalKey();
-  final _antonymsKey = GlobalKey();
+  String _imageURL = "";
+  var _bgImage = Image( image: AssetImage("assets/initialAddVocab.jpg"), fit: BoxFit.cover);
 
+  final _wordKey = GlobalKey<FormState>();
+  final _wordFKey = GlobalKey<FormFieldState>();
 
-  final _textWordController = TextEditingController();
+  var wordFController = TextEditingController();
+  var wordOfSpeechController = TextEditingController();
+  var wordMeaningController = TextEditingController();
+  var wordSampleSentenceController = TextEditingController();
+
+  var wordSynonymsController = TextEditingController();
+  var wordAntonymsController = TextEditingController();
+
   
   @override
   bool get wantKeepAlive => true;
 
+
   @override
   void dispose(){
-    _textWordController.dispose();
+    wordFController.dispose();
+    wordOfSpeechController.dispose();
+    wordMeaningController.dispose();
+    wordSampleSentenceController.dispose();
+
+    wordSynonymsController.dispose();
+    wordAntonymsController.dispose();
+
     super.dispose();
   }
+
+
 
   List<Widget> buildBackground(){
     return <Widget>
@@ -48,7 +65,7 @@ with AutomaticKeepAliveClientMixin
           (
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height * 0.32,
-            child: Image(image: AssetImage("assets/initialAddVocab.jpg"), fit: BoxFit.cover ), 
+            child: _bgImage,
           ),
 
           //Image Filter
@@ -93,31 +110,40 @@ with AutomaticKeepAliveClientMixin
 
 
 
-  Widget buildInputForm( String header, GlobalKey key ){
+
+  Widget buildInputField( String header, TextEditingController controller ){
     return 
     Container (
-      height: MediaQuery.of(context).size.height * 0.18, 
-      child: Form(
+      width: MediaQuery.of(context).size.width * 0.95, 
+      padding: EdgeInsets.fromLTRB(0, 5, 0, 5),    
         child: Card(
-          elevation: 5,
+          color: Colors.white,
+          elevation: 2,
           child: (
-            Row(
+            Column(
               children: <Widget>[
-                Text( header + ": ", style: TextStyle(color: Colors.blue, fontSize: 20), ),
-                TextFormField(
-                  validator: (value) {
-                    if (value.isEmpty)
-                      return 'Please enter some text';
-                    return null;
-                  }
+                Container (
+                  alignment: Alignment.topLeft,  
+                  child: Text( header + ": ", style: TextStyle(color: Colors.redAccent, fontSize: 20),  ),
+                ),
+
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.9, 
+                  child: TextFormField(
+                    controller: controller,
+                    style: TextStyle(color: Colors.black, ),
+                    validator: (value) {
+                      if (value.isEmpty)
+                        return header + " not filled, please fill in here";
+                      return null;
+                    }
+                  ),
                 ),
 
               ],
             )
           ),
         ),
-        key: key,
-      )
     );
   }
 
@@ -151,46 +177,117 @@ with AutomaticKeepAliveClientMixin
 
               Form(
                 key: _wordKey,
-                child: Container
-                  (
-                    padding: EdgeInsets.fromLTRB(0, 60, 0, 0),
-                    width: MediaQuery.of(context).size.width * 0.90,
-                    
-                    child: TextFormField
+                child: Column(children: <Widget>[
+
+                    Container 
                     (
-                      style: TextStyle(color: Colors.blue, fontSize: 20),
-                      decoration: InputDecoration(
-                        fillColor: Colors.blue,
-                        hintText: "Enter the word here",
-                        hintStyle: TextStyle(fontSize: 22.0, color: Colors.blue),
+                      padding: EdgeInsets.fromLTRB(0, 60, 0, 10),
+                      width: MediaQuery.of(context).size.width * 0.90,
+                      
+                      child: TextFormField
+                      (
+                        key: _wordFKey,
+                        controller: wordFController,
+                        style: TextStyle(color: Colors.blue, fontSize: 22),
+                        decoration: InputDecoration(
+                          fillColor: Colors.blue,
+                          hintText: "Enter the word here",
+                          hintStyle: TextStyle(fontSize: 22.0, color: Colors.blue),
+                        ),
+                        validator: (value) {
+                          if (value.isEmpty)
+                            return "Please Enter the Word here";
+                          return null;
+                        }
                       ),
-                      validator: (value) {
-                        if (value.isEmpty)
-                          return 'Please enter some text';
-                        return null;
-                      }
+                    ),
+
+
+                    Row (children: <Widget>[
+
+                      //AutoFill button
+                      Container(
+                        alignment: Alignment.topLeft,
+                        padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder( borderRadius: new BorderRadius.circular(18.0), ),
+                          color: Colors.red,
+                          child: Text("Fill by hand? Try it automatically!"),
+                          onPressed: () async{        
+
+                            if ( _wordFKey.currentState.validate() ){
+                              vocabulary vocab = await FetchDataWordsAPI.requestFromAPI(wordFController.value.text);
+                              
+                              if ( vocab != null ){
+                                print(vocab.getMeaning());
+                                wordOfSpeechController.text = vocab.getWordForm();
+                                wordMeaningController.text = vocab.getMeaning();
+                                wordSampleSentenceController.text = vocab.getSampleSentence();
+                                
+                                wordSynonymsController.text = vocab.printSynonyms();
+                                wordSynonymsController.text = vocab.printAntonyms();
+
+                              }
+                            }
+                          }
+                        ),
+                      ),
+
+                      //AutoFill picture button
+                      Container (
+                        alignment: Alignment.topLeft,
+                        padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder( borderRadius: new BorderRadius.circular(5), ),
+                          color: Colors.blue,
+                          child: Text("I"),
+                          onPressed: () async{
+                            if ( _wordFKey.currentState.validate() ){                         
+                              String url = await FetchImage.requestImgURL(wordFController.text);
+                              _imageURL = url;
+                              _bgImage = Image.network(url, fit: BoxFit.cover, );
+                              setState(() {  });
+                            }
+                          },
+                        ),
+                      )
+
+                    ]),
+
+                    buildInputField("Word of Speech", wordOfSpeechController),
+                    buildInputField("Meaning", wordMeaningController),
+                    buildInputField("Sample Sentence", wordSampleSentenceController),
+                    buildInputField("Synonyms", wordSynonymsController),
+                    buildInputField("Antonyms", wordAntonymsController),
+
+
+                    //Submit button
+                    Container (
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(15, 5, 0, 0),
+                    child: RaisedButton(
+                      child: Text("Create New Word"),
+                      onPressed: () async {
+                         if (_wordFKey.currentState.validate()) {
+                            
+                            vocabulary newVocab = new vocabulary(
+                              word: wordFController.text,
+                              wordForm: wordOfSpeechController.text,
+                              meaning: wordMeaningController.text,
+                              sampleSentence: wordSampleSentenceController.text,
+                              imageURL: _imageURL, 
+                            ); 
+
+                            await vocabularyBankState.instance.createNewVocab(newVocab);
+                            Navigator.of(context).pop();
+                         }
+                      },
                     ),
                   ),
+
+                ],),
               ),
 
-              //buildInputForm("Word of Speech", _wordformKey),
-              //buildInputForm("Meaning", _meaningKey),
-              //buildInputForm("Sample Sentence", _sampleSentenceKey),
-              //buildInputForm("Synonyms", _synonymsKey ),
-              //buildInputForm("Synonyms", _antonymsKey ),
-
-              Container (
-                alignment: Alignment.topLeft,
-                padding: EdgeInsets.fromLTRB(15, 5, 0, 0),
-                child: RaisedButton(
-                  child: Text("Create New Word"),
-                  onPressed: (){
-                    Scaffold.of(context).showSnackBar(SnackBar(content: Text('Processing Data')));
-                  },
-                ),
-              ),
-
-              
             ],
           ),    
         ],

@@ -31,26 +31,29 @@ class FetchData {
     return FetchData( fetchedvocabs: ResultVocabs );  
   }
 
-}
 
-
-//Async function that makes http request to the API
-//This function ISN't inside the FetchData class!
-Future< List<vocabulary> > RequestAPIData( [String TextQuery = "",] ) async 
-{
-  String Input = TextQuery;
-  Input = Input.replaceAll(" ", "+");
-
-  String APIAddress = "https://api.datamuse.com/words?ml=" + Input;
-  var ReturnedResponse = await http.get(APIAddress);
-
-  if ( ReturnedResponse.statusCode == 200 )  //Success Request
+  //Async function that makes http request to the API
+  //This function ISN't inside the FetchData class!
+  static Future< List<vocabulary> > RequestAPIData( [String TextQuery = "",] ) async 
   {
-    FetchData fd = FetchData.fromJson(json.decode(ReturnedResponse.body), FetchOption.Datamuse );
-    return fd.FetchedVocabs;
+    String Input = TextQuery;
+    Input = Input.replaceAll(" ", "+");
+
+    String APIAddress = "https://api.datamuse.com/words?ml=" + Input;
+    var ReturnedResponse = await http.get(APIAddress);
+
+    if ( ReturnedResponse.statusCode == 200 )  //Success Request
+    {
+      FetchData fd = FetchData.fromJson(json.decode(ReturnedResponse.body), FetchOption.Datamuse );
+      return fd.FetchedVocabs;
+    }
+    else { return null; }
   }
-  else { return [ new vocabulary( word: "Sorry, HTTP Response Failed") ]; }
+
 }
+
+
+
 
 
 
