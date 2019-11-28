@@ -196,7 +196,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
                 (
                   itemCount: _vocabList.length,
                   itemBuilder: (context, position){                  
-                    return CustomVocabCard(item: _vocabList[position], isVisibleCardDescription: allCardsVisible,);
+                    return CustomVocabCard(item: _vocabList[position], vocablist: _vocabList, isVisibleCardDescription: allCardsVisible,);
                   },
                 );
               } else { return Center(child: CircularProgressIndicator()); } //no result

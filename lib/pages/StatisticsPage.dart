@@ -63,6 +63,7 @@ class _StatisticsPage extends State<StatisticsPage> with SingleTickerProviderSta
         controller: _tabController,
         children: [
           
+          //1st Tab
           Container(
             padding: EdgeInsets.all(32.0),
             height: 200,
@@ -89,8 +90,10 @@ class _StatisticsPage extends State<StatisticsPage> with SingleTickerProviderSta
             ),
           ),
 
-
+          //2nd Tab
           Icon(Icons.directions_transit),
+
+          //3rd Tab
           Icon(Icons.directions_bike),
         ],
       ),

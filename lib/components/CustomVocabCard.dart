@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/pages/VocabDetailsPageView.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../States/vocabularyState.dart';
 import '../pages/VocabDetailsPage.dart';
@@ -6,12 +7,19 @@ import '../pages/VocabDetailsPage.dart';
 
 class CustomVocabCard extends StatefulWidget
 {
-  vocabulary item;
+  vocabulary _item;
+  vocabulary get item => _item;
+
+  List<vocabulary> _vocablist;
 
   bool isVisibleCardDescription;
 
   //Constructor  
-  CustomVocabCard({ Key key, this.item, this.isVisibleCardDescription = true }): super(key: key);
+  CustomVocabCard({ Key key, vocabulary item, List<vocabulary> vocablist = const [] , this.isVisibleCardDescription = true }): super(key: key)
+  {
+    this._item = item;
+    this._vocablist = vocablist;
+  }
 
   @override
   _CustomVocabCard createState() => _CustomVocabCard();
@@ -22,6 +30,18 @@ class CustomVocabCard extends StatefulWidget
 
 class _CustomVocabCard extends State<CustomVocabCard>
 {
+  /* Open a Page view if a _vocablist is provided and the item exists in such list
+  Else, just open a vocab detail page */
+  void openDetails(){
+    
+    if ( widget._vocablist.isEmpty || ! widget._vocablist.contains(widget.item) )
+      Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsUIPage( widget.item, title: widget.item.getImageURL() ) ) );
+    else
+      Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsPageView(widget._vocablist, startPage: widget._vocablist.indexOf(widget.item) ) ) );
+  }
+
+
+
   /* Return the Card Widget Structure of the vocabulary Card */
   Widget build(BuildContext context)
   { 
@@ -35,7 +55,7 @@ class _CustomVocabCard extends State<CustomVocabCard>
 
       child: GestureDetector
       (
-        onTap: (){ Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsUIPage( widget.item, title: widget.item.getImageURL() ) ) ); },
+        onTap: openDetails,
         child: Wrap
         (
           children: <Widget>

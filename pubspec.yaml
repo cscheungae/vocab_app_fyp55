@@ -21,8 +21,10 @@ dependencies:
   flutter:
     sdk: flutter
   camera:
+  flutter_tags:
   charts_flutter: 
   path_provider:
+  cached_network_image:
   shared_preferences:
   sqflite:
   dbutils:

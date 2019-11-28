@@ -4,6 +4,7 @@ import '../res/theme.dart' as CustomTheme;
 import '../pages/VocabBanksPage.dart';
 import '../pages/StatisticsPage.dart';
 import '../pages/HomePage.dart';
+import '../pages/StudyPage.dart';
 
 
 
@@ -47,6 +48,7 @@ class CustomBottomNavBar extends StatelessWidget {
         onTap: (index){
           switch (index){
             case 0: _selectIndex(context, HomePage(title: "HOME Page",), index); break;
+            case 1: _selectIndex(context, StudyPage() , index); break;
             case 2: _selectIndex(context, VocabCardUIPage(title: "VocabCardUI",), index); break;
             case 3: _selectIndex(context, StatisticsPage(), index); break;
           }          

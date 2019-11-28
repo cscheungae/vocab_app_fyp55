@@ -99,7 +99,6 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage>
       (
         children: List.from(buildBackground())..addAll( <Widget>[ 
 
-
               Column(    
                 children: <Widget>[
                   //Appbar

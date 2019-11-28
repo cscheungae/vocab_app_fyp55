@@ -1,9 +1,8 @@
 
-import 'package:flutter/material.dart';
-import 'dart:math';
-import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:path/path.dart';
 
 
 /* The Main Class of Vocabulary */
@@ -24,7 +23,17 @@ class vocabulary extends ChangeNotifier
   String getWordForm() => _form; 
   String getImageURL() => _imageURL;
   String getSampleSentence() => _sampleSentence;
-  FadeInImage getImage() => FadeInImage(image: NetworkImage(_imageURL), placeholder: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover ) ;
+  //FadeInImage getImage() => FadeInImage(image: NetworkImage(_imageURL), placeholder: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover );
+
+  
+  Widget getImage(){
+    return new CachedNetworkImage(
+      imageUrl: _imageURL,
+      placeholder: (context, url) => Image( image: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover,),
+      fit: BoxFit.cover,
+    );
+  }
+
 
   String printSynonyms(){
     String result = "";
