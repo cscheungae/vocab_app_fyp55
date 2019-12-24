@@ -20,11 +20,12 @@ dependencies:
   http: ^0.12.0+2
   flutter:
     sdk: flutter
-  camera:
   flutter_tags:
+  equatable:
+  bloc: 
   charts_flutter: 
   path_provider:
-  cached_network_image:
+  cached_network_image: 2.0.0-rc
   shared_preferences:
   sqflite:
   dbutils:
@@ -36,8 +37,6 @@ dependencies:
   percent_indicator: "^2.1.1"
   #provider and bloc packages. if you don't specify a version,pub takes the latest version.
   provider:
-  bloc:
-  flutter_bloc:
 dev_dependencies:
   flutter_test:
     sdk: flutter

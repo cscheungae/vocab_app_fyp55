@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
-
-import 'package:vocab_app_fyp55/States/vocabularyState.dart';
+import '../model/vocabulary.dart';
 import '../pages/VocabDetailsPage.dart';
 
 

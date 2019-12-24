@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/pages/LoginPage.dart';
 import '../res/theme.dart' as CustomTheme;
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -34,7 +35,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: <Widget>[
         IconButton(
           icon: Icon(iconData),
-          onPressed: () => debugPrint("pressed profile icon"),
+          onPressed: () {
+             
+          },
           tooltip: "user profile",
         ),
       ],

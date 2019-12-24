@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vocab_app_fyp55/pages/VocabDetailsPageView.dart';
 import '../res/theme.dart' as CustomTheme;
-import '../States/vocabularyState.dart';
+import '../model/vocabulary.dart';
 import '../pages/VocabDetailsPage.dart';
 
 

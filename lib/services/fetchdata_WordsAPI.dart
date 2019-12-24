@@ -1,7 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import '../States/vocabularyState.dart';
+import '../model/vocabulary.dart';
 
 class FetchDataWordsAPI{
 

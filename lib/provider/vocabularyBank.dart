@@ -1,20 +1,19 @@
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-import 'vocabularyState.dart';
 
+import 'package:path_provider/path_provider.dart';
+import '../model/vocabulary.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 //import 'package:shared_preferences/shared_preferences.dart';
 
-class vocabularyBankState
+class vocabularyBank
 {
   //We only want one instance of vocabularyBank State (singleton) throughout the whole program
   //Hence the private constructor, static instance
-  static final vocabularyBankState _instance = vocabularyBankState._();
-  vocabularyBankState._(); 
-  static vocabularyBankState get instance { return _instance; }
+  static final vocabularyBank _instance = vocabularyBank._();
+  vocabularyBank._(); 
+  static vocabularyBank get instance { return _instance; }
 
   //database
   static Database _database;

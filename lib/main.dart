@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/States/SettingsState.dart';
+import 'package:vocab_app_fyp55/state/SettingsState.dart';
 import 'res/theme.dart' as CustomTheme;
 import 'pages/HomePage.dart';
 import 'pages/ArticlesViewPage.dart';

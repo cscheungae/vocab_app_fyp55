@@ -7,7 +7,7 @@ import 'package:path/path.dart';
 
 /* The Main Class of Vocabulary */
 
-class vocabulary extends ChangeNotifier
+class vocabulary 
 {
   String _word;     //The word itself
   String _form;   //form of the word, referred to enum Wordform
@@ -50,7 +50,7 @@ class vocabulary extends ChangeNotifier
   }
 
 
-  void setImageURL(String url){ this._imageURL = url; notifyListeners(); }
+  void setImageURL(String url){ this._imageURL = url;  }
 
   //Normal Constructor
   vocabulary( { word="",  meaning="", imageURL = "", wordForm = "", sampleSentence =" ", 

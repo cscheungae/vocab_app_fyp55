@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import '../States/vocabularyState.dart';
+import '../model/vocabulary.dart';
 import '../components/DefinitionBlock.dart';
 import '../res/theme.dart' as CustomTheme;
 

@@ -2,6 +2,7 @@
 
 
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:vocab_app_fyp55/pages/LoginPage.dart';
 
 import '../res/theme.dart' as CustomTheme;
 
@@ -92,7 +93,7 @@ class _StatisticsPage extends State<StatisticsPage> with SingleTickerProviderSta
 
           //2nd Tab
           Icon(Icons.directions_transit),
-
+        
           //3rd Tab
           Icon(Icons.directions_bike),
         ],

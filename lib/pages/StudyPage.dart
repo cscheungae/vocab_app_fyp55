@@ -1,12 +1,10 @@
 
 import 'package:vocab_app_fyp55/components/CustomAppBar.dart';
 import 'package:vocab_app_fyp55/components/CustomBottomNavBar.dart';
-
 import '../res/theme.dart' as CustomTheme;
-import '../States/vocabularyBankState.dart';
-import '../States/vocabularyState.dart';
+import '../provider/vocabularyBank.dart';
+import '../model/vocabulary.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_tags/tag.dart';
 
 
@@ -31,7 +29,7 @@ class _StudyPage extends State<StudyPage> {
   Future<List<vocabulary>> initVocabCardList( {forceUpdate = false} ) async
   {
     if (_vocabList == null || forceUpdate == true )
-      _vocabList = await vocabularyBankState.instance.getVocabList();
+      _vocabList = await vocabularyBank.instance.getVocabList();
     
     return _vocabList;
   }

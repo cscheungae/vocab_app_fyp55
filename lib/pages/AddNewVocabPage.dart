@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/services/fetchdata_WordsAPI.dart';
-import 'package:vocab_app_fyp55/services/fetchimage_Bing.dart';
-import '../States/vocabularyState.dart';
+import '../services/fetchdata_WordsAPI.dart';
+import '../services/fetchimage_Bing.dart';
+import '../model/vocabulary.dart';
 import '../res/theme.dart' as CustomTheme;
 
-import '../States/vocabularyBankState.dart';
+import '../provider/vocabularyBank.dart';
 
 class AddNewVocabPage extends StatefulWidget
 {
@@ -278,7 +278,7 @@ with AutomaticKeepAliveClientMixin
                               imageURL: _imageURL, 
                             ); 
 
-                            await vocabularyBankState.instance.createNewVocab(newVocab);
+                            await vocabularyBank.instance.createNewVocab(newVocab);
                             Navigator.of(context).pop();
                          }
                       },

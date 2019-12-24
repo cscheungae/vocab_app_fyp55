@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "../States/SettingsState.dart";
+import "../state/SettingsState.dart";
 import "package:provider/provider.dart";
 import "../res/theme.dart";
 

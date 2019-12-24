@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import '../util/manage_vocabbank.dart';
-
-import '../States/vocabularyState.dart';
-import '../States/vocabularyBankState.dart';
-
-import 'VocabDetailsPage.dart';
+import '../model/vocabulary.dart';
+import '../provider/vocabularyBank.dart';
 import '../components/CustomBottomNavBar.dart';
 import '../components/CustomAppBar.dart';
 import '../components/CustomVocabCard.dart';
 
-import '../res/theme.dart' as CustomTheme;
 
 import 'AddNewVocabPage.dart';
 import 'dart:async';
@@ -45,7 +41,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
   Future<List<vocabulary>> initVocabCardList( {forceUpdate = false} ) async
   {
     if (_vocabList == null || forceUpdate == true )
-      _vocabList = await vocabularyBankState.instance.getVocabList();
+      _vocabList = await vocabularyBank.instance.getVocabList();
     
     return _vocabList;
   }
@@ -80,7 +76,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
             new FlatButton(
               child: Text("Accept"),
               onPressed: () async { 
-                await vocabularyBankState.instance.deleteAllVocabs(); 
+                await vocabularyBank.instance.deleteAllVocabs(); 
                 Navigator.of(context).pop();
                 await initVocabCardList(forceUpdate: true);
                 setState(() { });
@@ -141,7 +137,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
                 controller: _searchController,
                 onChanged: (query) async {
 
-                  var vocabList = await vocabularyBankState.instance.getVocabList(forceUpdate: false);
+                  var vocabList = await vocabularyBank.instance.getVocabList(forceUpdate: false);
                   _vocabList =getSearchResultVocabList( vocabList, query.toLowerCase());
                   setState((){ });   
                 },
@@ -153,7 +149,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
                     onPressed: () async { 
 
                       _searchController.clear(); 
-                      _vocabList = await vocabularyBankState.instance.getVocabList(forceUpdate: false); 
+                      _vocabList = await vocabularyBank.instance.getVocabList(forceUpdate: false); 
                       setState(() {});  
                     },
                     icon: Icon(Icons.clear),

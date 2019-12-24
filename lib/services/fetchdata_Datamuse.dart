@@ -1,8 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../model/vocabulary.dart';
 
-import '../States/vocabularyState.dart';
-import '../services/fetchimage_Bing.dart';
 
 
 enum FetchOption {Datamuse, }

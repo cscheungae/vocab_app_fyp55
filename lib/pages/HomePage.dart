@@ -19,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: "home", iconData: Icons.person),
+      appBar: CustomAppBar(title: "home", iconData: Icons.person ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 8.0),
         children: <Widget>[
