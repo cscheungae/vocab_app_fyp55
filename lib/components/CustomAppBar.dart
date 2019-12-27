@@ -36,7 +36,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(iconData),
           onPressed: () {
-             
+            print("You have entered the Login Page");
+            Navigator.push(context, MaterialPageRoute(builder: (context) => new LoginPage())); 
           },
           tooltip: "user profile",
         ),

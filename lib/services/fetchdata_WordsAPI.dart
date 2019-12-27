@@ -57,7 +57,7 @@ class FetchDataWordsAPI{
     
     //Very Dangerous!
     var returnedResponse = await http.get( APIAdress + query,
-      headers: { "X-RapidAPI-Key" : "",
+      headers: { "X-RapidAPI-Key" : "03c9331e71mshfe2c9a490b60397p1a8fc5jsn9cf06f851149",
                  "X-RapidAPI-Host" : "wordsapiv1.p.rapidapi.com",
                },
     );
@@ -66,7 +66,7 @@ class FetchDataWordsAPI{
       FetchDataWordsAPI fd = FetchDataWordsAPI.fromJson( json.decode(returnedResponse.body));
       return fd._vocab;
     }
-    else { print("Failed! :  " + returnedResponse.statusCode.toString() ); return null; }
+    else { print("Failed WordsAPI Call! :  " + returnedResponse.statusCode.toString() ); return null; }
   }
 
 

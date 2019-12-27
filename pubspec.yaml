@@ -23,6 +23,7 @@ dependencies:
   flutter_tags:
   equatable:
   bloc: 
+  flutter_bloc: ^3.0.0
   charts_flutter: 
   path_provider:
   cached_network_image: 2.0.0-rc

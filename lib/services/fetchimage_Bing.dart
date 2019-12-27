@@ -32,13 +32,15 @@ class FetchImage
   {
     //Prevent OverRequesting
     _limit++;
-    if ( _limit > _LIMIT ) return null;  
+    if ( _limit > _LIMIT ){
+      return null;
+    } 
     
     final String APIaddress = "https://api.cognitive.microsoft.com/bing/v7.0/images/search" + "?q=";
       
     //Very Dangerous!
     var response = await http.get(APIaddress + word, 
-    headers: { "Ocp-Apim-Subscription-Key": "",
+    headers: { "Ocp-Apim-Subscription-Key": "ccac35836bd040de865c5ff82fd1ef72",
                "license" : "ShareCommercially",
     },    
     );
@@ -48,7 +50,7 @@ class FetchImage
       FetchImage fi = FetchImage.fromJson( json.decode(response.body) );
       return fi.wordQueryURL;
     }
-    else return null;
+    else {return null;}
   }
 
 }

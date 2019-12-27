@@ -7,24 +7,24 @@ import '../event/AuthenticationEvent.dart';
 class AuthenticationBloc extends Bloc< AuthenticationEvent,  AuthenticationState > {
 
   @override
-  AuthenticationState get initialState => AuthenticationStateInitializing();
+  AuthenticationState get initialState => new AuthenticationStateInitializing();
 
   @override
   Stream<AuthenticationState> mapEventToState(AuthenticationEvent event) async* {
     if ( event == AuthenticationEvent.Initalize ){
-      yield AuthenticationStateLoading();
+      yield new AuthenticationStateLoading();
     }
     else if ( event == AuthenticationEvent.LoggedIn ){
-      yield AuthenticationStateLoading();
+      yield new AuthenticationStateLoading();
       //..... Need Loading? ....
-      await Future.delayed(Duration(seconds: 2));
-      yield AuthenticationStateAuthorized();
+      await new Future.delayed(Duration(seconds: 2));
+      yield new AuthenticationStateAuthorized();
     } 
     else if ( event == AuthenticationEvent.LoggedOut ){
       yield AuthenticationStateLoading();
       //..... Need Loading? .....
-      await Future.delayed(Duration(seconds: 2));
-      yield AuthenticationStateUnauthorized();
+      await new Future.delayed(Duration(seconds: 2));
+      yield new AuthenticationStateUnauthorized();
     }
 
   }

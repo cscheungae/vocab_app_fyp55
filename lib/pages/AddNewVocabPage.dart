@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/fetchdata_WordsAPI.dart';
 import '../services/fetchimage_Bing.dart';
 import '../model/vocabulary.dart';
-import '../res/theme.dart' as CustomTheme;
-
 import '../provider/vocabularyBank.dart';
+
 
 class AddNewVocabPage extends StatefulWidget
 {
@@ -99,7 +98,6 @@ with AutomaticKeepAliveClientMixin
               decoration: new BoxDecoration
               ( 
                 color: Color.fromRGBO(255, 255, 255, 0.7),
-                //color: Colors.blue,
                 borderRadius: new BorderRadius.all(const Radius.circular(10.0)),
               ),
               alignment: Alignment.topLeft,
@@ -212,14 +210,11 @@ with AutomaticKeepAliveClientMixin
                         child: RaisedButton(
                           shape: RoundedRectangleBorder( borderRadius: new BorderRadius.circular(18.0), ),
                           color: Colors.red,
-                          child: Text("Fill by hand? Try it automatically!"),
-                          onPressed: () async{        
-
+                          child: Text("Fill by hand? Try it automatically!"),   
+                          onPressed:() async {                            
                             if ( _wordFKey.currentState.validate() ){
                               vocabulary vocab = await FetchDataWordsAPI.requestFromAPI(wordFController.value.text);
-                              
                               if ( vocab != null ){
-                                print(vocab.getMeaning());
                                 wordOfSpeechController.text = vocab.getWordForm();
                                 wordMeaningController.text = vocab.getMeaning();
                                 wordSampleSentenceController.text = vocab.getSampleSentence();
@@ -227,9 +222,9 @@ with AutomaticKeepAliveClientMixin
                                 wordSynonymsController.text = vocab.printSynonyms();
                                 wordSynonymsController.text = vocab.printAntonyms();
 
-                              }
+                              } else { print("null vocab!!!") ;}
                             }
-                          }
+                          } 
                         ),
                       ),
 
@@ -242,7 +237,7 @@ with AutomaticKeepAliveClientMixin
                           color: Colors.blue,
                           child: Text("I"),
                           onPressed: () async{
-                            if ( _wordFKey.currentState.validate() ){                         
+                            if ( _wordFKey.currentState.validate() ){         
                               String url = await FetchImage.requestImgURL(wordFController.text);
                               _imageURL = url;
                               _bgImage = Image.network(url, fit: BoxFit.cover, );
@@ -268,19 +263,17 @@ with AutomaticKeepAliveClientMixin
                     child: RaisedButton(
                       child: Text("Create New Word"),
                       onPressed: () async {
-                         if (_wordFKey.currentState.validate()) {
-                            
-                            vocabulary newVocab = new vocabulary(
-                              word: wordFController.text,
-                              wordForm: wordOfSpeechController.text,
-                              meaning: wordMeaningController.text,
-                              sampleSentence: wordSampleSentenceController.text,
-                              imageURL: _imageURL, 
-                            ); 
-
-                            await vocabularyBank.instance.createNewVocab(newVocab);
-                            Navigator.of(context).pop();
-                         }
+                        if (_wordFKey.currentState.validate()) {
+                          vocabulary newVocab = new vocabulary(
+                            word: wordFController.text,
+                            wordForm: wordOfSpeechController.text,
+                            meaning: wordMeaningController.text,
+                            sampleSentence: wordSampleSentenceController.text,
+                            imageURL: _imageURL, 
+                          ); 
+                          await vocabularyBank.instance.createNewVocab(newVocab);
+                          Navigator.of(context).pop();
+                        }
                       },
                     ),
                   ),
