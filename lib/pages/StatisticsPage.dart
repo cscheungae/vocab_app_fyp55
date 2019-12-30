@@ -7,6 +7,7 @@ import 'package:vocab_app_fyp55/pages/LoginPage.dart';
 import '../res/theme.dart' as CustomTheme;
 
 import '../components/CustomBottomNavBar.dart';
+import '../components/CustomDrawer.dart';
 import 'package:vocab_app_fyp55/components/CustomAppBar.dart';
 
 import 'package:flutter/material.dart';
@@ -100,6 +101,7 @@ class _StatisticsPage extends State<StatisticsPage> with SingleTickerProviderSta
       ),
 
       bottomNavigationBar: CustomBottomNavBar(),
+      drawer: CustomDrawer(),
     );
   }
 }

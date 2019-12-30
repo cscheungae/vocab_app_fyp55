@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:vocab_app_fyp55/services/APIKey.dart';
 import 'dart:convert';
 import '../model/news.dart';
 
@@ -11,9 +12,11 @@ class FetchNews {
 
   factory FetchNews.fromJson( Map<String, dynamic> json ){
     
+    print("JOJO");
+
     FetchNews fn = new FetchNews._();
-    List<dynamic> newsList = json["source"];
-    for ( Map<String, String> newsJson in newsList ){
+    List<dynamic> newsList = json["sources"];
+    for ( Map<String, dynamic> newsJson in newsList ){
       fn._newsList.add( new News.fromJson(newsJson));
     }
     return fn; 
@@ -26,12 +29,16 @@ class FetchNews {
     if ( textQuery != "")
       url += "?" + textQuery;
 
-    var returnedResponse = await http.get(url);
+    var returnedResponse = await http.get(url,
+      headers: {
+        "X-Api-Key": APIKey.NewsAPI
+      },
+    );
     if ( returnedResponse.statusCode == 200 ){
       FetchNews fn = FetchNews.fromJson(json.decode(returnedResponse.body));
       return fn._newsList;
     }
-    else { print("Failure in making NewsAPI request"); return null; }
+    else { print("Failure in making NewsAPI request: " + returnedResponse.statusCode.toString()); return null; }
   }
 
 

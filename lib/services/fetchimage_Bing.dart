@@ -1,6 +1,8 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:vocab_app_fyp55/services/APIKey.dart';
+
 
 
 class FetchImage 
@@ -40,7 +42,7 @@ class FetchImage
       
     //Very Dangerous!
     var response = await http.get(APIaddress + word, 
-    headers: { "Ocp-Apim-Subscription-Key": "ccac35836bd040de865c5ff82fd1ef72",
+    headers: { "Ocp-Apim-Subscription-Key": APIKey.BingAPI,
                "license" : "ShareCommercially",
     },    
     );

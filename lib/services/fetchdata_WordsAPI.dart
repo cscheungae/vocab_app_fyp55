@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../model/vocabulary.dart';
+import 'APIKey.dart';
 
 class FetchDataWordsAPI{
 
@@ -57,7 +58,7 @@ class FetchDataWordsAPI{
     
     //Very Dangerous!
     var returnedResponse = await http.get( APIAdress + query,
-      headers: { "X-RapidAPI-Key" : "03c9331e71mshfe2c9a490b60397p1a8fc5jsn9cf06f851149",
+      headers: { "X-RapidAPI-Key" : APIKey.WordsAPI,
                  "X-RapidAPI-Host" : "wordsapiv1.p.rapidapi.com",
                },
     );

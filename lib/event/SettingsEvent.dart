@@ -10,3 +10,8 @@ class ChangeFontSize extends SettingsEvent{
   final int fontSize;
   ChangeFontSize(int size): fontSize = size;
 }
+
+class ChangeVolume extends SettingsEvent {
+  final double volume;
+  ChangeVolume(double volume): volume = volume;
+}

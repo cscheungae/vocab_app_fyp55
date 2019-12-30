@@ -37,7 +37,7 @@ class _SettingsPage extends State<SettingsPage>{
               Slider(
                 label:"Volume",
                 value: state.volume,
-                onChanged: (vol){},
+                onChanged: (vol) => bloc.add(ChangeVolume(vol)),
                 min: 0,
                 max: 1,
               ),

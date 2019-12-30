@@ -5,6 +5,7 @@ import '../provider/vocabularyBank.dart';
 import '../components/CustomBottomNavBar.dart';
 import '../components/CustomAppBar.dart';
 import '../components/CustomVocabCard.dart';
+import '../components/CustomDrawer.dart';
 
 
 import 'AddNewVocabPage.dart';
@@ -204,6 +205,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(),
+      drawer: CustomDrawer(),
     );   
   } 
   

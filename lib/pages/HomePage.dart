@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/components/CustomDrawer.dart';
 import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
 import 'package:vocab_app_fyp55/model/news.dart';
 import '../res/theme.dart' as CustomTheme;
@@ -6,6 +7,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import '../services/fetchdata_news.dart';
 import '../components/CustomAppBar.dart';
 import '../components/CustomBottomNavBar.dart';
+import '../components/DismissibleBlock.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -18,23 +20,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   
-  /*
-  // out the widget's state here
-  List<News> newsList = [];
-  int load = 0;
-
-  Future<List<News>> initNewsList() async {
-    if (newsList == [])
-      newsList = await FetchNews.requestAPIData();
-    load += 3;
-    return newsList.sublist(0, load -1);
-  }
-  */
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: "home", iconData: Icons.person ),
+      appBar: CustomAppBar(title: "home", iconData: Icons.ac_unit ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 8.0),
         children: <Widget>[
@@ -126,62 +116,10 @@ class _HomePageState extends State<HomePage> {
                 ),
               )
           ),
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  color: CustomTheme.GREEN,
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                          child: Text(
-                            "Click to prepare 7 flashcards",
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          )
-                      ),
-                      FlatButton(
-                        onPressed: () => debugPrint("green - notification is clicked."),
-                        child:  Icon(
-                          Icons.close,color: CustomTheme.WHITE, size: 25.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-          ),
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  color: CustomTheme.TOMATO_RED,
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                          child: Text(
-                            "Remind to study 13 flashcards today",
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          )
-                      ),
-                      FlatButton(
-                        onPressed: () => debugPrint("red - notification is clicked."),
-                        child:  Icon(
-                          Icons.close,color: CustomTheme.WHITE, size: 25.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-          ),
+
+          DismissibleBlock(text: "Remind to make 8 flashcards",),
+          DismissibleBlock(color: CustomTheme.TOMATO_RED, text: "Remind to study 13 flashcards today",),
+
           Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
               child: ClipRRect(
@@ -234,28 +172,11 @@ class _HomePageState extends State<HomePage> {
                 ),
               )
           ),
-          //CustomNewsCard(new News(description: "Oscar is very handsome")),
-
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(),
       backgroundColor: CustomTheme.GREY,// This trailing comma makes auto-formatting nicer for build methods.
-      drawer: Drawer(
-        child: Column(
-
-          //Settings
-          children:[
-            AppBar(title: Text("Drawer Navigator"),actionsIconTheme: null,),
-            Divider(color:Colors.white24),
-            ListTile(title:Text("")),
-            ListTile(
-              title:Text("Settings"),
-              trailing:Icon(Icons.settings),
-              onTap: ()=>Navigator.pushNamed(context,"/settings"),
-            )
-          ],
-        ),
-      ),
+      drawer: CustomDrawer(),
     );
   }
 }

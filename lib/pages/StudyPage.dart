@@ -1,6 +1,7 @@
 
 import 'package:vocab_app_fyp55/components/CustomAppBar.dart';
 import 'package:vocab_app_fyp55/components/CustomBottomNavBar.dart';
+import '../components/CustomDrawer.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../provider/vocabularyBank.dart';
 import '../model/vocabulary.dart';
@@ -124,9 +125,8 @@ class _StudyPage extends State<StudyPage> {
 
           ],
         ),
-        
-      
         bottomNavigationBar: CustomBottomNavBar(),   
+        drawer: CustomDrawer(),
     );
   }
 

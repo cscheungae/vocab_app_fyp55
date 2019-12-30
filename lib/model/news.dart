@@ -35,7 +35,7 @@ class News {
     this._country = country;
 
   
-  factory News.fromJson(Map<String, String> json) => News(
+  factory News.fromJson(Map<String, dynamic> json) => new News(
     id: json["id"],
     name: json["name"],
     description: json["description"],
