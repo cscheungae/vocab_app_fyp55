@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
+import 'package:vocab_app_fyp55/model/news.dart';
 import '../res/theme.dart' as CustomTheme;
 import 'package:percent_indicator/percent_indicator.dart';
+import '../services/fetchdata_news.dart';
 import '../components/CustomAppBar.dart';
 import '../components/CustomBottomNavBar.dart';
 
@@ -14,7 +17,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  
+  /*
   // out the widget's state here
+  List<News> newsList = [];
+  int load = 0;
+
+  Future<List<News>> initNewsList() async {
+    if (newsList == [])
+      newsList = await FetchNews.requestAPIData();
+    load += 3;
+    return newsList.sublist(0, load -1);
+  }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -219,6 +234,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               )
           ),
+          //CustomNewsCard(new News(description: "Oscar is very handsome")),
+
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(),

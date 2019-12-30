@@ -1,6 +1,6 @@
 
 import 'package:bloc/bloc.dart';
-import '../state/authenicationState.dart';
+import '../state/AuthenicationState.dart';
 import '../event/AuthenticationEvent.dart';
 
 

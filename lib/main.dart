@@ -12,22 +12,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      child: MaterialApp(
-        title: 'FlashVocab',
-        theme: CustomTheme.customThemeData,
-        initialRoute: '/',
-        routes: {
-          // When navigating to the "/" route, build the HomeScreen
-          '/': (context) => HomePage(title: "HOME"),
-          '/articles': (context) => ArticleViewPage(title: "Article"),
-          '/settings': (context) => SettingsPage(title: "Settings")
-        },
-      ),
-      providers: [
-        //inject all necessary States/Services to the child of widget tree.
-        ChangeNotifierProvider<SettingsState>.value(value:SettingsState(false,0.5,12))
-      ],
+    return 
+    MaterialApp(
+      title: 'FlashVocab',
+      theme: CustomTheme.customThemeData,
+      initialRoute: '/',
+      routes: {
+        // When navigating to the "/" route, build the HomeScreen
+        '/': (context) => HomePage(title: "HOME"),
+        '/articles': (context) => ArticleViewPage(title: "Article"),
+        '/settings': (context) => SettingsPage(),
+      },     
     );
   }
 }

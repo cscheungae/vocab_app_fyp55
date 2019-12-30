@@ -1,35 +1,43 @@
 import "package:flutter/material.dart";
-import "../state/SettingsState.dart";
-import "package:provider/provider.dart";
-import "../res/theme.dart";
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocab_app_fyp55/bloc/SettingsBloc.dart';
+import 'package:vocab_app_fyp55/event/SettingsEvent.dart';
+import '../state/SettingsState.dart';
 
-class SettingsPage extends StatelessWidget {
-  SettingsState settings;
-  String title;
 
-  SettingsPage({Key key, this.title}) : super(key: key);
+class SettingsPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    settings = Provider.of<SettingsState>(context);
-    // TODO: implement build
-    return Theme(
-      data: customThemeData,
-      child: Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-          ),
-          body: Column(
-            children: <Widget>[
+  _SettingsPage createState() => _SettingsPage();
+}
+
+class _SettingsPage extends State<SettingsPage>{
+  SettingsBloc bloc = new SettingsBloc();
+
+  @override
+  void dispose() {
+    bloc.close();
+    super.dispose();
+  }
+
+
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar( title: Text("Setting Page"),),
+      body: BlocBuilder<SettingsBloc, SettingsState>(
+        bloc: bloc,
+        builder: (context, state ){
+          return Column(
+            children: <Widget>
+            [
               SwitchListTile(
                 title:Text("Turning on Notification?"),
-                value: settings.sendNotification,
-                onChanged: (isActive) =>
-                    settings.setSendNotification = isActive,
+                value: state.sendNotification,
+                onChanged: (isActive) => bloc.add(ToggleNotifications(isActive)),
               ),
               Slider(
                 label:"Volume",
-                value: settings.volume,
-                onChanged: (vol) => settings.setVolume = vol,
+                value: state.volume,
+                onChanged: (vol){},
                 min: 0,
                 max: 1,
               ),
@@ -37,17 +45,25 @@ class SettingsPage extends StatelessWidget {
               title:Text("Font Size"),
               trailing:  
               DropdownButton(
-                  onChanged: (val) => settings.setFontSize = val,
+                  onChanged: (val) => bloc.add(ChangeFontSize(val)),
                   iconEnabledColor: Colors.blue,
-                  value: settings.fontSize,
+                  value: state.fontSize,
                   iconSize: 30,
-                  items: SettingsState.fontSizeOptions
+                  items: [8, 12, 16, 24, 32, 48]
                       .map((size) => DropdownMenuItem<int>(
                           value: size, child: Text(size.toString())))
-                      .toList())
+                      .toList()),
               ),
             ],
-          )),
+          );
+        }
+      ),
     );
   }
+
+
 }
+
+
+
+

@@ -1,35 +1,24 @@
-import 'package:flutter/widgets.dart';
 
+import 'package:equatable/equatable.dart';
 
-class SettingsState extends ChangeNotifier{
+class SettingsState implements Equatable {
+
+  //state value
   bool _sendNotification;
   double _volume;
   int _fontSize;
-  static List<int> fontSizeOptions = [
-    12,24,36,48,1000
-  ];
 
+  bool get sendNotification => _sendNotification;
+  double get volume => _volume;
+  int get fontSize => _fontSize;
 
-  SettingsState(sendNotification,volume,fontSize):
-    _sendNotification=sendNotification,
-    _volume=volume,
-    _fontSize=fontSize;
   
-  get sendNotification => _sendNotification;
-  get volume => _volume;
-  get fontSize => _fontSize;
-  set setSendNotification(bool value){
-    _sendNotification=value;
-    notifyListeners();
-  }
-  set setVolume(double value){
-    _volume = value;
-    notifyListeners();
-  }
-  set setFontSize(int value){
-    _fontSize = value;
-    notifyListeners();
-  }
+  //Constructor
+  SettingsState(bool sendNotify, double volume, int fontSize):
+  _sendNotification = sendNotify,
+  _volume = volume,
+  _fontSize = fontSize;
 
-
+  @override
+  List<Object> get props => [_sendNotification, _volume, _fontSize];
 }

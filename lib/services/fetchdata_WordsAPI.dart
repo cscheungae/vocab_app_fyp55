@@ -9,8 +9,8 @@ class FetchDataWordsAPI{
   get vocab => _vocab;
 
   /* Prevent Over-requesting */
-  static int Limit = 0;
-  static final int LIMIT = 10;
+  static int limit = 0;
+  static const int LIMIT = 10;
 
   //Constructor
   FetchDataWordsAPI(vocabulary vocab ){ this._vocab = vocab; }
@@ -49,8 +49,8 @@ class FetchDataWordsAPI{
   static Future<vocabulary> requestFromAPI(String word) async{
 
     //Prevent Over-Requesting
-    Limit++;
-    if ( Limit > LIMIT ) return null;
+    limit++;
+    if ( limit > LIMIT ) return null;
     
     final String APIAdress = "https://wordsapiv1.p.rapidapi.com/words/";
     final String query = word.toLowerCase();
