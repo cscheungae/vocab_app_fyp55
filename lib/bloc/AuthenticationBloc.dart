@@ -3,7 +3,6 @@ import 'package:bloc/bloc.dart';
 import '../state/AuthenicationState.dart';
 import '../event/AuthenticationEvent.dart';
 
-
 class AuthenticationBloc extends Bloc< AuthenticationEvent,  AuthenticationState > {
 
   @override

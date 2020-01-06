@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/model/vocabularyDefinition.dart';
 import '../services/fetchdata_WordsAPI.dart';
 import '../services/fetchimage_Bing.dart';
 import '../model/vocabulary.dart';
@@ -215,12 +216,12 @@ with AutomaticKeepAliveClientMixin
                             if ( _wordFKey.currentState.validate() ){
                               vocabulary vocab = await FetchDataWordsAPI.requestFromAPI(wordFController.value.text);
                               if ( vocab != null ){
-                                wordOfSpeechController.text = vocab.getWordForm();
-                                wordMeaningController.text = vocab.getMeaning();
-                                wordSampleSentenceController.text = vocab.getSampleSentence();
+                                wordOfSpeechController.text = vocab.getDefinition(index: 0).partOfSpeech;
+                                wordMeaningController.text = vocab.getDefinition(index: 0).definition;
+                                wordSampleSentenceController.text = vocab.getDefinition(index: 0).exampleSentence;
                                 
-                                wordSynonymsController.text = vocab.printSynonyms();
-                                wordSynonymsController.text = vocab.printAntonyms();
+                                wordSynonymsController.text = "";
+                                wordSynonymsController.text = "";
 
                               } else { print("null vocab!!!") ;}
                             }
@@ -264,14 +265,20 @@ with AutomaticKeepAliveClientMixin
                       child: Text("Create New Word"),
                       onPressed: () async {
                         if (_wordFKey.currentState.validate()) {
+                          
+                          VocabDefinition def = new VocabDefinition(
+                            partOfSpeech: wordOfSpeechController.text,
+                            definition: wordMeaningController.text,
+                            exampleSentence: wordSampleSentenceController.text,
+                          );
+                          
+                          
                           vocabulary newVocab = new vocabulary(
                             word: wordFController.text,
-                            wordForm: wordOfSpeechController.text,
-                            meaning: wordMeaningController.text,
-                            sampleSentence: wordSampleSentenceController.text,
+                            defs: [def],
                             imageURL: _imageURL, 
                           ); 
-                          await vocabularyBank.instance.createNewVocab(newVocab);
+                          await VocabularyBank.instance.createNewVocab(newVocab);
                           Navigator.of(context).pop();
                         }
                       },

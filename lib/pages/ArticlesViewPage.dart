@@ -30,7 +30,6 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
   }
 
   loadMoreFromList(){
-    print("You scroll to the bottom!");
     setState(() {
       load += 6;
     });
@@ -42,24 +41,22 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
     return Scaffold(
       appBar: CustomAppBar(title: "articles", iconData: Icons.person),
       drawer: CustomDrawer(),
-
       body: 
       NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification notification){
           if ( notification.metrics.pixels == notification.metrics.maxScrollExtent){
               loadMoreFromList();
-              print(newsList.length);
           }
           return true;
         },
         child: FutureBuilder<List<News>>(
           future: initNewsList(),
           builder: (context, snapshot ){
-            return ListView.builder(
+            return ( ! snapshot.hasData ) ? Text("Still loading") : 
+            ListView.builder(
               itemCount: load,
               itemBuilder: (context, position){
-                //return CustomNewsCard( News(description: "Oscar is so freaking handsome"), );
-                return CustomNewsCard( newsList[position] );
+                  return CustomNewsCard( newsList[position] );
               },
             );
           }

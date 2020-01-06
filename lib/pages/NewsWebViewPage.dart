@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/components/CustomAppBar.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class NewsWebViewPage extends StatefulWidget {
   
@@ -17,12 +16,11 @@ class _NewsWebViewPage extends State<NewsWebViewPage> {
   
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(title: "News Viewing",),
-      body: WebView(
-        initialUrl: widget._url,
-        javascriptMode: JavascriptMode.unrestricted,
-      ),
+    return new WebviewScaffold(
+          url: widget._url,
+          appBar: new AppBar(
+            title: new Text("Articles Widget"),
+          ),
     );
   }
 }

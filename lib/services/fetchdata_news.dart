@@ -11,9 +11,6 @@ class FetchNews {
   List<News> get newsList => _newsList;
 
   factory FetchNews.fromJson( Map<String, dynamic> json ){
-    
-    print("JOJO");
-
     FetchNews fn = new FetchNews._();
     List<dynamic> newsList = json["sources"];
     for ( Map<String, dynamic> newsJson in newsList ){

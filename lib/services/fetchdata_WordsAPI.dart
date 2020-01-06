@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:vocab_app_fyp55/model/vocabularyDefinition.dart';
 import 'dart:convert';
 import '../model/vocabulary.dart';
 import 'APIKey.dart';
@@ -39,8 +40,7 @@ class FetchDataWordsAPI{
       for ( int i = 0; i < synonymsJson.length; i++ ) synonyms.add(synonymsJson[i]);
       for ( int i = 0; i < antonymsJson.length; i++ ) antonyms.add(antonymsJson[i]);
 
-      return FetchDataWordsAPI( new vocabulary( word: word, meaning: meaning, wordForm: wordForm, sampleSentence: sampleSentence,
-                              antonyms: antonyms, synonyms: synonyms));
+      return FetchDataWordsAPI( new vocabulary( word: word, defs: [new VocabDefinition(partOfSpeech: wordForm, definition: meaning, exampleSentence: sampleSentence)]));
     }
     else return FetchDataWordsAPI( new vocabulary());
   }

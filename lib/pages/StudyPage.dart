@@ -30,7 +30,7 @@ class _StudyPage extends State<StudyPage> {
   Future<List<vocabulary>> initVocabCardList( {forceUpdate = false} ) async
   {
     if (_vocabList == null || forceUpdate == true )
-      _vocabList = await vocabularyBank.instance.getVocabList();
+      _vocabList = await VocabularyBank.instance.getVocabList();
     
     return _vocabList;
   }

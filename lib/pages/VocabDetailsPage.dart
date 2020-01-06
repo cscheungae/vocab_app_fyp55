@@ -124,7 +124,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage>
                   (
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.fromLTRB(15, 10, 0, 0),
-                    child: Text( TargetWord.getWordForm(), style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
+                    child: Text( TargetWord.getDefinition(index: 0).partOfSpeech , style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
                   ),
 
 
@@ -141,28 +141,28 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage>
                   (
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    child: new DefinitionBlock( header: "Meaning", body: TargetWord.getMeaning() ),                        
+                    child: new DefinitionBlock( header: "Meaning", body: TargetWord.getDefinition(index: 0).definition ),                        
                   ),
 
                   Container
                   (
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    child: new DefinitionBlock( header: "Example Sentence", body: TargetWord.getSampleSentence() ),                        
+                    child: new DefinitionBlock( header: "Example Sentence", body: TargetWord.getDefinition(index: 0).exampleSentence ),                        
                   ), 
                   
                   Container
                   (
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    child: new DefinitionBlock( header: "Synonyms", body: TargetWord.printSynonyms()),                        
+                    child: new DefinitionBlock( header: "Synonyms", body: ""),                        
                   ),
 
                   Container
                   (
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    child: new DefinitionBlock( header: "Synonyms", body: TargetWord.printAntonyms()),                        
+                    child: new DefinitionBlock( header: "Synonyms", body: ""),                        
                   ),
 
                   //HardCoded Example 

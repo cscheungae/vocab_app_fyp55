@@ -33,7 +33,7 @@ class FetchData {
 
   //Async function that makes http request to the API
   //This function ISN't inside the FetchData class!
-  static Future< List<vocabulary> > RequestAPIData( [String TextQuery = "",] ) async 
+  static Future< List<vocabulary> > requestAPIData( [String TextQuery = "",] ) async 
   {
     String Input = TextQuery;
     Input = Input.replaceAll(" ", "+");

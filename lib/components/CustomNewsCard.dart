@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/pages/LoginPage.dart';
+import '../pages/NewsWebViewPage.dart';
 import '../model/news.dart';
 
 class CustomNewsCard extends StatelessWidget{
@@ -20,22 +20,17 @@ class CustomNewsCard extends StatelessWidget{
       child: GestureDetector(
         onTap: (){ 
           print("Open WebView for " + news.url); 
-          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())); 
+          Navigator.push(context, MaterialPageRoute(builder: (context) =>  NewsWebViewPage(url: news.url,) )); 
         },
-        child: Container(
-          height: cardHeight,
-          width: cardWidth, 
-          child: Row(
-            children: <Widget>[
-              Text(
-                news.description,
-                style: TextStyle(fontSize: 15),
-              ),
-
-              Text("by " + news.name),
-            ],
+          child: Container(
+            height: cardHeight,
+            width: cardWidth,                 
+            child: RichText(
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(text: news.description, style: TextStyle(fontSize: 18,) ),
+            ),
           ),
-        ),
       ),
     );
   }

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vocab_app_fyp55/components/CustomDrawer.dart';
-import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
-import 'package:vocab_app_fyp55/model/news.dart';
 import '../res/theme.dart' as CustomTheme;
 import 'package:percent_indicator/percent_indicator.dart';
-import '../services/fetchdata_news.dart';
 import '../components/CustomAppBar.dart';
 import '../components/CustomBottomNavBar.dart';
 import '../components/DismissibleBlock.dart';
@@ -24,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: "home", iconData: Icons.ac_unit ),
+      appBar: CustomAppBar(title: "home", iconData: Icons.person ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 8.0),
         children: <Widget>[

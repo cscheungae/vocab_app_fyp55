@@ -41,16 +41,20 @@ class _VocabCardPage extends State<VocabCardUIPage>
   //initialize the vocab list 
   Future<List<vocabulary>> initVocabCardList( {forceUpdate = false} ) async
   {
-    if (_vocabList == null || forceUpdate == true )
-      _vocabList = await vocabularyBank.instance.getVocabList();
-    
+    if (_vocabList == null || forceUpdate == true ){
+      _vocabList = await VocabularyBank.instance.getVocabList();
+      debugPrint( "total vocabs is " + _vocabList.length.toString());
+    }
+
     return _vocabList;
   }
 
 
   
   @override
-  void initState();
+  void initState(){
+    super.initState();
+  }
 
 
   @override
@@ -77,7 +81,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
             new FlatButton(
               child: Text("Accept"),
               onPressed: () async { 
-                await vocabularyBank.instance.deleteAllVocabs(); 
+                await VocabularyBank.instance.deleteAllVocabs(); 
                 Navigator.of(context).pop();
                 await initVocabCardList(forceUpdate: true);
                 setState(() { });
@@ -106,6 +110,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
         break;
       case 2:
           await _deleteAllVocabs();
+          break;
+      case 3: 
+          await VocabularyBank.deleteDB();
           break;
       default: {}
     }
@@ -138,7 +145,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
                 controller: _searchController,
                 onChanged: (query) async {
 
-                  var vocabList = await vocabularyBank.instance.getVocabList(forceUpdate: false);
+                  var vocabList = await VocabularyBank.instance.getVocabList(forceUpdate: false);
                   _vocabList =getSearchResultVocabList( vocabList, query.toLowerCase());
                   setState((){ });   
                 },
@@ -150,7 +157,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
                     onPressed: () async { 
 
                       _searchController.clear(); 
-                      _vocabList = await vocabularyBank.instance.getVocabList(forceUpdate: false); 
+                      _vocabList = await VocabularyBank.instance.getVocabList(forceUpdate: false); 
                       setState(() {});  
                     },
                     icon: Icon(Icons.clear),
@@ -177,6 +184,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
                 PopupMenuItem(value: 0, child: Text("Sorted By Letters"),  ),
                 PopupMenuItem(value: 1, child: Text("Add New Vocabulary"), ),
                 PopupMenuItem(value: 2, child: Text("Delete All Vocabularies", style: TextStyle(color: Colors.red),), ),
+                PopupMenuItem(value: 3, child: Text("Delete Database", style: TextStyle(color: Colors.red),), ),
               ],
             ),
           ],
