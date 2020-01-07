@@ -56,7 +56,11 @@ class VocabularyBank
         _initializeVocabTables(db);
         debugPrint("Database created");
       },
-      onOpen:(db){ debugPrint("Database opened");},
+      onOpen:(db) async { 
+        debugPrint("Database opened");
+        var response = await db.query(tableName);
+        nextVID = ( response.isNotEmpty ) ? response.last["vid"] : 0;
+      },
     );
   }
 
@@ -118,6 +122,8 @@ class VocabularyBank
   //CREATE new vocabulary
   Future<int> createNewVocab(vocabulary vocab) async
   {
+    final db = await database;
+
     //Prevent Repetitive
     if ( await readVocab(vocab.getWord()) != null ){
       return 0;
@@ -127,7 +133,6 @@ class VocabularyBank
     vocab.setVID(nextVID);
 
     //Insert
-    final db = await database;
     try {
       nextVID++;
       await db.insert( tableName, vocab.toJson(needDef: false) );

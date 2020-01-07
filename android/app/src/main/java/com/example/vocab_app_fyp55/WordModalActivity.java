@@ -132,12 +132,12 @@ public class WordModalActivity extends Activity {
                 defTitle.setVisibility(View.VISIBLE);
                 defValue.setVisibility(View.VISIBLE);
                 backBtn.setVisibility(View.VISIBLE);
+                return RESULT_OK;
 
             } catch (IOException ex) {
                 ex.printStackTrace();
                 return RESULT_CANCELED;
             }
-            return RESULT_OK;
         }
     }
 }
