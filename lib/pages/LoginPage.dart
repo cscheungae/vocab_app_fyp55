@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../state/AuthenicationState.dart';
+import '../state/authenicationState.dart';
 import '../bloc/AuthenticationBloc.dart';
 import '../event/AuthenticationEvent.dart';
 
