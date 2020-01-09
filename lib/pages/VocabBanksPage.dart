@@ -8,7 +8,7 @@ import '../components/CustomVocabCard.dart';
 import '../components/CustomDrawer.dart';
 
 
-import 'AddNewVocabPage.dart';
+import 'VocabFormPage.dart';
 import 'dart:async';
 
 
@@ -105,7 +105,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
         _vocabList = sortVocabListByWords( _vocabList );        
         break;
       case 1:
-        Navigator.push(context,  MaterialPageRoute(builder: (context) => AddNewVocabPage() ) )
+        Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabFormPage() ) )
         .then((value) async { await initVocabCardList(forceUpdate: true); setState((){  });  }  );
         break;
       case 2:

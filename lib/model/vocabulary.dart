@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:path/path.dart';
 import 'vocabularyDefinition.dart';
 
 
@@ -101,8 +100,3 @@ class vocabulary
 
 
 }
-
-
-
-//enum Wordform { Noun, Verb, Pronoun, Adjective, Adverb, Preposition, Conjunction, Interjection, Others }
-//String wordFormToString(Wordform f ) => f.toString().split('.').last;

@@ -57,9 +57,9 @@ class VocabularyBank
         debugPrint("Database created");
       },
       onOpen:(db) async { 
-        debugPrint("Database opened");
+        debugPrint("Database opened: " + dbDirectory.path );
         var response = await db.query(tableName);
-        nextVID = ( response.isNotEmpty ) ? response.last["vid"] : 0;
+        nextVID = ( response.isNotEmpty ) ? response.first["vid"] : 0;
       },
     );
   }
@@ -99,13 +99,13 @@ class VocabularyBank
   }
 
 
-  //Set up definitions for the vocab
+  //Set up definitions for the vocab variable by reading database
   Future<vocabulary> _setUpDefinitions( vocabulary vocab ) async {
     try {
       //Lookup at the definition table
       final db = await database;
       var defResponse = await db.query( defName, where: "vid = ?", whereArgs:[vocab.getVID()] );
-      print("Total number of definitions setted up is " + defResponse.length.toString() );
+      print("vid of vocab: " + vocab.getWord() + "is " + vocab.getVID().toString() );
       for ( var item in defResponse ){
         vocab.addDefinition(VocabDefinition.fromJson(item));
       }
@@ -124,17 +124,18 @@ class VocabularyBank
   {
     final db = await database;
 
-    //Prevent Repetitive
+    //If such vocab already exist, update it instead
     if ( await readVocab(vocab.getWord()) != null ){
+      debugPrint("Such vocab already exist: Instead of creating a new one it's updated instead");
+      await updateVocab(vocab);
       return 0;
     }
 
-    //Assign vid value
-    vocab.setVID(nextVID);
-
     //Insert
     try {
+      //Assign vid value
       nextVID++;
+      vocab.setVID(nextVID);
       await db.insert( tableName, vocab.toJson(needDef: false) );
     } catch (Exception){ debugPrint("create vocabulary failed"); nextVID--; }
     
@@ -149,7 +150,6 @@ class VocabularyBank
       return 1;
     } catch (Exception){ debugPrint("create definition failed"); return -1; }
   }
-
 
 
 
@@ -203,15 +203,16 @@ class VocabularyBank
   Future<int> updateVocab( vocabulary vocab ) async
   {
     final db = await database;
-    var response = await db.update(tableName, vocab.toJson(), where: "word = ?", whereArgs: [vocab.getWord()]);
-
-    var definitions = vocab.getAllDefinitions();
-    for ( int i = 0; i < definitions.length ; i++ ){
-      var definition = vocab.getDefinition(index:i);
-      await db.update( defName, definition.toJson(), where: "vid = ? AND did = ?", whereArgs: [definition.vid, definition.definitionID], );
-    }
     
-    return response;
+    //DID should not be replaced
+    vocabulary newVocab = vocab;
+    vocabulary oldVocab = await readVocab(vocab.getWord());
+    newVocab.setVID(oldVocab.getVID());
+    
+    await deleteVocab(oldVocab);
+    await createNewVocab(newVocab);
+    return 1;
+
   }
 
 
@@ -220,10 +221,12 @@ class VocabularyBank
   //Delete vocabs as well as definition table;
   Future<int> deleteVocab( vocabulary vocab ) async
   {
-    final db = await database;
-    await db.delete(defName, where: "vid =?", whereArgs:[vocab.getVID()]);
-    var response = await db.delete(tableName, where: "word =?", whereArgs: [vocab.getWord()]);
-    return response;
+    try {
+      final db = await database;
+      await db.rawDelete("DELETE FROM " + defName + " WHERE vid = ?", [vocab.getVID()]);
+      await db.rawDelete("DELETE FROM " + tableName + " WHERE name = ?", [vocab.getWord()]);
+      return 1;
+    } catch (Exception){ print("Deletion Failed\n" + Exception.toString()); return 0;}
   }
 
 
