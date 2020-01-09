@@ -24,13 +24,12 @@ class VocabularyBank
   //int
   int nextVID = 0;
 
-
   //whole list of vocabularies, unaltered
-  static List<vocabulary> _vocabList = [];   
+  static List<vocabulary> _vocabList = [];
 
   //constant value related to database
   static final String dbName = providerConstant.databaseName;
-  static final String tableName = providerConstant.vocabBankTableName;
+  static final String vocabTableName = providerConstant.vocabBankTableName;
   static final String defName = providerConstant.vocabDefinitionTableName;
   static final int dbVersion = 1;
 
@@ -58,26 +57,24 @@ class VocabularyBank
       },
       onOpen:(db) async { 
         debugPrint("Database opened");
-        var response = await db.query(tableName);
+        var response = await db.query(vocabTableName);
         nextVID = ( response.isNotEmpty ) ? response.last["vid"] : 0;
       },
     );
   }
 
-
-
   //
   Future<void> _initializeVocabTables(Database db) async{
     try{
-      await db.execute( "CREATE TABLE "+ tableName + " (vid INTEGER, zipf INTEGER, frequency INTEGER, name TEXT, image TEXT)");
+      await db.execute( "CREATE TABLE "+ vocabTableName + " (vid INTEGER, zipf INTEGER, frequency INTEGER, name TEXT, image TEXT)");
     } catch(e){ debugPrint(e.toString() + " init vocab table failure"); }
 
     try{
       await db.execute( "CREATE TABLE " + defName +  " (vid INTEGER, did INTEGER, pos TEXT, pronunciation TEXT, definition TEXT, example TEXT)");
     } catch(e){debugPrint(e.toString() + " init def table failure"); }
+
+
   }
-
-
 
   //get vocablist, which is always fetched from SQLite by default  
   Future<List<vocabulary>> getVocabList({ bool forceUpdate = true }) async
@@ -86,7 +83,6 @@ class VocabularyBank
       _vocabList = await readAllVocabs();
     return _vocabList; 
   }
-
 
   //getting the string list of the vocabulary words
   List<String> getVocabStringList()
@@ -97,7 +93,6 @@ class VocabularyBank
     }
     return resultVocabStringList;
   }
-
 
   //Set up definitions for the vocab
   Future<vocabulary> _setUpDefinitions( vocabulary vocab ) async {
@@ -113,11 +108,6 @@ class VocabularyBank
     return vocab;
   }
 
-
-
-
-
-
   /* CRUD Operation */
   //CREATE new vocabulary
   Future<int> createNewVocab(vocabulary vocab) async
@@ -128,30 +118,26 @@ class VocabularyBank
     if ( await readVocab(vocab.getWord()) != null ){
       return 0;
     }
-
     //Assign vid value
     vocab.setVID(nextVID);
 
     //Insert
     try {
       nextVID++;
-      await db.insert( tableName, vocab.toJson(needDef: false) );
+      await db.insert( vocabTableName, vocab.toJson(needDef: false) );
     } catch (Exception){ debugPrint("create vocabulary failed"); nextVID--; }
     
     //Insert Definitions
     try {
       var definitions = vocab.getAllDefinitions();  
       for ( int i = 0; i < definitions.length; i++ ){
-        definitions[i].vid = vocab.getVID();
-        definitions[i].definitionID = i;
+        definitions[i].did = vocab.getVID();
+        definitions[i].did = i;
         await db.insert(defName, definitions[i].toJson() );
       } 
       return 1;
     } catch (Exception){ debugPrint("create definition failed"); return -1; }
   }
-
-
-
 
   //READ
   Future<vocabulary> readVocab(String word) async
@@ -160,7 +146,7 @@ class VocabularyBank
     List<Map> response;
     //Receive Vocabulary
     try { 
-      response = await db.query( tableName, where: "name = ?", whereArgs:[word]); 
+      response = await db.query( vocabTableName, where: "name = ?", whereArgs:[word]);
       if ( response.isNotEmpty ){
         vocabulary vocab = vocabulary.fromJson(response.first);
         vocab = await _setUpDefinitions(vocab);
@@ -170,9 +156,6 @@ class VocabularyBank
     catch ( Exception ){  debugPrint("Reading vocabulary failed!"); return null;}
   }
 
-
-
-
   ///READ: Reading All vocabs
   Future<List<vocabulary>> readAllVocabs() async
   {
@@ -180,10 +163,10 @@ class VocabularyBank
     List<Map> response;
     
     //Receive Response
-    try { response = await db.query( tableName );
+    try { response = await db.query( vocabTableName );
     } catch ( SqfliteDatabaseException ){
       await _initializeVocabTables(db);
-      response = await db.query(tableName);
+      response = await db.query(vocabTableName);
     }
 
     //Get all vocabularies and setup the definitions
@@ -203,12 +186,12 @@ class VocabularyBank
   Future<int> updateVocab( vocabulary vocab ) async
   {
     final db = await database;
-    var response = await db.update(tableName, vocab.toJson(), where: "word = ?", whereArgs: [vocab.getWord()]);
+    var response = await db.update(vocabTableName, vocab.toJson(), where: "word = ?", whereArgs: [vocab.getWord()]);
 
     var definitions = vocab.getAllDefinitions();
     for ( int i = 0; i < definitions.length ; i++ ){
       var definition = vocab.getDefinition(index:i);
-      await db.update( defName, definition.toJson(), where: "vid = ? AND did = ?", whereArgs: [definition.vid, definition.definitionID], );
+      await db.update( defName, definition.toJson(), where: "vid = ? AND did = ?", whereArgs: [definition.did, definition.did], );
     }
     
     return response;
@@ -222,11 +205,9 @@ class VocabularyBank
   {
     final db = await database;
     await db.delete(defName, where: "vid =?", whereArgs:[vocab.getVID()]);
-    var response = await db.delete(tableName, where: "word =?", whereArgs: [vocab.getWord()]);
+    var response = await db.delete(vocabTableName, where: "word =?", whereArgs: [vocab.getWord()]);
     return response;
   }
-
-
 
   //Delete All tables
   Future<int> deleteAllVocabs() async
@@ -234,12 +215,10 @@ class VocabularyBank
     try {
       final db = await database;
       await db.execute("DROP TABLE IF EXISTS " + defName);
-      await db.execute("DROP TABLE IF EXISTS " + tableName);
+      await db.execute("DROP TABLE IF EXISTS " + vocabTableName);
       return 1;
     } catch (e){ debugPrint("Delete tables Failed"); return -1;}
   }
-
-
 
   //Delete Database
   static Future<void> deleteDB() async{
