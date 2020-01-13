@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vocab_app_fyp55/model/Bundle/DefinitionBundle.dart';
@@ -10,12 +12,14 @@ import 'package:vocab_app_fyp55/model/example.dart';
 import 'package:vocab_app_fyp55/model/flashcard.dart';
 import 'package:vocab_app_fyp55/model/pronunciation.dart';
 import 'package:vocab_app_fyp55/model/stat.dart';
+import 'package:vocab_app_fyp55/model/vocabulary.dart';
 import 'package:vocab_app_fyp55/provider/providerConstant.dart';
 import '../model/vocab.dart';
 import '../model/vocabularyDefinition.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:vocab_app_fyp55/provider/Status' as ImportStatus;
 
 class DatabaseProvider
 {
@@ -86,12 +90,12 @@ class DatabaseProvider
     } catch(e) {debugPrint(e.toString() + "init "+ definitionTableName +" table failure");}
 
     try {
-      String query = "CREATE TABLE " + vocabTableName + " (vid INTEGER PRIMARY KEY, word TEXT, imageUrl TEXT, wordFreq INTEGER, trackFreq INTEGER, status INTEGER)";
+      String query = "CREATE TABLE " + vocabTableName + " (vid INTEGER PRIMARY KEY, word TEXT UNIQUE, imageUrl TEXT, wordFreq INTEGER, trackFreq INTEGER, status INTEGER)";
       await db.execute(query);
     } catch(e) {debugPrint(e.toString() + "init "+ vocabTableName +" table failure");}
 
     try{
-      String query = "CREATE TABLE " + flashcardTableName + " (fid INTEGER PRIMARY KEY, vid INTEGER NOT NULL UNIQUE, dateLastReviewed TEXT, daysBetweenReview INTEGER, overdue REAL, rating INTEGER, CONSTRAINT fk_fc_vocab FOREIGN KEY (vid) REFERENCES " + vocabTableName +"(vid) ON DELETE CASCADE)";
+      String query = "CREATE TABLE " + flashcardTableName + " (fid INTEGER PRIMARY KEY, vid INTEGER NOT NULL UNIQUE, dateLastReviewed TEXT, daysBetweenReview INTEGER, overdue REAL, difficulty REAL, CONSTRAINT fk_fc_vocab FOREIGN KEY (vid) REFERENCES " + vocabTableName +"(vid) ON DELETE CASCADE)";
       await db.execute(query);
     } catch(e) {debugPrint(e.toString() + "init "+ flashcardTableName +" table failure");}
 
@@ -409,6 +413,40 @@ class DatabaseProvider
     return response != null ? Flashcard.fromJson(response.first) : null;
   }
 
+  Future<List<Flashcard>> getStudyFlashcards(int quantity) async {
+    List<Map<String, dynamic>> response;
+    try {
+      final db = await database;
+      // TODO:: update the overduw attributes
+      int changeDateIndex = await db.rawUpdate(
+          '''
+          UPDATE $flashcardTableName
+          SET "overdue" = julianday('now') - julianday("dateLastReviewed")
+          '''
+      );
+      int minOverdueIndex = await db.rawUpdate(
+        '''
+        UPDATE $flashcardTableName
+        SET "overdue" = 2
+        WHERE "overdue" > 2
+        '''
+      );
+      // TODO:: rank the flashcard table by descending overdue order
+      response = await db.rawQuery(
+        '''
+        SELECT *
+        FROM $flashcardTableName
+        ORDER BY "overdue" DESC
+        WHERE strftime('%H','now') - strftime('%H', "overdue") > 8
+        LIMIT $quantity
+        '''
+      );
+
+    } catch(e) { debugPrint(e.toString() + " failure in getStudyFlashcards"); response = null; }
+    return response != null ? response.map((item) => Flashcard.fromJson(item)).toList() : null;
+  }
+
+  // This is a pure update Flashcard function with no logic
   Future<int> updateFlashcard(Flashcard flashcard) async
   {
     // check if there is vid properties in the vocab, if no --> cannot update the vocab
@@ -426,6 +464,26 @@ class DatabaseProvider
       response = null;
     }
     return response;
+  }
+
+  // This is a update Flashcard function based on rating and old Flashcard
+  Future<int> reviseFlashcard(Flashcard oldFlashcard, double rating) async {
+    double percentOverdue = rating > providerConstant.passCutoff ? min(2, (DateTime.now().difference(oldFlashcard.dateLastReviewed).inDays).toDouble()/oldFlashcard.daysBetweenReview.toDouble()) : 1.0;
+    double newDifficulty = percentOverdue / 17 * (8-9*rating);
+    double difficultyWeight = 3 - 1.7*newDifficulty;
+    int newDaysBetweenReviews = rating > providerConstant.passCutoff ? (1 + (difficultyWeight - 1) * percentOverdue).floor() : min(1, (1 / pow(difficultyWeight, 2)).floor());
+    // Change the status as the card is matured.
+    if (newDaysBetweenReviews >= providerConstant.maturePeriod ) {
+      try {
+        // obtain the vocab
+        Vocab vocab = await readVocab(oldFlashcard.vid);
+        // Set a new state to Status.matured
+        vocab.status = Status.matured;
+        // upload to the vocab table in the database
+        await updateVocab(vocab);
+      } catch(e) { debugPrint(e.toString() + "failure in reviseFlashcard"); }
+    }
+    return await updateFlashcard(Flashcard(vid: oldFlashcard.vid, fid: oldFlashcard.fid, dateLastReviewed: DateTime.now().toIso8601String(), daysBetweenReview: newDaysBetweenReviews, difficulty: newDifficulty));
   }
 
   Future<int> deleteFlashcard(int fid) async
@@ -542,6 +600,21 @@ class DatabaseProvider
   }
 
   /// ***************************** Handy Methods Route *****************************
+  Future<Vocab> getVocab(String word) async
+  {
+    List<Map<String, dynamic>> response;
+    try {
+      final db = await database;
+      response = await db.query(vocabTableName, columns: ["vid", "word", "imageUrl", "wordFreq", "trackFreq", "status"], where: "word = ?", whereArgs: [word]);
+      if(response.length <=0 ) {
+        throw new Exception("Word does not exist.");
+      } else if (response.length > 1) {
+        throw new Exception("More than one Vocab instances are returned which violates the UNIQUE Constraint");
+      }
+    } catch(e) { debugPrint(e.toString() + "getVocab error"); response = null; }
+    return response != null ? Vocab.fromJson(response.first) : null;
+  }
+
   Future<List<Vocab>> readAllVocab() async
   {
     final db = await database;
@@ -563,7 +636,7 @@ class DatabaseProvider
         dateLastReviewed: flashcard.dateLastReviewed,
         daysBetweenReview: flashcard.daysBetweenReview,
         overdue: flashcard.overdue,
-        rating: flashcard.rating
+        difficulty: flashcard.difficulty
     );
 
     // Special operation need to loop to create each step by step

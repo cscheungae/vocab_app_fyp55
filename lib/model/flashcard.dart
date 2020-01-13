@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'package:vocab_app_fyp55/provider/providerConstant.dart';
 
 class Flashcard {
   // Fields
@@ -7,7 +8,7 @@ class Flashcard {
   DateTime dateLastReviewed;
   int daysBetweenReview;
   double overdue;
-  int rating;
+  double difficulty;
 
 //  // Getter
 //  int get vid => _vid;
@@ -24,13 +25,16 @@ class Flashcard {
 
 
   // Normal Constructor
-  Flashcard({vid, fid, dateLastReviewed, daysBetweenReview, rating}) {
-    this.vid = vid ?? null;
+  Flashcard({vid, fid, dateLastReviewed, daysBetweenReview, overdue, difficulty}) {
+    this.vid = vid;   // cannot be null
     this.fid = fid ?? null;
     this.dateLastReviewed = dateLastReviewed ?? DateTime.now();
     this.daysBetweenReview = daysBetweenReview ?? 1;
-    this.rating = rating ?? 0;
+    this.overdue = overdue ?? null;
+    this.difficulty = difficulty ?? providerConstant.defaultDifficulty;
   }
+
+
 
   //Constructor, From Json to Dart Map Data
   factory Flashcard.fromJson(Map<String, dynamic> json) {
@@ -39,7 +43,7 @@ class Flashcard {
       fid: json["fid"],
       dateLastReviewed: DateTime.parse(json["dateLastReviewed"]),
       daysBetweenReview: json["daysBetweenReview"],
-      rating: json["rating"],
+      difficulty: json["difficulty"],
     );
   }
 
@@ -51,7 +55,7 @@ class Flashcard {
       "dateLastReviewed": dateLastReviewed.toIso8601String(),
       "daysBetweenReview": daysBetweenReview,
       "overdue": overdue, // TODO:: check if it will concatenate in the sqlite database
-      "rating": rating
+      "difficulty": difficulty
     };
     return json;
   }

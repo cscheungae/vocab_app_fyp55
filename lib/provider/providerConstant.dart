@@ -13,6 +13,10 @@ class providerConstant {
   static const String flashcardTableName = "Flashcard";
   static const String statisticsTableName = "Statistics";
 
+  static const double passCutoff = 0.6;
+  static const double defaultDifficulty = 0.3;
+  static const int maturePeriod = 21;
+
   /*
   "name";
   "image";

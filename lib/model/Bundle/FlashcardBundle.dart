@@ -5,7 +5,7 @@ class FlashcardBundle
   DateTime dateLastReviewed;
   int daysBetweenReview;
   double overdue;
-  int rating;
+  double difficulty;
 
-  FlashcardBundle({this.fid, this.dateLastReviewed, this.daysBetweenReview, this.overdue, this.rating});
+  FlashcardBundle({this.fid, this.dateLastReviewed, this.daysBetweenReview, this.overdue, this.difficulty});
 }
