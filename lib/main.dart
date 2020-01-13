@@ -5,6 +5,7 @@ import 'pages/HomePage.dart';
 import 'pages/ArticlesViewPage.dart';
 import 'pages/SettingsPage.dart';
 import 'package:provider/provider.dart';
+import 'pages/NativePage.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,8 +13,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return 
-    MaterialApp(
+    return MaterialApp(
       title: 'FlashVocab',
       theme: CustomTheme.customThemeData,
       initialRoute: '/',
@@ -22,7 +22,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => HomePage(title: "HOME"),
         '/articles': (context) => ArticleViewPage(title: "Article"),
         '/settings': (context) => SettingsPage(),
-      },     
+        '/testNative': (content) => NativePage(),
+      },
     );
   }
 }

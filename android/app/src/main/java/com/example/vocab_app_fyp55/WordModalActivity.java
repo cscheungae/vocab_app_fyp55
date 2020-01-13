@@ -65,7 +65,12 @@ public class WordModalActivity extends Activity {
         defValue = findViewById(R.id.defValue);
         backBtn = findViewById(R.id.backBtn);
 
-        backBtn.setOnClickListener((View view) -> finish());
+        backBtn.setOnClickListener((View view) -> {
+            Intent updateVisitCount = new Intent(getApplicationContext(),MainActivity.class);
+            startActivity();
+
+            finish();
+        });
     }
 
     @Override
@@ -83,18 +88,18 @@ public class WordModalActivity extends Activity {
             Integer code = new CheckDictTask().execute(word).get(10000, TimeUnit.MILLISECONDS);
 
             if (code == RESULT_OK) {
-                return ;
+                return;
             } else {
                 Toast.makeText(getApplicationContext(), "Failed uploading. Code: RESULT_CANCELED", Toast.LENGTH_SHORT).show();
                 finish();
             }
-        } catch ( TimeoutException ex ) {
+        } catch (TimeoutException ex) {
             Toast.makeText(getApplicationContext(), "Timeout()", Toast.LENGTH_SHORT).show();
             finish();
-        } catch ( InterruptedException ex ) {
+        } catch (InterruptedException ex) {
             Toast.makeText(getApplicationContext(), "Interrupted Exception", Toast.LENGTH_SHORT).show();
             finish();
-        } catch ( ExecutionException ex ) {
+        } catch (ExecutionException ex) {
             Toast.makeText(getApplicationContext(), "Execution Exception", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -108,7 +113,7 @@ public class WordModalActivity extends Activity {
     private class CheckDictTask extends AsyncTask<String, Void, Integer> {
         // Do the long-running work in here
 
-        protected Integer doInBackground(String ...word) {
+        protected Integer doInBackground(String... word) {
             Request request = new Request.Builder()
                     .url(baseUrl + "words/" + word[0] + "/definitions")
                     .header("X-RapidAPI-Host", host)
