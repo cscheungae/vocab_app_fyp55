@@ -114,6 +114,7 @@ class DatabaseProvider
     final db = await database;
     try {
       response = await db.insert(vocabTableName, vocab.toJson(), conflictAlgorithm: ConflictAlgorithm.abort);
+      await triggerStatLog();
     } catch(e) { debugPrint(e.toString() + "create vocab failure"); response = null;}
     return response;
   }
@@ -397,6 +398,7 @@ class DatabaseProvider
     final db = await database;
     try {
       response = await db.insert(flashcardTableName, flashcard.toJson(), conflictAlgorithm: ConflictAlgorithm.abort);
+      await triggerStatLog();
     } catch(e) { debugPrint(e.toString() + "create flashcard failure"); response = null;}
     return response;
   }
@@ -417,7 +419,7 @@ class DatabaseProvider
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
-      // TODO:: update the overduw attributes
+      // TODO:: update the overdue attributes
       int changeDateIndex = await db.rawUpdate(
           '''
           UPDATE $flashcardTableName
@@ -481,6 +483,19 @@ class DatabaseProvider
         vocab.status = Status.matured;
         // upload to the vocab table in the database
         await updateVocab(vocab);
+        // trigger stat log
+        await triggerStatLog();
+      } catch(e) { debugPrint(e.toString() + "failure in reviseFlashcard"); }
+    } else if (newDaysBetweenReviews < providerConstant.maturePeriod && oldFlashcard.daysBetweenReview > providerConstant.maturePeriod) {
+      try {
+      // obtain the vocab
+      Vocab vocab = await readVocab(oldFlashcard.vid);
+      // Set a new state to Status.matured
+      vocab.status = Status.learning;
+      // upload to the vocab table in the database
+      await updateVocab(vocab);
+      // trigger stat log
+      await triggerStatLog();
       } catch(e) { debugPrint(e.toString() + "failure in reviseFlashcard"); }
     }
     return await updateFlashcard(Flashcard(vid: oldFlashcard.vid, fid: oldFlashcard.fid, dateLastReviewed: DateTime.now().toIso8601String(), daysBetweenReview: newDaysBetweenReviews, difficulty: newDifficulty));
@@ -526,6 +541,47 @@ class DatabaseProvider
     return response;
   }
 
+  Future<int> triggerStatLog() async
+  {
+    int response;
+    try {
+      final db = await database;
+      // TODO:: find the number of tracking, learning and matured in the vocab status
+      var res = await db.rawQuery(
+        '''
+        SELECT COUNT (*)
+        FROM $vocabTableName
+        WHERE "status" = 0
+        '''
+      );
+      int trackingCount = Sqflite.firstIntValue(res);
+      // TODO:: create a stat instance
+      res = await db.rawQuery(
+          '''
+        SELECT COUNT (*)
+        FROM $vocabTableName
+        WHERE "status" = 0
+        '''
+      );
+      int learningCount = Sqflite.firstIntValue(res);
+      // TODO:: insert to Stat
+      res = await db.rawQuery(
+          '''
+        SELECT COUNT (*)
+        FROM $vocabTableName
+        WHERE "status" = 0
+        '''
+      );
+      int maturedCount = Sqflite.firstIntValue(res);
+
+      DateTime now = new DateTime.now();
+      DateTime date = new DateTime(now.year, now.month, now.day);
+      Stat stat = Stat(logDate: date, trackingCount: trackingCount, learningCount: learningCount, maturedCount: maturedCount);
+      response = await insertStat(stat);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
   Future<Stat> readStat(int sid) async {
     final db = await database;
     List<Map<String, dynamic>> response;
@@ -547,6 +603,19 @@ class DatabaseProvider
     try {
       response = await db.rawQuery("SELECT * FROM " + statisticTableName);
     } catch(e) { debugPrint(e.toString() + " read all statistics failure"); response = null; }
+    return response != null ? response.map((item) => Stat.fromJson(item)).toList() : null;
+  }
+
+  Future<List<Stat>> getUserStistics() async
+  {
+    List<Map<String, dynamic>> response;
+    try {
+      final db = await database;
+      // TODO:: Clear the outdated log
+      await deleteOutdatedStat();
+      // TODO:: Return the list of stat
+      response = await db.query(statisticTableName);
+    } catch(e) { debugPrint(e.toString() + " failure in getUserStistics"); response = null; }
     return response != null ? response.map((item) => Stat.fromJson(item)).toList() : null;
   }
 
@@ -586,6 +655,25 @@ class DatabaseProvider
       response = null;
     }
     return response;
+  }
+
+  Future<int> deleteOutdatedStat() async
+  {
+    int rowsDeleted;
+    try {
+      final db = await database;
+      var res = await.rawQuery(
+      '''
+      DELETE *
+      FROM $statisticTableName
+      WHERE NOT EXISTS (SELECT "sid", "logDate", max("trackingCount"), max("learningCount"), max(maturedCount)
+                        FROM STAT
+                        GROUP BY "logDate")
+      '''
+      );
+      rowsDeleted = Sqflite.firstIntValue(res);
+    } catch(e) { debugPrint(e.toString() + " failure in deleteOutdatedStat"); rowsDeleted = null; }
+    return rowsDeleted;
   }
 
 
