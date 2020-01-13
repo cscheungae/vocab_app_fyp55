@@ -37,7 +37,7 @@ class Flashcard {
     return Flashcard(
       vid: json["vid"],
       fid: json["fid"],
-      dateLastReviewed: DateTime(json["dateLastReviewed"]),
+      dateLastReviewed: DateTime.parse(json["dateLastReviewed"]),
       daysBetweenReview: json["daysBetweenReview"],
       rating: json["rating"],
     );

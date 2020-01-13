@@ -12,7 +12,7 @@ class Stat {
   //Constructor, From Json to Dart Map Data
   factory Stat.fromJson( Map<String, dynamic> json ){
     return Stat(
-      logDate: json["logDate"]!= null ? DateTime(json["logDate"]) : null,
+      logDate: json["logDate"]!= null ? DateTime.parse(json["logDate"]) : null,
       trackingCount: json["trackingCount"] ?? "",
       learningCount: json["learningCount"] ?? "",
       maturedCount: json["maturedCount"] ?? "",

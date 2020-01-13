@@ -59,14 +59,17 @@ class DatabaseProvider
         },
       onOpen: (db) async {
         debugPrint("Database opened");
+      },
+      onConfigure: (db) async {
+          // enable the foreign key s.t. ON DELETE CASCADE works
+          await db.execute('PRAGMA foreign_keys = ON');
       }
     );
   }
 
   Future<void> _initializeTables(Database db) async
   {
-    // TODO:: tables to be created
-    // TODO:: Example, Pronunciation, Definition, Vocab, Stat, Flashcard
+    /// Tables to be created
     try {
       String query = "CREATE TABLE " + exampleTableName + " (eid INTEGER PRIMARY KEY, did INTEGER NOT NULL, sentence TEXT, CONSTRAINT fk_ex_definition FOREIGN KEY (did) REFERENCES " + definitionTableName +"(did) ON DELETE CASCADE)";
       await db.execute(query);
@@ -88,7 +91,7 @@ class DatabaseProvider
     } catch(e) {debugPrint(e.toString() + "init "+ vocabTableName +" table failure");}
 
     try{
-      String query = "CREATE TABLE " + flashcardTableName + " (fid INTEGER PRIMARY KEY, vid INTEGER NOT NULL, dateLastReviewed TEXT, daysBetweenReview INTEGER, overdue REAL, rating INTEGER, CONSTRAINT fk_fc_vocab FOREIGN KEY (vid) REFERENCES " + vocabTableName +"(vid) ON DELETE CASCADE)";
+      String query = "CREATE TABLE " + flashcardTableName + " (fid INTEGER PRIMARY KEY, vid INTEGER NOT NULL UNIQUE, dateLastReviewed TEXT, daysBetweenReview INTEGER, overdue REAL, rating INTEGER, CONSTRAINT fk_fc_vocab FOREIGN KEY (vid) REFERENCES " + vocabTableName +"(vid) ON DELETE CASCADE)";
       await db.execute(query);
     } catch(e) {debugPrint(e.toString() + "init "+ flashcardTableName +" table failure");}
 
@@ -99,8 +102,8 @@ class DatabaseProvider
 
   } // end of _initializeTables
 
-// TODO:: Basic Operation First CRUD for all table
-  // TODO:: create Vocab
+  /// Basic Operation First CRUD for all table
+  /// ***************************** Vocab Route *****************************
   Future<int> insertVocab(Vocab vocab) async
   {
     int response;
@@ -110,7 +113,7 @@ class DatabaseProvider
     } catch(e) { debugPrint(e.toString() + "create vocab failure"); response = null;}
     return response;
   }
-  // TODO:: read Vocab
+
   Future<Vocab> readVocab(int vid) async {
     final db = await database;
     List<Map<String, dynamic>> response;
@@ -124,7 +127,7 @@ class DatabaseProvider
     } catch(e) { debugPrint(e.toString() + "read vocab failure"); response = null;}
     return response != null ? Vocab.fromJson(response.first) : null;
   }
-  // TODO:: update Vocab
+
   Future<int> updateVocab(Vocab vocab) async
   {
     // check if there is vid properties in the vocab, if no --> cannot update the vocab
@@ -143,7 +146,7 @@ class DatabaseProvider
     }
     return response;
   }
-  // TODO:: delete Vocab
+
   Future<int> deleteVocab(int vid) async
   {
     int response;
@@ -161,7 +164,18 @@ class DatabaseProvider
     }
     return response;
   }
-  // TODO:: create pronunciation
+
+  Future<int> deleteAllVocab() async
+  {
+    int response;
+    try {
+      final db = await database;
+      response = await db.delete(vocabTableName);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
+  /// ***************************** Pronunciation Route *****************************
   Future<int> insertPronunciation(Pronunciation pron) async
   {
     int response;
@@ -171,7 +185,7 @@ class DatabaseProvider
     } catch(e) { debugPrint(e.toString() + "create pronunication failure"); response = null;}
     return response;
   }
-  // TODO:: read pronunciation
+
   Future<List<Pronunciation>> readPronunciation(int did) async {
     final db = await database;
     List<Map<String, dynamic>> response;
@@ -181,9 +195,9 @@ class DatabaseProvider
         throw new Exception("non-existing pronunciation instance");
       }
     } catch(e) { debugPrint(e.toString() + "read pronunciation failure"); response = null;}
-    return response != null ? response.map( (item) => Pronunciation.fromJson(item)) : null;
+    return response != null ? response.map( (item) => Pronunciation.fromJson(item)).toList() : null;
   }
-  // TODO:: update pronunciation
+
   Future<int> updatePronunciation(Pronunciation pron) async
   {
     // check if there is vid properties in the vocab, if no --> cannot update the vocab
@@ -202,7 +216,7 @@ class DatabaseProvider
     }
     return response;
   }
-  // TODO:: delete pronunciation
+
   Future<int> deletePronunciation(int pid) async
   {
     int response;
@@ -221,7 +235,17 @@ class DatabaseProvider
     return response;
   }
 
-  // TODO:: create definition
+  Future<int> deleteAllPronunciation() async
+  {
+    int response;
+    try {
+      final db = await database;
+      response = await db.delete(pronunciationTableName);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
+  /// ***************************** Definition Route *****************************
   Future<int> insertDefinition(Definition def) async
   {
     int response;
@@ -231,7 +255,7 @@ class DatabaseProvider
     } catch(e) { debugPrint(e.toString() + "create definition failure"); response = null;}
     return response;
   }
-  // TODO:: read definition
+
   Future<List<Definition>> readDefinition(int vid) async {
     final db = await database;
     List<Map<String, dynamic>> response;
@@ -241,9 +265,9 @@ class DatabaseProvider
         throw new Exception("non-existing definition instance");
       }
     } catch(e) { debugPrint(e.toString() + "read definition failure"); response = null;}
-    return response != null ? response.map( (item) => Definition.fromJson(item)) : null;
+    return response != null ? response.map( (item) => Definition.fromJson(item)).toList() : null;
   }
-  // TODO:: update definition
+
   Future<int> updateDefinition(Definition def) async
   {
     // check if there is vid properties in the vocab, if no --> cannot update the vocab
@@ -262,7 +286,7 @@ class DatabaseProvider
     }
     return response;
   }
-  // TODO:: delete definition
+
   Future<int> deleteDefinition(int did) async
   {
     int response;
@@ -281,17 +305,27 @@ class DatabaseProvider
     return response;
   }
 
-  // TODO:: create example
+  Future<int> deleteAllDefinition() async
+  {
+    int response;
+    try {
+      final db = await database;
+      response = await db.delete(definitionTableName);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
+  /// ***************************** Example Route *****************************
   Future<int> insertExample(Example example) async
   {
     int response;
-    final db = await database;
     try {
+      final db = await database;
       response = await db.insert(exampleTableName, example.toJson(), conflictAlgorithm: ConflictAlgorithm.abort);
     } catch(e) { debugPrint(e.toString() + "create example failure"); response = null;}
     return response;
   }
-  // TODO:: read example
+
   Future<List<Example>> readExample(int did) async {
     final db = await database;
     List<Map<String, dynamic>> response;
@@ -301,9 +335,9 @@ class DatabaseProvider
         throw new Exception("non-existing definition instance");
       }
     } catch(e) { debugPrint(e.toString() + "read example failure"); response = null;}
-    return response != null ? response.map( (item) => Example.fromJson(item)) : null;
+    return response != null ? response.map( (item) => Example.fromJson(item)).toList() : null;
   }
-  // TODO:: update example
+
   Future<int> updateExample(Example example) async
   {
     // check if there is vid properties in the vocab, if no --> cannot update the vocab
@@ -322,7 +356,7 @@ class DatabaseProvider
     }
     return response;
   }
-  // TODO:: delete example
+
   Future<int> deleteExample(int eid) async
   {
     int response;
@@ -341,7 +375,18 @@ class DatabaseProvider
     return response;
   }
 
-  // TODO:: create flashcard
+
+  Future<int> deleteAllExample() async
+  {
+    int response;
+    try {
+      final db = await database;
+      response = await db.delete(exampleTableName);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
+  /// ***************************** Flashcard Route *****************************
   Future<int> insertFlashcard(Flashcard flashcard) async
   {
     int response;
@@ -351,7 +396,7 @@ class DatabaseProvider
     } catch(e) { debugPrint(e.toString() + "create flashcard failure"); response = null;}
     return response;
   }
-  // TODO:: read flashcard
+
   Future<Flashcard> readFlashcard(int vid) async {
     final db = await database;
     List<Map<String, dynamic>> response;
@@ -363,7 +408,7 @@ class DatabaseProvider
     } catch(e) { debugPrint(e.toString() + "read example failure"); response = null;}
     return response != null ? Flashcard.fromJson(response.first) : null;
   }
-  // TODO:: update flashcard
+
   Future<int> updateFlashcard(Flashcard flashcard) async
   {
     // check if there is vid properties in the vocab, if no --> cannot update the vocab
@@ -382,7 +427,7 @@ class DatabaseProvider
     }
     return response;
   }
-  // TODO:: delete flashcard
+
   Future<int> deleteFlashcard(int fid) async
   {
     int response;
@@ -401,8 +446,18 @@ class DatabaseProvider
     return response;
   }
 
-  // TODO:: Think of the operation of stat!!
-  // TODO:: create stat
+
+  Future<int> deleteAllFlashcard() async
+  {
+    int response;
+    try {
+      final db = await database;
+      response = await db.delete(flashcardTableName);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
+  /// ***************************** Stat Route *****************************
   Future<int> insertStat(Stat stat) async
   {
     int response;
@@ -412,21 +467,32 @@ class DatabaseProvider
     } catch(e) { debugPrint(e.toString() + "create flashcard failure"); response = null;}
     return response;
   }
-  // TODO:: read stat
-  Future<List<Stat>> readStat(int sid) async {
+
+  Future<Stat> readStat(int sid) async {
     final db = await database;
     List<Map<String, dynamic>> response;
     try {
-      response = await db.query(statisticTableName, columns: ["sid", "logDate", "trackingCount", "learningCount", "maturedCount"], where: '$sid = ?', whereArgs: [sid]);
+      response = await db.query(statisticTableName, columns: ["sid", "logDate", "trackingCount", "learningCount", "maturedCount"], where: 'sid = ?', whereArgs: [sid]);
       if(response.length <=0 ) {
         throw new Exception("non-existing statistics instance");
       }else if(response.length > 1) {
         throw new Exception("more than one statistics has been returned which is not acceptable as each sid is unique");
       }
     } catch(e) { debugPrint(e.toString() + "read statistics failure"); response = null;}
-    return response != null ? response.map( (item) => Stat.fromJson(item)) : null;
+    return response != null ? Stat.fromJson(response.first) : null;
   }
-  // TODO:: update stat
+
+  Future<List<Stat>> readAllStat() async
+  {
+    final db = await database;
+    List<Map<String, dynamic>> response;
+    try {
+      response = await db.rawQuery("SELECT * FROM " + statisticTableName);
+    } catch(e) { debugPrint(e.toString() + " read all statistics failure"); response = null; }
+    return response != null ? response.map((item) => Stat.fromJson(item)).toList() : null;
+  }
+
+
   Future<int> updateStat(Stat stat) async
   {
     // check if there is vid properties in the vocab, if no --> cannot update the vocab
@@ -445,7 +511,7 @@ class DatabaseProvider
     }
     return response;
   }
-  // TODO:: delete stat
+
   Future<int> deleteStat(int sid) async
   {
     int response;
@@ -464,7 +530,18 @@ class DatabaseProvider
     return response;
   }
 
-// TODO:: Selection of Join Operation results (make a big vocabulary)
+
+  Future<int> deleteAllStat() async
+  {
+    int response;
+    try {
+      final db = await database;
+      response = await db.delete(statisticTableName);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
+  /// ***************************** Handy Methods Route *****************************
   Future<List<Vocab>> readAllVocab() async
   {
     final db = await database;
@@ -472,7 +549,7 @@ class DatabaseProvider
     try {
       response = await db.rawQuery("SELECT * FROM " + vocabTableName);
     } catch(e) { debugPrint(e.toString() + "read vocab failure"); response = null;}
-    return response != null ? response.map((item) => Vocab.fromJson(item)) : null;
+    return response != null ? response.map((item) => Vocab.fromJson(item)).toList() : null;
   }
 
   Future<VocabBundle> readVocabBundle(int vid) async
@@ -492,15 +569,15 @@ class DatabaseProvider
     // Special operation need to loop to create each step by step
     List<Definition> definitions = await readDefinition(vid);
     // for each definition, find its examples and pronunciation, assign to the definition bundle
-    List<DefinitionBundle> definitionsBundle;
+    List<DefinitionBundle> definitionsBundle = [];
    for (int i=0; i<definitions.length; i++) {
      // search its pronunciation and examples
      Definition definition = definitions[i];
      List<Pronunciation> pronunciations = await readPronunciation(definition.did);
      List<Example> examples = await readExample(definition.did);
      // construct pronunciationsBundle and examplesBundle
-     List<PronunciationBundle> pronunciationsBundle = pronunciations.map((item) => PronunciationBundle(pid: item.pid, ipa: item.ipa, audioUrl: item.audioUrl));
-     List<ExampleBundle> examplesBundle = examples.map((item) => ExampleBundle(eid: item.eid, sentence: item.sentence));
+     List<PronunciationBundle> pronunciationsBundle = pronunciations.map((item) => PronunciationBundle(pid: item.pid, ipa: item.ipa, audioUrl: item.audioUrl)).toList();
+     List<ExampleBundle> examplesBundle = examples.map((item) => ExampleBundle(eid: item.eid, sentence: item.sentence)).toList();
      definitionsBundle.add(
          DefinitionBundle(
              did: definition.did,
@@ -522,4 +599,16 @@ class DatabaseProvider
      definitionsBundle: definitionsBundle,
    );
   }
+
+  Future<int> dropDatabase() async {
+    List<Map<String, dynamic>> response;
+    try {
+      Directory dbDirectory = await getApplicationDocumentsDirectory();
+      print(dbDirectory.toString());
+      String dbPath = join(dbDirectory.path, dbName);
+      deleteDatabase(dbPath);
+    } catch(e) { debugPrint(e.toString()); return null; }
+    return 1;
+  }
+
 }

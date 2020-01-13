@@ -1,10 +1,7 @@
 import 'package:vocab_app_fyp55/model/Bundle/FlashcardBundle.dart';
 import 'package:vocab_app_fyp55/model/flashcard.dart';
 import 'package:vocab_app_fyp55/model/Bundle/DefinitionBundle.dart';
-
-enum Status {
-  tracked, learning, matured
-}
+import 'package:vocab_app_fyp55/model/Status';
 
 class VocabBundle
 {

@@ -1,9 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
-
-enum Status {
-  tracked, learning, matured
-}
+import 'package:vocab_app_fyp55/model/Status';
 
 class Vocab
 {
