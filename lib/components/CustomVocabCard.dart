@@ -7,19 +7,21 @@ import '../pages/VocabDetailsPage.dart';
 
 class CustomVocabCard extends StatefulWidget
 {
-  vocabulary _item;
-  vocabulary get item => _item;
-
-  List<vocabulary> _vocablist;
-
+  final vocabulary _item;
+  final List<vocabulary> _vocablist;
   bool isVisibleCardDescription;
 
+
+  vocabulary get item => _item;
+
+
   //Constructor  
-  CustomVocabCard({ Key key, vocabulary item, List<vocabulary> vocablist = const [] , this.isVisibleCardDescription = true }): super(key: key)
-  {
-    this._item = item;
-    this._vocablist = vocablist;
-  }
+  CustomVocabCard({ Key key, vocabulary item, List<vocabulary> vocablist = const [], bool isVisibleCardDescription = true  }): 
+  this._item = item,
+  this._vocablist = vocablist,
+  this.isVisibleCardDescription = isVisibleCardDescription,
+  super(key: key);
+
 
   @override
   _CustomVocabCard createState() => _CustomVocabCard();
@@ -30,6 +32,7 @@ class CustomVocabCard extends StatefulWidget
 
 class _CustomVocabCard extends State<CustomVocabCard>
 {
+
   /* Open a Page view if a _vocablist is provided and the item exists in such list
   Else, just open a vocab detail page */
   void openDetails(){
@@ -73,7 +76,7 @@ class _CustomVocabCard extends State<CustomVocabCard>
                   Container
                   (
                     width: cardWidth * 0.35,
-                    child: widget.item.getImage(),
+                    child: widget.item.getHeroImage(),
                   ),
                   
                   Container

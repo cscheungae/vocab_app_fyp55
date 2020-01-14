@@ -7,15 +7,15 @@ import '../pages/VocabDetailsPage.dart';
 
 class VocabDetailsPageView extends StatefulWidget {
 
-  List<vocabulary> _vocablist;
+  final List<vocabulary> _vocablist;
   List<vocabulary> get vocablist => _vocablist; 
-  int _startPage;
+  final int _startPage;
 
   //Constructor
-  VocabDetailsPageView( List<vocabulary> vocablist, { int startPage = 0,  Key key} ): super(key: key){
-     this._vocablist = vocablist; 
-     this._startPage = startPage;
-  }
+  VocabDetailsPageView( List<vocabulary> vocablist, { int startPage = 0,  Key key} ): 
+  this._vocablist = vocablist,
+  this._startPage = startPage,
+  super(key: key);
 
   @override
   _VocabDetailsPageView createState() => _VocabDetailsPageView();

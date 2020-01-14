@@ -5,12 +5,10 @@ class DismissibleBlock  extends StatefulWidget {
 
   final Color bgColor;
   final String text;
-  bool visibility;
 
   DismissibleBlock({ Color color = CustomTheme.GREEN, String text = "", bool visibility = true }) :
   bgColor = color,
-  text = text,
-  visibility = visibility;
+  text = text;
 
   @override
   _DismissibleBlock createState() => _DismissibleBlock();
@@ -20,11 +18,12 @@ class DismissibleBlock  extends StatefulWidget {
 
 class _DismissibleBlock extends State<DismissibleBlock> {
 
-  
+  bool visibility = true;
+
   @override
   Widget build(BuildContext context) {
     return 
-      widget.visibility ? Padding(
+      visibility ? Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
@@ -43,7 +42,7 @@ class _DismissibleBlock extends State<DismissibleBlock> {
                 FlatButton(
                   onPressed: (){ setState(() {
                     print("PRESSED CLOSE");
-                    widget.visibility = false;
+                    visibility = false;
                   }); },
                   child:  Icon(
                     Icons.close,color: CustomTheme.WHITE, size: 25.0,

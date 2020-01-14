@@ -21,4 +21,11 @@ class User {
     this._email = email;
   }
 
+  //Incorrect function
+  bool authenicate(){
+    return this._password == this._password 
+    && this._username == this._username
+    && this._email == this._email;
+  }
+
 }

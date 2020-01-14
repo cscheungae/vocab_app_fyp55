@@ -34,6 +34,13 @@ class vocabulary
     );
   }
 
+  Widget getHeroImage(){
+    return new Hero(
+      tag: this._word + "HeroTag",
+      child: getImage(),
+    );
+  }
+
   //Setter
   void setVID(int value){ this._vid = value; }
   void setImageURL(String url){ this._imageURL = url;  }

@@ -29,9 +29,9 @@ class VocabularyBank
   static List<vocabulary> _vocabList = [];   
 
   //constant value related to database
-  static final String dbName = providerConstant.databaseName;
-  static final String tableName = providerConstant.vocabBankTableName;
-  static final String defName = providerConstant.vocabDefinitionTableName;
+  static final String dbName = ProviderConstant.databaseName;
+  static final String tableName = ProviderConstant.vocabBankTableName;
+  static final String defName = ProviderConstant.vocabDefinitionTableName;
   static final int dbVersion = 1;
 
 
@@ -202,7 +202,7 @@ class VocabularyBank
   //Update vocab as well as definitions table
   Future<int> updateVocab( vocabulary vocab ) async
   {
-    final db = await database;
+    // final db = await database;
     
     //DID should not be replaced
     vocabulary newVocab = vocab;

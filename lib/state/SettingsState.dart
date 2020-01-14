@@ -4,12 +4,10 @@ import 'package:equatable/equatable.dart';
 class SettingsState implements Equatable {
 
   //state value
-  bool sendNotification;
-  double volume;
-  int fontSize;
+  final bool sendNotification;
+  final double volume;
+  final int fontSize;
 
-  
-  
   //Constructor
   SettingsState(bool sendNotify, double volume, int fontSize):
   sendNotification = sendNotify,

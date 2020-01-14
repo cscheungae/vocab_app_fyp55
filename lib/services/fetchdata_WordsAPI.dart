@@ -53,11 +53,11 @@ class FetchDataWordsAPI{
     limit++;
     if ( limit > LIMIT ) return null;
     
-    final String APIAdress = "https://wordsapiv1.p.rapidapi.com/words/";
+    final String apiAdress = "https://wordsapiv1.p.rapidapi.com/words/";
     final String query = word.toLowerCase();
     
     //Very Dangerous!
-    var returnedResponse = await http.get( APIAdress + query,
+    var returnedResponse = await http.get( apiAdress + query,
       headers: { "X-RapidAPI-Key" : APIKey.WordsAPI,
                  "X-RapidAPI-Host" : "wordsapiv1.p.rapidapi.com",
                },
