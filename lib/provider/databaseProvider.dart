@@ -702,6 +702,17 @@ class DatabaseProvider
     return response != null ? Vocab.fromJson(response.first) : null;
   }
 
+  // Terminology: Ready vocab is the vocab that is ready to be prepared as a Flashcard
+  Future<List<Vocab>> getReadyVocab(int threshold) async
+  {
+    List<Map<String, dynamic>> response;
+    try {
+      final db = await database;
+      response = await db.query(vocabTableName, columns: null, where: "status = ?, trackFreq > ?", whereArgs: [Status.tracked.index, threshold]);
+    } catch(e) { debugPrint( e.toString() + "getReadyVocab failure"); response = null;}
+    return response != null ? response.map((item) => Vocab.fromJson(item)).toList() : null;
+  }
+
   Future<List<Vocab>> readAllVocab() async
   {
     final db = await database;
