@@ -74,6 +74,11 @@ class DatabaseProvider
   {
     /// Tables to be created
     try {
+          String query = "CREATE TABLE " + vocabTableName + " (vid INTEGER PRIMARY KEY, word TEXT UNIQUE, imageUrl TEXT, wordFreq INTEGER, trackFreq INTEGER, status INTEGER)";
+          await db.execute(query);
+          print("Successful vocab table");
+        } catch(e) {debugPrint(e.toString() + "init "+ vocabTableName +" table failure");}
+    try {
       String query = "CREATE TABLE " + exampleTableName + " (eid INTEGER PRIMARY KEY, did INTEGER NOT NULL, sentence TEXT, CONSTRAINT fk_ex_definition FOREIGN KEY (did) REFERENCES " + definitionTableName +"(did) ON DELETE CASCADE)";
       await db.execute(query);
     } catch(e) {debugPrint(e.toString() + "init "+ exampleTableName +" table failure");}
@@ -87,11 +92,6 @@ class DatabaseProvider
       String query = "CREATE TABLE " + definitionTableName + " (did INTEGER PRIMARY KEY, vid INTEGER NOT NULL, pos TEXT, defineText Text, CONSTRAINT fk_df_vocab FOREIGN KEY (vid) REFERENCES " + vocabTableName +"(vid) ON DELETE CASCADE)";
       await db.execute(query);
     } catch(e) {debugPrint(e.toString() + "init "+ definitionTableName +" table failure");}
-
-    try {
-      String query = "CREATE TABLE " + vocabTableName + " (vid INTEGER PRIMARY KEY, word TEXT UNIQUE, imageUrl TEXT, wordFreq INTEGER, trackFreq INTEGER, status INTEGER)";
-      await db.execute(query);
-    } catch(e) {debugPrint(e.toString() + "init "+ vocabTableName +" table failure");}
 
     try{
       String query = "CREATE TABLE " + flashcardTableName + " (fid INTEGER PRIMARY KEY, vid INTEGER NOT NULL UNIQUE, dateLastReviewed TEXT, daysBetweenReview INTEGER, overdue REAL, difficulty REAL, CONSTRAINT fk_fc_vocab FOREIGN KEY (vid) REFERENCES " + vocabTableName +"(vid) ON DELETE CASCADE)";
@@ -771,15 +771,15 @@ class DatabaseProvider
    );
   }
 
-  Future<int> dropDatabase() async {
-    List<Map<String, dynamic>> response;
+  Future<void> dropDatabase() async {
     try {
       Directory dbDirectory = await getApplicationDocumentsDirectory();
       print(dbDirectory.toString());
       String dbPath = join(dbDirectory.path, dbName);
-      deleteDatabase(dbPath);
-    } catch(e) { debugPrint(e.toString()); return null; }
-    return 1;
+      final db = await database;
+      await db.close();
+      await deleteDatabase(dbPath);
+    } catch(e) { debugPrint("Delete Database Error\n" + e.toString());}
   }
 
 }
