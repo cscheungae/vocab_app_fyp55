@@ -12,14 +12,13 @@ import 'package:vocab_app_fyp55/model/example.dart';
 import 'package:vocab_app_fyp55/model/flashcard.dart';
 import 'package:vocab_app_fyp55/model/pronunciation.dart';
 import 'package:vocab_app_fyp55/model/stat.dart';
-import 'package:vocab_app_fyp55/model/vocabulary.dart';
+import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/provider/providerConstant.dart';
 import '../model/vocab.dart';
 import '../model/vocabularyDefinition.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:vocab_app_fyp55/provider/Status' as ImportStatus;
 
 class DatabaseProvider
 {
@@ -555,28 +554,28 @@ class DatabaseProvider
         '''
       );
       int trackingCount = Sqflite.firstIntValue(res);
-      // TODO:: create a stat instance
       res = await db.rawQuery(
           '''
         SELECT COUNT (*)
         FROM $vocabTableName
-        WHERE "status" = 0
+        WHERE "status" = 1
         '''
       );
       int learningCount = Sqflite.firstIntValue(res);
-      // TODO:: insert to Stat
       res = await db.rawQuery(
           '''
         SELECT COUNT (*)
         FROM $vocabTableName
-        WHERE "status" = 0
+        WHERE "status" = 2
         '''
       );
       int maturedCount = Sqflite.firstIntValue(res);
 
       DateTime now = new DateTime.now();
       DateTime date = new DateTime(now.year, now.month, now.day);
+      // TODO:: create a stat instance
       Stat stat = Stat(logDate: date, trackingCount: trackingCount, learningCount: learningCount, maturedCount: maturedCount);
+      // TODO:: insert to Stat
       response = await insertStat(stat);
     } catch(e) { debugPrint(e.toString()); response = null; }
     return response;
@@ -662,7 +661,7 @@ class DatabaseProvider
     int rowsDeleted;
     try {
       final db = await database;
-      var res = await.rawQuery(
+      var res = await db.rawQuery(
       '''
       DELETE *
       FROM $statisticTableName

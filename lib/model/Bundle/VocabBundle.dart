@@ -1,7 +1,7 @@
 import 'package:vocab_app_fyp55/model/Bundle/FlashcardBundle.dart';
 import 'package:vocab_app_fyp55/model/flashcard.dart';
 import 'package:vocab_app_fyp55/model/Bundle/DefinitionBundle.dart';
-import 'package:vocab_app_fyp55/model/Status';
+import 'package:vocab_app_fyp55/model/vocab.dart';
 
 class VocabBundle
 {
