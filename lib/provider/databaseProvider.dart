@@ -7,6 +7,9 @@ import 'package:vocab_app_fyp55/model/Bundle/ExampleBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/FlashcardBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/PronunciationBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/VocabBundle.dart';
+import 'package:vocab_app_fyp55/model/Bundle/UserBundle.dart';
+import 'package:vocab_app_fyp55/model/Genre.dart';
+import 'package:vocab_app_fyp55/model/User.dart';
 import 'package:vocab_app_fyp55/model/definition.dart';
 import 'package:vocab_app_fyp55/model/example.dart';
 import 'package:vocab_app_fyp55/model/flashcard.dart';
@@ -32,11 +35,13 @@ class DatabaseProvider
   // constant value related to database
   static final String dbName = providerConstant.anotherDatabaseName;
   static final String vocabTableName = providerConstant.vocabularyTableName;
+  static final String userTableName = providerConstant.userTableName;
   static final String statisticTableName = providerConstant.statisticsTableName;
   static final String definitionTableName = providerConstant.definitionTableName;
   static final String pronunciationTableName = providerConstant.pronunciationTableName;
   static final String exampleTableName = providerConstant.exampleTableName;
   static final String flashcardTableName = providerConstant.flashcardTableName;
+  static final String genreTableName = providerConstant.genreTableName;
   static final int dbVersion = 1;
 
   // get database, initialize it if not yet
@@ -73,11 +78,21 @@ class DatabaseProvider
   Future<void> _initializeTables(Database db) async
   {
     /// Tables to be created
+    ///
+    try{
+        String query = "CREATE TABLE " + userTableName + " (uid INTEGER PRIMARY KEY, name TEXT UNIQUE, trackThres INTEGER NOT NULL, wordFreqThres INTEGER NOT NULL, region TEXT NOT NULL)";
+        await db.execute(query);
+    } catch(e) { debugPrint(e.toString() + " failure in create User table"); }
+
     try {
-          String query = "CREATE TABLE " + vocabTableName + " (vid INTEGER PRIMARY KEY, word TEXT UNIQUE, imageUrl TEXT, wordFreq INTEGER, trackFreq INTEGER, status INTEGER)";
-          await db.execute(query);
-          print("Successful vocab table");
-        } catch(e) {debugPrint(e.toString() + "init "+ vocabTableName +" table failure");}
+      String query = "CREATE TABLE " + vocabTableName + " (vid INTEGER PRIMARY KEY, word TEXT UNIQUE, imageUrl TEXT, wordFreq INTEGER, trackFreq INTEGER, status INTEGER)";
+      await db.execute(query);
+      print("Successful vocab table");
+    } catch(e) {debugPrint(e.toString() + "init "+ vocabTableName +" table failure");}
+
+    try {
+      String query = "CREATE TABLE " + genreTableName + " (gid INTEGER PRIMARY KEY, category TEXT, uid INTEGER NOT NULL, CONSTRAINT fk_user FOREIGN KEY (uid) REFERENCES " + userTableName + "(uid) ON DELETE CASCADE)";
+    } catch(e) {debugPrint(e.toString() + "init "+ genreTableName +" table failure");}
 
     try {
       String query = "CREATE TABLE " + exampleTableName + " (eid INTEGER PRIMARY KEY, did INTEGER NOT NULL, sentence TEXT, CONSTRAINT fk_ex_definition FOREIGN KEY (did) REFERENCES " + definitionTableName +"(did) ON DELETE CASCADE)";
@@ -103,10 +118,120 @@ class DatabaseProvider
       String query = "CREATE TABLE " + statisticTableName + " (sid INTEGER PRIMARY KEY, logDate TEXT NOT NULL, trackingCount INTEGER NOT NULL, learningCount INTEGER NOT NULL, maturedCount INTEGER NOT NULL)";
       await db.execute(query);
     } catch(e) {debugPrint(e.toString() + "init "+ statisticTableName +" table failure");}
-
   } // end of _initializeTables
 
   /// Basic Operation First CRUD for all table
+  /// ***************************** User Route *****************************
+  Future<int> insertUser(User user) async
+  {
+    int response;
+    try {
+      final db = await database;
+      response = await db.insert(userTableName, user.toJson(), conflictAlgorithm: ConflictAlgorithm.abort);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
+  Future<User> readUser(int uid) async {
+    List<Map<String, dynamic>> response;
+    try{
+      final db = await database;
+      response = await db.query(userTableName, columns: null, where: "uid = ?", whereArgs: [uid]);
+    } catch(e) { debugPrint(e.toString() + " failure in reading User"); response = null; }
+    return response != null ? User.fromJson(response.first) : null;
+  }
+
+  Future<int> updateUser(User user) async
+  {
+    int response;
+    try {
+      if(user.uid == null) throw new Exception("Invalid update of User: missing uid");
+      final db = await database;
+      response = await db.update(userTableName, user.toJson(), where: "uid = ?", whereArgs: [user.uid]);
+    } catch(e) { debugPrint(e.toString() + " failure in reading User"); response = null; }
+    return response;
+  }
+
+  Future<int> deleteUser(int uid) async
+  {
+    int response;
+    try {
+      if(uid == null) throw new Exception("Invalid delete of User: missing uid");
+      final db = await database;
+      response = await db.delete(userTableName, where: "uid = ?", whereArgs: [uid]);
+    } catch(e) { debugPrint(e.toString() + " failure in deleteUser()"); response = null; }
+    return response;
+  }
+
+  Future<UserBundle> getUserBundle(int uid) async
+  {
+    UserBundle userBundle;
+    try {
+      User user = await readUser(uid);
+      List<Genre> genres = await getGenreByUid(uid);
+      // Create the UserBundle and GenreBundle
+      List<String> genreBundle = [];
+      genres.forEach((genre) {
+        genreBundle.add(genre.category);
+      });
+      userBundle = new UserBundle(uid: user.uid, name: user.name, trackThres: user.trackThres, wordFreqThres: user.wordFreqThres, region: user.region, genreBundle: genreBundle);
+    } catch(e) { debugPrint(e.toString() + " failure in getUserBundle()"); userBundle = null; }
+    return userBundle;
+  }
+
+  /// ***************************** Genre Route *****************************
+  Future<int> insertGenre(Genre genre) async
+  {
+    int response;
+    try {
+      final db = await database;
+      response = await db.insert(genreTableName, genre.toJson(), conflictAlgorithm: ConflictAlgorithm.abort);
+    } catch(e) { debugPrint(e.toString()); response = null; }
+    return response;
+  }
+
+  Future<Genre> readGenre(int gid) async
+  {
+    List<Map<String, dynamic>> response;
+    try{
+      final db = await database;
+      response = await db.query(genreTableName, columns: null, where: "gid = ?", whereArgs: [gid]);
+    } catch(e) { debugPrint(e.toString() + " failure in reading genre"); response = null; }
+    return response != null ? Genre.fromJson(response.first) : null;
+  }
+
+  Future<List<Genre>> getGenreByUid(int uid) async
+  {
+    List<Map<String, dynamic>> response;
+    try{
+      final db = await database;
+      response = await db.query(genreTableName, columns: null, where: "uid = ?", whereArgs: [uid]);
+    } catch(e) { debugPrint(e.toString() + " failure in getGenreByUid()"); response = null; }
+    return response != null ? response.map((item) => Genre.fromJson(item)).toList() : null;
+  }
+
+  Future<int> updateGenre(Genre genre) async
+  {
+    int response;
+    try {
+      if(genre.gid == null) throw new Exception("Invalid update of Genre: missing gid");
+      final db = await database;
+      response = await db.update(genreTableName, genre.toJson(), where: "gid = ?", whereArgs: [genre.gid]);
+    } catch(e) { debugPrint(e.toString() + " failure in reading Genre"); response = null; }
+    return response;
+  }
+
+  Future<int> deleteGenre(int gid) async
+  {
+    int response;
+    try {
+      if(gid == null) throw new Exception("Invalid delete of Genre: missing gid");
+      final db = await database;
+      response = await db.delete(genreTableName, where: "gid = ?", whereArgs: [gid]);
+    } catch(e) { debugPrint(e.toString() + " failure in deleteGenre()"); response = null; }
+    return response;
+  }
+
   /// ***************************** Vocab Route *****************************
   Future<int> insertVocab(Vocab vocab) async
   {
