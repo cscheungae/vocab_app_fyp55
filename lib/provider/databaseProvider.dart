@@ -748,6 +748,7 @@ class DatabaseProvider
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
+      // TODO:: implement the wordFreq exceeds user defined wordfreq as well
       response = await db.query(vocabTableName, columns: null, where: "status = ?, trackFreq > ?", whereArgs: [Status.tracked.index, threshold]);
     } catch(e) { debugPrint( e.toString() + "getReadyVocab failure"); response = null;}
     return response != null ? response.map((item) => Vocab.fromJson(item)).toList() : null;
