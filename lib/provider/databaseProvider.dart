@@ -78,6 +78,7 @@ class DatabaseProvider
           await db.execute(query);
           print("Successful vocab table");
         } catch(e) {debugPrint(e.toString() + "init "+ vocabTableName +" table failure");}
+
     try {
       String query = "CREATE TABLE " + exampleTableName + " (eid INTEGER PRIMARY KEY, did INTEGER NOT NULL, sentence TEXT, CONSTRAINT fk_ex_definition FOREIGN KEY (did) REFERENCES " + definitionTableName +"(did) ON DELETE CASCADE)";
       await db.execute(query);
@@ -265,9 +266,6 @@ class DatabaseProvider
     List<Map<String, dynamic>> response;
     try {
       response = await db.rawQuery("SELECT * FROM " + definitionTableName + " WHERE vid =" + vid.toString());
-      if(response.length <=0 ) {
-        throw new Exception("non-existing definition instance");
-      }
     } catch(e) { debugPrint(e.toString() + "read definition failure"); response = null;}
     return response != null ? response.map( (item) => Definition.fromJson(item)).toList() : null;
   }
@@ -414,31 +412,41 @@ class DatabaseProvider
     return response != null ? Flashcard.fromJson(response.first) : null;
   }
 
+  Future<List<Flashcard>> readAllFlashcard() async
+  {
+    final db = await database;
+    List<Map<String, dynamic>> response;
+    try {
+      response = await db.rawQuery("SELECT * FROM " + flashcardTableName);
+    } catch(e) { debugPrint(e.toString() + " read all statistics failure"); response = null; }
+    return response != null ? response.map((item) => Flashcard.fromJson(item)).toList() : null;
+  }
+
   Future<List<Flashcard>> getStudyFlashcards(int quantity) async {
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
       // TODO:: update the overdue attributes
-      int changeDateIndex = await db.rawUpdate(
+      await db.rawUpdate(
           '''
           UPDATE $flashcardTableName
-          SET "overdue" = julianday('now') - julianday("dateLastReviewed")
+          SET overdue = julianday('now') - julianday(dateLastReviewed, 'utc') / daysBetweenReview
           '''
       );
-      int minOverdueIndex = await db.rawUpdate(
+      await db.rawUpdate(
         '''
         UPDATE $flashcardTableName
-        SET "overdue" = 2
-        WHERE "overdue" > 2
+        SET overdue = 2
+        WHERE overdue > 2
         '''
       );
       // TODO:: rank the flashcard table by descending overdue order
       response = await db.rawQuery(
         '''
-        SELECT *
+        SELECT * 
         FROM $flashcardTableName
-        ORDER BY "overdue" DESC
-        WHERE strftime('%H','now') - strftime('%H', "overdue") > 8
+        WHERE strftime('%s','now', 'localtime') - strftime('%s', dateLastReviewed) > 0
+        ORDER BY overdue DESC
         LIMIT $quantity
         '''
       );
@@ -447,9 +455,38 @@ class DatabaseProvider
     return response != null ? response.map((item) => Flashcard.fromJson(item)).toList() : null;
   }
 
+  Future<List<VocabBundle>> getStudyVocabs(int quantity) async {
+    List<VocabBundle> response = [];
+    try {
+      // TODO:: call the getStudyFlashcards which return a set of Flashcard
+      List<Flashcard> flashcards = await getStudyFlashcards(quantity);
+      // TODO:: by looping through the set of flashcards, get its vocabBundle and attach the the response
+      await Future.forEach(flashcards, (flashcard) async {
+        VocabBundle vocab = await readVocabBundle(flashcard.vid);
+        response.add(vocab);
+      });
+    } catch(e) { debugPrint(e.toString()); }
+    return response.isNotEmpty ? response : null;
+  }
+
+  Future<String> getTime() async
+  {
+    List<Map<String, dynamic>> response;
+    try {
+      final db = await database;
+      response = await db.rawQuery(
+        '''
+        SELECT julianday('now', 'utc')
+        '''
+      );
+    } catch(e) { debugPrint(e.toString() + " failure in getTime()"); }
+    return response.toString();
+  }
+
   // This is a pure update Flashcard function with no logic
   Future<int> updateFlashcard(Flashcard flashcard) async
   {
+    debugPrint("Update flashcard: ${flashcard.toString()}");
     // check if there is vid properties in the vocab, if no --> cannot update the vocab
     int response;
     try {
@@ -470,12 +507,22 @@ class DatabaseProvider
   // This is a update Flashcard function based on rating and old Flashcard
   Future<int> reviseFlashcard(Flashcard oldFlashcard, double rating) async {
     double percentOverdue = rating > providerConstant.passCutoff ? min(2, (DateTime.now().difference(oldFlashcard.dateLastReviewed).inDays).toDouble()/oldFlashcard.daysBetweenReview.toDouble()) : 1.0;
-    double newDifficulty = percentOverdue / 17 * (8-9*rating);
+    double newDifficulty = percentOverdue / 17 * (8-9*rating) + oldFlashcard.difficulty;
+    // clamp newDifficulty to [0.0, 1.0]
+    newDifficulty = max(newDifficulty, 0);
+    newDifficulty = min(1, newDifficulty);
     double difficultyWeight = 3 - 1.7*newDifficulty;
-    int newDaysBetweenReviews = rating > providerConstant.passCutoff ? (1 + (difficultyWeight - 1) * percentOverdue).floor() : min(1, (1 / pow(difficultyWeight, 2)).floor());
+//    int newDaysBetweenReviews = oldFlashcard.daysBetweenReview * (rating > providerConstant.passCutoff ? (1 + (difficultyWeight - 1) * percentOverdue).floor() : max(1, (1 / pow(difficultyWeight, 2)).floor()));
+    int newDaysBetweenReviews;
+    if( rating > providerConstant.passCutoff ) {
+      newDaysBetweenReviews = (oldFlashcard.daysBetweenReview * (1 + (difficultyWeight - 1) * percentOverdue)).floor();
+    } else {
+      newDaysBetweenReviews = max(1, (oldFlashcard.daysBetweenReview * (1/pow(difficultyWeight, 2)))).floor();
+    }
     // Change the status as the card is matured.
     if (newDaysBetweenReviews >= providerConstant.maturePeriod ) {
       try {
+        debugPrint("vocab becomes matured.");
         // obtain the vocab
         Vocab vocab = await readVocab(oldFlashcard.vid);
         // Set a new state to Status.matured
@@ -487,6 +534,7 @@ class DatabaseProvider
       } catch(e) { debugPrint(e.toString() + "failure in reviseFlashcard"); }
     } else if (newDaysBetweenReviews < providerConstant.maturePeriod && oldFlashcard.daysBetweenReview > providerConstant.maturePeriod) {
       try {
+      debugPrint("vocab returned back to learning state.");
       // obtain the vocab
       Vocab vocab = await readVocab(oldFlashcard.vid);
       // Set a new state to Status.matured
@@ -497,7 +545,7 @@ class DatabaseProvider
       await triggerStatLog();
       } catch(e) { debugPrint(e.toString() + "failure in reviseFlashcard"); }
     }
-    return await updateFlashcard(Flashcard(vid: oldFlashcard.vid, fid: oldFlashcard.fid, dateLastReviewed: DateTime.now().toIso8601String(), daysBetweenReview: newDaysBetweenReviews, difficulty: newDifficulty));
+    return await updateFlashcard(Flashcard(vid: oldFlashcard.vid, fid: oldFlashcard.fid, dateLastReviewed: DateTime.now(), daysBetweenReview: newDaysBetweenReviews, difficulty: newDifficulty, overdue: percentOverdue));
   }
 
   Future<int> deleteFlashcard(int fid) async
@@ -605,15 +653,27 @@ class DatabaseProvider
     return response != null ? response.map((item) => Stat.fromJson(item)).toList() : null;
   }
 
-  Future<List<Stat>> getUserStistics() async
+  Future<List<Stat>> getUserStatistics() async
   {
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
+
+      // TODO:: create an optimize one which could remove the outdated Stat entries, as a result, only the latest stats remains.
       // TODO:: Clear the outdated log
-      await deleteOutdatedStat();
       // TODO:: Return the list of stat
-      response = await db.query(statisticTableName);
+
+
+      // Unoptimized
+      response = await db.rawQuery(
+        '''
+        SELECT sid, logDate, trackingCount, learningCount, maturedCount
+        FROM (SELECT sid, logDate, trackingCount, learningCount, maturedCount
+              FROM $statisticTableName
+              ORDER BY trackingCount, learningCount, maturedCount) as orderStat
+        GROUP BY logDate
+        '''
+      );
     } catch(e) { debugPrint(e.toString() + " failure in getUserStistics"); response = null; }
     return response != null ? response.map((item) => Stat.fromJson(item)).toList() : null;
   }
@@ -655,26 +715,6 @@ class DatabaseProvider
     }
     return response;
   }
-
-  Future<int> deleteOutdatedStat() async
-  {
-    int rowsDeleted;
-    try {
-      final db = await database;
-      var res = await db.rawQuery(
-      '''
-      DELETE *
-      FROM $statisticTableName
-      WHERE NOT EXISTS (SELECT "sid", "logDate", max("trackingCount"), max("learningCount"), max(maturedCount)
-                        FROM STAT
-                        GROUP BY "logDate")
-      '''
-      );
-      rowsDeleted = Sqflite.firstIntValue(res);
-    } catch(e) { debugPrint(e.toString() + " failure in deleteOutdatedStat"); rowsDeleted = null; }
-    return rowsDeleted;
-  }
-
 
   Future<int> deleteAllStat() async
   {
@@ -726,38 +766,41 @@ class DatabaseProvider
   Future<VocabBundle> readVocabBundle(int vid) async
   {
     // obtain a vocab bundle (with all the info. of a word)
-    final db = await database;
     Vocab vocab = await readVocab(vid);
     Flashcard flashcard = await readFlashcard(vid);
-    FlashcardBundle flashcardBundle = FlashcardBundle(
-        fid: flashcard.fid,
-        dateLastReviewed: flashcard.dateLastReviewed,
-        daysBetweenReview: flashcard.daysBetweenReview,
-        overdue: flashcard.overdue,
-        difficulty: flashcard.difficulty
+    FlashcardBundle flashcardBundle = (flashcard != null ?
+      FlashcardBundle(
+          fid: flashcard.fid,
+          dateLastReviewed: flashcard.dateLastReviewed,
+          daysBetweenReview: flashcard.daysBetweenReview,
+          overdue: flashcard.overdue,
+          difficulty: flashcard.difficulty
+      ) : null
     );
 
     // Special operation need to loop to create each step by step
     List<Definition> definitions = await readDefinition(vid);
     // for each definition, find its examples and pronunciation, assign to the definition bundle
     List<DefinitionBundle> definitionsBundle = [];
-   for (int i=0; i<definitions.length; i++) {
-     // search its pronunciation and examples
-     Definition definition = definitions[i];
-     List<Pronunciation> pronunciations = await readPronunciation(definition.did);
-     List<Example> examples = await readExample(definition.did);
-     // construct pronunciationsBundle and examplesBundle
-     List<PronunciationBundle> pronunciationsBundle = pronunciations.map((item) => PronunciationBundle(pid: item.pid, ipa: item.ipa, audioUrl: item.audioUrl)).toList();
-     List<ExampleBundle> examplesBundle = examples.map((item) => ExampleBundle(eid: item.eid, sentence: item.sentence)).toList();
-     definitionsBundle.add(
-         DefinitionBundle(
-             did: definition.did,
-             pos: definition.pos,
-             pronunciationsBundle: pronunciationsBundle,
-             examplesBundle: examplesBundle
-         )
-     );
-   }
+    if(definitions.isNotEmpty){
+      for (int i=0; i<definitions.length; i++) {
+        // search its pronunciation and examples
+        Definition definition = definitions[i];
+        List<Pronunciation> pronunciations = await readPronunciation(definition.did);
+        List<Example> examples = await readExample(definition.did);
+        // construct pronunciationsBundle and examplesBundle
+        List<PronunciationBundle> pronunciationsBundle = pronunciations.map((item) => PronunciationBundle(pid: item.pid, ipa: item.ipa, audioUrl: item.audioUrl)).toList();
+        List<ExampleBundle> examplesBundle = examples.map((item) => ExampleBundle(eid: item.eid, sentence: item.sentence)).toList();
+        definitionsBundle.add(
+            DefinitionBundle(
+              did: definition.did,
+              pos: definition.pos,
+              pronunciationsBundle: pronunciationsBundle.isNotEmpty ? pronunciationsBundle : null,
+              examplesBundle: examplesBundle.isNotEmpty ? examplesBundle : null,
+            )
+        );
+      }
+    }
 
    return VocabBundle(
      vid: vocab.vid,
@@ -767,7 +810,7 @@ class DatabaseProvider
      trackFreq: vocab.trackFreq,
      status: vocab.status,
      flashcardBundle: flashcardBundle,
-     definitionsBundle: definitionsBundle,
+     definitionsBundle: definitionsBundle.isNotEmpty ? definitionsBundle : null,
    );
   }
 
@@ -781,5 +824,4 @@ class DatabaseProvider
       await deleteDatabase(dbPath);
     } catch(e) { debugPrint("Delete Database Error\n" + e.toString());}
   }
-
 }

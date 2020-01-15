@@ -28,4 +28,9 @@ class VocabBundle
     this.flashcardBundle = flashcardBundle ?? null;
     this.definitionsBundle = definitionsBundle ?? null;
   }
+
+  @override
+  String toString() {
+    return "vocabBundle: vid: $vid, word: $word, imageUrl: $imageUrl, wordFreq: $wordFreq, trackFreq: $trackFreq, status: $status, flashBundle: ${flashcardBundle.toString()}, definitionBundle: $definitionsBundle";
+  }
 }

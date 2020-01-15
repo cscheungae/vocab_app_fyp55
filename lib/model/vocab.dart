@@ -47,4 +47,9 @@ class Vocab
       "status": status.index,
     };
   }
+
+  @override
+  String toString() {
+    return "Vocab - vid: $vid, word: $word, imageUrl: $imageUrl, wordFreq: $wordFreq, trackFreq: $trackFreq, status: $status";
+  }
 }

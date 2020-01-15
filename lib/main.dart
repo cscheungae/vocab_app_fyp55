@@ -37,6 +37,8 @@ void main() => runApp(MyApp());
 //  }
 //}
 
+
+// For testing the sqlite database
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -62,48 +64,102 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('sqflite'),
+        title: Text('sqflite hi'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            RaisedButton(
-              child: Text('insert', style: TextStyle(fontSize: 20),),
-              onPressed: () {
-                _insert();
-              },
-            ),
-            RaisedButton(
-              child: Text('query', style: TextStyle(fontSize: 20),),
-              onPressed: () {
-                _query();
-              },
-            ),
-            RaisedButton(
-              child: Text('update', style: TextStyle(fontSize: 20),),
-              onPressed: () {
-                _update();
-              },
-            ),
-            RaisedButton(
-              child: Text('delete', style: TextStyle(fontSize: 20),),
-              onPressed: () {
-                _delete();
-              },
-            ),
+//            RaisedButton(
+//              child: Text('insert', style: TextStyle(fontSize: 20),),
+//              onPressed: () {
+//                _insert();
+//              },
+//            ),
+//            RaisedButton(
+//              child: Text('query', style: TextStyle(fontSize: 20),),
+//              onPressed: () {
+//                _query();
+//              },
+//            ),
+//            RaisedButton(
+//              child: Text('update', style: TextStyle(fontSize: 20),),
+//              onPressed: () {
+//                _update();
+//              },
+//            ),
+//            RaisedButton(
+//              child: Text('delete', style: TextStyle(fontSize: 20),),
+//              onPressed: () {
+//                _delete();
+//              },
+//            ),
             RaisedButton(
               child: Text('drop databse', style: TextStyle(fontSize: 20),),
               onPressed: () async {
-                int res = await dbHelper.dropDatabase();
-                print('drop all tables sucess: $res');
+                await dbHelper.dropDatabase();
+                //print('drop all tables sucess: $res');
               },
             ),
-            RaisedButton(
-              child: Text('read vocab bundle', style: TextStyle(fontSize: 20),),
-              onPressed: () {
-                _readVocabBundle();
-              }),
+//            RaisedButton(
+//              child: Text('read vocab bundle', style: TextStyle(fontSize: 20),),
+//              onPressed: () {
+//                _readVocabBundle();
+//              }),
+              RaisedButton(
+                  child: Text('insert vocab', style: TextStyle(fontSize: 20),),
+                  onPressed: () {
+                    _insert();
+                  },
+              ),
+              RaisedButton(
+                child: Text('print all vocabs', style: TextStyle(fontSize: 20),),
+                onPressed: () {
+                  _printAllVocab();
+                },
+              ),
+              RaisedButton(
+                child: Text('insert flashcard', style: TextStyle(fontSize: 20),),
+                onPressed: ()  {
+                  _insertFlashcard();
+                },
+              ),
+              RaisedButton(
+                child: Text('read all flashcard', style: TextStyle(fontSize: 20),),
+                onPressed: () {
+                  _readALlFlashcard();
+                },
+              ),
+              RaisedButton(
+                child: Text('revise flashcard', style: TextStyle(fontSize: 20),),
+                onPressed: () {
+                  _reviseFlashcard();
+                },
+              ),
+              RaisedButton(
+                child: Text('get study flashcards', style: TextStyle(fontSize: 20),),
+                onPressed: () {
+                  _printStudyFlashcard();
+                },
+              ),
+              RaisedButton(
+                child: Text('get study vocabs', style: TextStyle(fontSize: 20),),
+                onPressed: () {
+                  _printStudyVocab();
+                },
+              ),
+              RaisedButton(
+                child: Text('get time', style: TextStyle(fontSize: 20),),
+                onPressed: () {
+                  _printTime();
+                },
+              ),
+              RaisedButton(
+                child: Text('get vocab by word', style: TextStyle(fontSize: 20),),
+                onPressed: () {
+                  _seacrhVocabID();
+                },
+              ),
           ],
         ),
       ),
@@ -113,13 +169,13 @@ class MyHomePage extends StatelessWidget {
 
 
   // Button to play along with the database
-  // TODO:: check Stat
+//  // TODO:: check Stat
 //  void _insert() async {
 //    // row to insert
-//    Stat stat = Stat(logDate: DateTime.now(), trackingCount: 3, learningCount: 2, maturedCount: 1);
+//    Stat stat = Stat(sid: null, logDate: DateTime.now(), trackingCount: 3, learningCount: 2, maturedCount: 1);
 //    sid1 = await dbHelper.insertStat(stat);
 //    print('inserted row id: $sid1');
-//    stat = Stat(logDate: DateTime.now(), trackingCount: 4, learningCount: 2, maturedCount: 2);
+//    stat = Stat(sid: null, logDate: DateTime.now(), trackingCount: 4, learningCount: 2, maturedCount: 2);
 //    sid2 = await dbHelper.insertStat(stat);
 //    print('inserted row id: $sid2');
 //  }
@@ -129,11 +185,16 @@ class MyHomePage extends StatelessWidget {
 //    print(stat);
 //  }
 
-//  void _query() async {
-//    List<Stat> stats = await dbHelper.readAllStat();
-//    print(stats);
-//  }
-//
+  void _readAllStat() async {
+    List<Stat> stats = await dbHelper.readAllStat();
+    stats.forEach((item) => print(item.toString()));
+  }
+
+  void _query() async {
+    List<Stat> stats = await dbHelper.getUserStatistics();
+    stats.forEach((item) => print(item.toString()));
+  }
+
 //  void _update() async {
 //    Stat stat = Stat(sid: 2, logDate: DateTime.now(), trackingCount: 0, learningCount: 0, maturedCount: 0);
 //    int response = await dbHelper.updateStat(stat);
@@ -147,48 +208,53 @@ class MyHomePage extends StatelessWidget {
 
 
   // TODO:: check vocab
-//  void _insert() async {
-//      Vocab vocab = Vocab(word: "apple", wordFreq: 2, trackFreq: 4, status: Status.tracked);
-//      sid1 = await dbHelper.insertVocab(vocab);
-//      print('inserted row id: $sid1');
-//      vocab = Vocab(word: "orange", wordFreq: 3, trackFreq: 2, status: Status.tracked);
-//      sid2 = await dbHelper.insertVocab(vocab);
-//      print('inserted row id: $sid2');
-//  }
-
+  Future<void> _insert() async {
+      Vocab vocab = Vocab(word: "banana", wordFreq: 2, trackFreq: 4, status: Status.learning);
+      sid1 = await dbHelper.insertVocab(vocab);
+      print('inserted row id: $sid1');
+      vocab = Vocab(word: "durian", wordFreq: 3, trackFreq: 2, status: Status.matured);
+      sid2 = await dbHelper.insertVocab(vocab);
+      print('inserted row id: $sid2');
+  }
+  // TODO:: readVocab
 //  void _query() async {
 //    Vocab vocab = await dbHelper.readVocab(sid1);
 //    print('query all rows:');
 //    print(vocab);
 //  }
+  // TODO:: get vocab by word
+  void _seacrhVocabID() async {
+      Vocab vocab = await dbHelper.getVocab("durian");
+      print(vocab.toString());
+  }
 
-////  // TODO:: print all the vocab
-  void _query() async {
+//////  // TODO:: print all the vocab
+  void _printAllVocab() async {
     List<Vocab> vocabs = await dbHelper.readAllVocab();
-    print(vocabs);
+    vocabs.forEach((vocab) => print(vocab.toString()));
   }
-
-  void _update() async {
-    Vocab vocab = Vocab(vid: sid2,
-        word: "organ",
-        wordFreq: 3,
-        trackFreq: 2,
-        status: Status.tracked);
-    int response = await dbHelper.updateVocab(vocab);
-    print('updated row id: $response');
-  }
-
-  void _delete() async {
-    int response = await dbHelper.deleteAllVocab();
-    print('deleted rows quantity: $response');
-  }
-
-//  // TODO:: insert definition
-  void _insert() async {
-    Definition definition = Definition(vid: 1, pos: "Noun", defineText: "Testing def");
-    int did1 = await dbHelper.insertDefinition(definition);
-    print('inserted definition id: $did1');
-  }
+    // TODO:: update vocab
+//  void _update() async {
+//    Vocab vocab = Vocab(vid: sid2,
+//        word: "organ",
+//        wordFreq: 3,
+//        trackFreq: 2,
+//        status: Status.tracked);
+//    int response = await dbHelper.updateVocab(vocab);
+//    print('updated row id: $response');
+//  }
+    // TODO:: deleteAllVocab
+//  void _delete() async {
+//    int response = await dbHelper.deleteAllVocab();
+//    print('deleted rows quantity: $response');
+//  }
+//
+////  // TODO:: insert definition
+//  void _insert() async {
+//    Definition definition = Definition(vid: 1, pos: "Noun", defineText: "Testing def");
+//    int did1 = await dbHelper.insertDefinition(definition);
+//    print('inserted definition id: $did1');
+//  }
 //  // TODO:: query definition
 //  void _query() async {
 //    List<Definition> definitions = await dbHelper.readDefinition(1);
@@ -212,11 +278,11 @@ class MyHomePage extends StatelessWidget {
 //    }
 //
 //   TODO:: insert flashcard
-//  void _insert() async {
-//    Flashcard flashcard = Flashcard(vid: 1);
-//    int fid1 = await dbHelper.insertFlashcard(flashcard);
-//    print('inserted flashcard id: $fid1');
-//  }
+  void _insertFlashcard() async {
+    Flashcard flashcard = Flashcard(vid: 1);
+    int fid1 = await dbHelper.insertFlashcard(flashcard);
+    print('inserted flashcard id: $fid1');
+  }
 //
 ////  // TODO:: query flashcard
 //  void _query() async {
@@ -234,6 +300,23 @@ class MyHomePage extends StatelessWidget {
 //    int success = await dbHelper.updateFlashcard(Flashcard(vid: 1, fid: 1, dateLastReviewed: DateTime.now(), daysBetweenReview: 3, rating: 3));
 //    print('update flashcard success? $success');
 //  }
+    // TODO:: revise flashcard
+    void _reviseFlashcard() async {
+      Flashcard oldFlashcard = await dbHelper.readFlashcard(1);
+      int response = await dbHelper.reviseFlashcard(oldFlashcard, 1.0);
+      print('revised flashcard response: $response');
+    }
+    // TODO:: read all flashcard
+    void _readALlFlashcard() async {
+      List<Flashcard> flashcards = await dbHelper.readAllFlashcard();
+      flashcards.forEach((item) => print(item.toString()));
+    }
+    // TODO:: get study flashcard
+    void _printStudyFlashcard() async {
+      List<Flashcard> flashcards = await dbHelper.getStudyFlashcards(1);
+      if(flashcards.isEmpty) {print("empty list of flashcards returned");}
+      flashcards.forEach((item) => print(item.toString()));
+    }
 //  // TODO:: delete flashcard
 //  void _delete() async {
 //    int success = await dbHelper.deleteFlashcard(1);
@@ -298,10 +381,21 @@ class MyHomePage extends StatelessWidget {
 //    print('delete example success? $success');
 //  }
 
-  // TODO:: read vocab bundle of a word
-  void _readVocabBundle() async {
-    VocabBundle vocabBundle = await dbHelper.readVocabBundle(1);
-    print('read ocab bundle success: ' + vocabBundle.toString());
-  }
+//  // TODO:: read vocab bundle of a word
+//  void _readVocabBundle() async {
+//    VocabBundle vocabBundle = await dbHelper.readVocabBundle(1);
+//    print('read ocab bundle success: ' + vocabBundle.toString());
+//  }
 
+//   TODO:: get Study Vocab
+    void _printStudyVocab() async {
+      List<VocabBundle> vocabBundles = await dbHelper.getStudyVocabs(1);
+      vocabBundles.forEach((item) => print(item.toString()));
+    }
+
+    // TODO:: get time
+    void _printTime() async {
+      String time = await dbHelper.getTime();
+      print("time now is: $time");
+    }
 }

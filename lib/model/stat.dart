@@ -12,10 +12,11 @@ class Stat {
   //Constructor, From Json to Dart Map Data
   factory Stat.fromJson( Map<String, dynamic> json ){
     return Stat(
+      sid: json["sid"] ?? null,
       logDate: json["logDate"]!= null ? DateTime.parse(json["logDate"]) : null,
-      trackingCount: json["trackingCount"] ?? "",
-      learningCount: json["learningCount"] ?? "",
-      maturedCount: json["maturedCount"] ?? "",
+      trackingCount: json["trackingCount"] ?? null,
+      learningCount: json["learningCount"] ?? null,
+      maturedCount: json["maturedCount"] ?? null,
     );
   }
 
@@ -27,5 +28,10 @@ class Stat {
       "learningCount" : learningCount,
       "maturedCount" : maturedCount,
     };
+  }
+
+  @override
+  String toString() {
+    return "Stat - sid: $sid, logDate: ${logDate.toIso8601String()}, trackingCount: $trackingCount, learningCount: $learningCount, maturedCount: $maturedCount";
   }
 }

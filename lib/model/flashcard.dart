@@ -44,6 +44,7 @@ class Flashcard {
       dateLastReviewed: DateTime.parse(json["dateLastReviewed"]),
       daysBetweenReview: json["daysBetweenReview"],
       difficulty: json["difficulty"],
+      overdue: json["overdue"],
     );
   }
 
@@ -58,5 +59,10 @@ class Flashcard {
       "difficulty": difficulty
     };
     return json;
+  }
+
+  @override
+  String toString() {
+    return "Flashcard - (fid: $fid, vid: $vid, dateLashReviwed: ${dateLastReviewed.toIso8601String()}, daysBetweenReview: $daysBetweenReview, overdue: $overdue, difficulty: $difficulty)";
   }
 }
