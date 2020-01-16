@@ -67,7 +67,7 @@ public class WordModalActivity extends Activity {
 
         backBtn.setOnClickListener((View view) -> {
             Intent updateVisitCount = new Intent(getApplicationContext(),MainActivity.class);
-            startActivity();
+            startActivity(updateVisitCount);
 
             finish();
         });
