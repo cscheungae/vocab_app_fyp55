@@ -33,15 +33,15 @@ class DatabaseProvider
   static Database _database;
 
   // constant value related to database
-  static final String dbName = providerConstant.anotherDatabaseName;
-  static final String vocabTableName = providerConstant.vocabularyTableName;
-  static final String userTableName = providerConstant.userTableName;
-  static final String statisticTableName = providerConstant.statisticsTableName;
-  static final String definitionTableName = providerConstant.definitionTableName;
-  static final String pronunciationTableName = providerConstant.pronunciationTableName;
-  static final String exampleTableName = providerConstant.exampleTableName;
-  static final String flashcardTableName = providerConstant.flashcardTableName;
-  static final String genreTableName = providerConstant.genreTableName;
+  static final String dbName = ProviderConstant.anotherDatabaseName;
+  static final String vocabTableName = ProviderConstant.vocabularyTableName;
+  static final String userTableName = ProviderConstant.userTableName;
+  static final String statisticTableName = ProviderConstant.statisticsTableName;
+  static final String definitionTableName = ProviderConstant.definitionTableName;
+  static final String pronunciationTableName = ProviderConstant.pronunciationTableName;
+  static final String exampleTableName = ProviderConstant.exampleTableName;
+  static final String flashcardTableName = ProviderConstant.flashcardTableName;
+  static final String genreTableName = ProviderConstant.genreTableName;
   static final int dbVersion = 1;
 
   // get database, initialize it if not yet
@@ -631,7 +631,7 @@ class DatabaseProvider
 
   // This is a update Flashcard function based on rating and old Flashcard
   Future<int> reviseFlashcard(Flashcard oldFlashcard, double rating) async {
-    double percentOverdue = rating > providerConstant.passCutoff ? min(2, (DateTime.now().difference(oldFlashcard.dateLastReviewed).inDays).toDouble()/oldFlashcard.daysBetweenReview.toDouble()) : 1.0;
+    double percentOverdue = rating > ProviderConstant.passCutoff ? min(2, (DateTime.now().difference(oldFlashcard.dateLastReviewed).inDays).toDouble()/oldFlashcard.daysBetweenReview.toDouble()) : 1.0;
     double newDifficulty = percentOverdue / 17 * (8-9*rating) + oldFlashcard.difficulty;
     // clamp newDifficulty to [0.0, 1.0]
     newDifficulty = max(newDifficulty, 0);
@@ -639,13 +639,13 @@ class DatabaseProvider
     double difficultyWeight = 3 - 1.7*newDifficulty;
 //    int newDaysBetweenReviews = oldFlashcard.daysBetweenReview * (rating > providerConstant.passCutoff ? (1 + (difficultyWeight - 1) * percentOverdue).floor() : max(1, (1 / pow(difficultyWeight, 2)).floor()));
     int newDaysBetweenReviews;
-    if( rating > providerConstant.passCutoff ) {
+    if( rating > ProviderConstant.passCutoff ) {
       newDaysBetweenReviews = (oldFlashcard.daysBetweenReview * (1 + (difficultyWeight - 1) * percentOverdue)).floor();
     } else {
       newDaysBetweenReviews = max(1, (oldFlashcard.daysBetweenReview * (1/pow(difficultyWeight, 2)))).floor();
     }
     // Change the status as the card is matured.
-    if (newDaysBetweenReviews >= providerConstant.maturePeriod ) {
+    if (newDaysBetweenReviews >= ProviderConstant.maturePeriod ) {
       try {
         debugPrint("vocab becomes matured.");
         // obtain the vocab
@@ -657,7 +657,7 @@ class DatabaseProvider
         // trigger stat log
         await triggerStatLog();
       } catch(e) { debugPrint(e.toString() + "failure in reviseFlashcard"); }
-    } else if (newDaysBetweenReviews < providerConstant.maturePeriod && oldFlashcard.daysBetweenReview > providerConstant.maturePeriod) {
+    } else if (newDaysBetweenReviews < ProviderConstant.maturePeriod && oldFlashcard.daysBetweenReview > ProviderConstant.maturePeriod) {
       try {
       debugPrint("vocab returned back to learning state.");
       // obtain the vocab

@@ -31,7 +31,7 @@ class Flashcard {
     this.dateLastReviewed = dateLastReviewed ?? DateTime.now();
     this.daysBetweenReview = daysBetweenReview ?? 1;
     this.overdue = overdue ?? null;
-    this.difficulty = difficulty ?? providerConstant.defaultDifficulty;
+    this.difficulty = difficulty ?? ProviderConstant.defaultDifficulty;
   }
 
 

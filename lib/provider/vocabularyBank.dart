@@ -66,7 +66,7 @@ class VocabularyBank
   //
   Future<void> _initializeVocabTables(Database db) async{
     try{
-      await db.execute( "CREATE TABLE "+ vocabTableName + " (vid INTEGER, zipf INTEGER, frequency INTEGER, name TEXT, image TEXT)");
+      await db.execute( "CREATE TABLE "+ tableName + " (vid INTEGER, zipf INTEGER, frequency INTEGER, name TEXT, image TEXT)");
     } catch(e){ debugPrint(e.toString() + " init vocab table failure"); }
 
     try{
@@ -152,7 +152,7 @@ class VocabularyBank
     List<Map> response;
     //Receive Vocabulary
     try { 
-      response = await db.query( vocabTableName, where: "name = ?", whereArgs:[word]);
+      response = await db.query( tableName, where: "name = ?", whereArgs:[word]);
       if ( response.isNotEmpty ){
         vocabulary vocab = vocabulary.fromJson(response.first);
         vocab = await _setUpDefinitions(vocab);
@@ -169,10 +169,10 @@ class VocabularyBank
     List<Map> response;
     
     //Receive Response
-    try { response = await db.query( vocabTableName );
+    try { response = await db.query( tableName );
     } catch ( SqfliteDatabaseException ){
       await _initializeVocabTables(db);
-      response = await db.query(vocabTableName);
+      response = await db.query(tableName);
     }
 
     //Get all vocabularies and setup the definitions
@@ -224,7 +224,7 @@ class VocabularyBank
     try {
       final db = await database;
       await db.execute("DROP TABLE IF EXISTS " + defName);
-      await db.execute("DROP TABLE IF EXISTS " + vocabTableName);
+      await db.execute("DROP TABLE IF EXISTS " + tableName);
       return 1;
     } catch (e){ debugPrint("Delete tables Failed"); return -1;}
   }
