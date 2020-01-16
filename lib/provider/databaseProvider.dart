@@ -121,7 +121,10 @@ class DatabaseProvider
   } // end of _initializeTables
 
   /// Basic Operation First CRUD for all table
+
+  /// **********************************************************************
   /// ***************************** User Route *****************************
+  /// **********************************************************************
   Future<int> insertUser(User user) async
   {
     int response;
@@ -179,7 +182,9 @@ class DatabaseProvider
     return userBundle;
   }
 
-  /// ***************************** Genre Route *****************************
+  /// **********************************************************************
+  /// ***************************** Genre Route ****************************
+  /// **********************************************************************
   Future<int> insertGenre(Genre genre) async
   {
     int response;
@@ -232,7 +237,9 @@ class DatabaseProvider
     return response;
   }
 
-  /// ***************************** Vocab Route *****************************
+  /// **********************************************************************
+  /// ***************************** Vocab Route ****************************
+  /// **********************************************************************
   Future<int> insertVocab(Vocab vocab) async
   {
     int response;
@@ -305,7 +312,9 @@ class DatabaseProvider
     return response;
   }
 
-  /// ***************************** Pronunciation Route *****************************
+  /// **********************************************************************
+  /// ***************************** Pronunciation Route ********************
+  /// /// ******************************************************************
   Future<int> insertPronunciation(Pronunciation pron) async
   {
     int response;
@@ -375,7 +384,9 @@ class DatabaseProvider
     return response;
   }
 
-  /// ***************************** Definition Route *****************************
+  /// **********************************************************************
+  /// ***************************** Definition Route ***********************
+  /// **********************************************************************
   Future<int> insertDefinition(Definition def) async
   {
     int response;
@@ -442,7 +453,9 @@ class DatabaseProvider
     return response;
   }
 
-  /// ***************************** Example Route *****************************
+  /// **********************************************************************
+  /// ***************************** Example Route **************************
+  /// **********************************************************************
   Future<int> insertExample(Example example) async
   {
     int response;
@@ -513,7 +526,9 @@ class DatabaseProvider
     return response;
   }
 
-  /// ***************************** Flashcard Route *****************************
+  /// **********************************************************************
+  /// ***************************** Flashcard Route ************************
+  /// **********************************************************************
   Future<int> insertFlashcard(Flashcard flashcard) async
   {
     int response;
@@ -594,21 +609,7 @@ class DatabaseProvider
     return response.isNotEmpty ? response : null;
   }
 
-  Future<String> getTime() async
-  {
-    List<Map<String, dynamic>> response;
-    try {
-      final db = await database;
-      response = await db.rawQuery(
-        '''
-        SELECT julianday('now', 'utc')
-        '''
-      );
-    } catch(e) { debugPrint(e.toString() + " failure in getTime()"); }
-    return response.toString();
-  }
-
-  // This is a pure update Flashcard function with no logic
+  /// Unlike reviseFlashcard, this is a simple basic update of flashcard
   Future<int> updateFlashcard(Flashcard flashcard) async
   {
     debugPrint("Update flashcard: ${flashcard.toString()}");
@@ -629,7 +630,9 @@ class DatabaseProvider
     return response;
   }
 
-  // This is a update Flashcard function based on rating and old Flashcard
+  /// This function could be called when a flashcard is revised by the user
+  /// so as to update the status of the flashcard, for example, the overdue,
+  /// dateLastReviwed, daysBetweenReviews,, difficulty
   Future<int> reviseFlashcard(Flashcard oldFlashcard, double rating) async {
     double percentOverdue = rating > ProviderConstant.passCutoff ? min(2, (DateTime.now().difference(oldFlashcard.dateLastReviewed).inDays).toDouble()/oldFlashcard.daysBetweenReview.toDouble()) : 1.0;
     double newDifficulty = percentOverdue / 17 * (8-9*rating) + oldFlashcard.difficulty;
@@ -702,7 +705,9 @@ class DatabaseProvider
     return response;
   }
 
+  /// **********************************************************************
   /// ***************************** Stat Route *****************************
+  /// **********************************************************************
   Future<int> insertStat(Stat stat) async
   {
     int response;
@@ -713,6 +718,11 @@ class DatabaseProvider
     return response;
   }
 
+  /// This function will be called when Vocab is changed states.
+  /// Specifically, this function is called in insertVocab(), insertFlashcard() and reviseFlashcard()
+  /// insertVocab(): vocab experiences a state change from nothing to tracked.
+  /// insertFlashcard(): vocab experiences a state change from tracked to learning.
+  /// reviseFlashcard(): vocab experiences a state change from learning to matured or from matured to learning.
   Future<int> triggerStatLog() async
   {
     int response;
@@ -778,6 +788,8 @@ class DatabaseProvider
     return response != null ? response.map((item) => Stat.fromJson(item)).toList() : null;
   }
 
+  /// This function returns a list of Statistics in which each statistic is the
+  /// latest statistics log of each date
   Future<List<Stat>> getUserStatistics() async
   {
     List<Map<String, dynamic>> response;
@@ -851,13 +863,16 @@ class DatabaseProvider
     return response;
   }
 
-  /// ***************************** Handy Methods Route *****************************
+  /// **********************************************************************
+  /// ***************************** Handy Methods Route ********************
+  /// /// ******************************************************************
+  /// Obtain a Vocab object by a word
   Future<Vocab> getVocab(String word) async
   {
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
-      response = await db.query(vocabTableName, columns: ["vid", "word", "imageUrl", "wordFreq", "trackFreq", "status"], where: "word = ?", whereArgs: [word]);
+      response = await db.query(vocabTableName, columns: null, where: "word = ?", whereArgs: [word]);
       if(response.length <=0 ) {
         throw new Exception("Word does not exist.");
       } else if (response.length > 1) {
@@ -867,7 +882,7 @@ class DatabaseProvider
     return response != null ? Vocab.fromJson(response.first) : null;
   }
 
-  // Terminology: Ready vocab is the vocab that is ready to be prepared as a Flashcard
+  /// This function return the vocabs that are ready to be prepared as Flashcard
   Future<List<Vocab>> getReadyVocab(int wordTrackThreshold, int wordFreqThreshold) async
   {
     List<Map<String, dynamic>> response;
@@ -878,6 +893,7 @@ class DatabaseProvider
     return response != null ? response.map((item) => Vocab.fromJson(item)).toList() : null;
   }
 
+  /// This function will be used when user lands on the vocabulary bank page
   Future<List<Vocab>> readAllVocab() async
   {
     final db = await database;
@@ -888,6 +904,8 @@ class DatabaseProvider
     return response != null ? response.map((item) => Vocab.fromJson(item)).toList() : null;
   }
 
+  /// This function return all the information of a vocabulary wrapped in a VocabBundle Object
+  /// Refer to the VocabBundle for details
   Future<VocabBundle> readVocabBundle(int vid) async
   {
     // obtain a vocab bundle (with all the info. of a word)
@@ -948,5 +966,20 @@ class DatabaseProvider
       await db.close();
       await deleteDatabase(dbPath);
     } catch(e) { debugPrint("Delete Database Error\n" + e.toString());}
+  }
+
+  // Ask sqlite to return the current time, for testing only
+  Future<String> getTime() async
+  {
+    List<Map<String, dynamic>> response;
+    try {
+      final db = await database;
+      response = await db.rawQuery(
+          '''
+        SELECT julianday('now', 'utc')
+        '''
+      );
+    } catch(e) { debugPrint(e.toString() + " failure in getTime()"); }
+    return response.toString();
   }
 }
