@@ -1,6 +1,6 @@
 
 import 'package:bloc/bloc.dart';
-import '../state/AuthenicationState.dart';
+import '../state/authenicationState.dart';
 import '../event/AuthenticationEvent.dart';
 
 class AuthenticationBloc extends Bloc< AuthenticationEvent,  AuthenticationState > {

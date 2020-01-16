@@ -3,7 +3,7 @@ class VocabDefinition {
 
   //Field
   int vid;
-  int definitionID;
+  int did;
   String partOfSpeech;
   String pronunciation;
   String definition;
@@ -11,9 +11,9 @@ class VocabDefinition {
 
 
   //Normal Constructor
-  VocabDefinition( {int vid=-1, int definitionID = -1, partOfSpeech = "",  pronunciation = "",  definition = "", exampleSentence = "" }){
+  VocabDefinition( { vid = -1, int did = -1, partOfSpeech = "",  pronunciation = "",  definition = "", exampleSentence = "" }){
     this.vid = vid;
-    this.definitionID = definitionID;
+    this.did = did;
     this.partOfSpeech = partOfSpeech;
     this.pronunciation = pronunciation;
     this.definition = definition;
@@ -24,7 +24,7 @@ class VocabDefinition {
   factory VocabDefinition.fromJson( Map<String, dynamic> json ){
     return VocabDefinition(
       vid: json["vid"],
-      definitionID: json["did"],
+      did: json["did"],
       partOfSpeech: json["pos"] ?? "", 
       pronunciation: json["pronunciation"] ?? "",
       definition: json["definition"] ?? "",
@@ -35,8 +35,8 @@ class VocabDefinition {
   //Dart data to Json
   Map<String, dynamic> toJson(){
     return {
-      "vid" : vid,
-      "did" : definitionID,
+      "vid": vid,
+      "did" : did,
       "pos" : partOfSpeech,
       "pronunciation" : pronunciation,
       "definition" : definition,
