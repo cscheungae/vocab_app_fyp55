@@ -17,27 +17,27 @@ import 'package:vocab_app_fyp55/model/vocab.dart';
 
 void main() => runApp(MyApp());
 
-//class MyApp extends StatelessWidget {
-//  // This widget is the root of your application.
-//  final dbHelper = DatabaseProvider.instance;
-//  @override
-//  Widget build(BuildContext context) {
-//    return
-//    MaterialApp(
-//      title: 'FlashVocab',
-//      theme: CustomTheme.customThemeData,
-//      initialRoute: '/',
-//      routes: {
-//        // When navigating to the "/" route, build the HomeScreen
-//        '/': (context) => HomePage(title: "HOME"),
-//        '/articles': (context) => ArticleViewPage(title: "Article"),
-//        '/settings': (context) => SettingsPage(),
-//      },
-//    );
-//  }
-//}
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  final dbHelper = DatabaseProvider.instance;
+  @override
+  Widget build(BuildContext context) {
+    return
+    MaterialApp(
+      title: 'FlashVocab',
+      theme: CustomTheme.customThemeData,
+      initialRoute: '/',
+      routes: {
+        // When navigating to the "/" route, build the HomeScreen
+        '/': (context) => HomePage(title: "HOME"),
+        '/articles': (context) => ArticleViewPage(title: "Article"),
+        '/settings': (context) => SettingsPage(),
+      },
+    );
+  }
+}
 
-
+/*
 // For testing the sqlite database
 class MyApp extends StatelessWidget {
   @override
@@ -52,6 +52,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// For testing the sqlite methods call
 class MyHomePage extends StatelessWidget {
 
   // reference to our single class that manages the database
@@ -399,3 +400,4 @@ class MyHomePage extends StatelessWidget {
       print("time now is: $time");
     }
 }
+*/
