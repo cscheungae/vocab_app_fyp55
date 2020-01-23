@@ -1,31 +1,33 @@
+import 'package:vocab_app_fyp55/model/Genre.dart';
 
 class User {
-  String _username;
-  String _password;
-  String _email;
+  // Field
+  int uid;
+  String name;
+  int trackThres = 2;
+  int wordFreqThres = 4;
+  String region = "gb";  // "gb" or "us"
 
-  User( {String user = "", String pw = "", String email = ""} ):
-  _username = user,
-  _password = pw,
-  _email = email;
+  // Constructor
+  User({this.uid, this.name, this.trackThres, this.wordFreqThres, this.region});
 
-  void enterUserName(String username){
-    this._username = username;
+  factory User.fromJson(Map<String, dynamic> json) {
+    return new User(
+      uid: json["uid"],
+      name: json["name"],
+      trackThres: json["trackThres"],
+      wordFreqThres: json["wordFreqThres"],
+      region: json["region"],
+    );
   }
 
-  void enterPassword(String pw){
-    this._password = pw;
+  Map<String, dynamic> toJson() {
+    return {
+      "uid": uid,
+      "name": name,
+      "trackThres": trackThres,
+      "wordFreqThres": wordFreqThres,
+      "region": region,
+    };
   }
-
-  void enterEmail(String email){
-    this._email = email;
-  }
-
-  //Incorrect function
-  bool authenicate(){
-    return this._password == this._password 
-    && this._username == this._username
-    && this._email == this._email;
-  }
-
 }

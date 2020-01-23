@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 
 class LoadingDialog extends StatelessWidget{
 
+  /// Header of the loading dialog
   final String header;
 
-  const LoadingDialog({Key key, this.header = "Loading" }): super(key:key);
+  /// Constructor of the loading dialog widget
+  /// [header] - defaults to loading
+  const LoadingDialog({this.header = "Loading" });
+
 
   @override
   Widget build(BuildContext context){

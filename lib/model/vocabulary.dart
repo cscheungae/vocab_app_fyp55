@@ -97,7 +97,8 @@ class vocabulary
       freq: json["frequency"] ?? 0,
       defs: definitions,
       status: json["status"] ?? null,
-      flashcard: (!!json["vid"]&& !!json["dateLastReviewed"] && !!json["daysBetweenReview"] && !!json["rating"]) ? Flashcard(vid: json["vid"], dateLastReviewed: json["dateLastReviewed"], daysBetweenReview: json["daysBetweenReview"], difficulty: json["difficulty"]): null,
+      flashcard: null,
+      //flashcard: (!!json["vid"]&& !!json["dateLastReviewed"] && !!json["daysBetweenReview"] && !!json["rating"]) ? Flashcard(vid: json["vid"], dateLastReviewed: json["dateLastReviewed"], daysBetweenReview: json["daysBetweenReview"], difficulty: json["difficulty"]): null,
     );
   }
   

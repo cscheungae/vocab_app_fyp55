@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import '../util/manage_vocabbank.dart';
 import '../model/vocabulary.dart';
 import '../provider/vocabularyBank.dart';
-import '../components/CustomBottomNavBar.dart';
-import '../components/CustomAppBar.dart';
 import '../components/CustomVocabCard.dart';
-import '../components/CustomDrawer.dart';
+
 
 
 import 'VocabFormPage.dart';
@@ -128,10 +126,11 @@ class _VocabCardPage extends State<VocabCardUIPage>
   {
     return Scaffold
     (
-      appBar: CustomAppBar(title: "Vocabulary Bank", iconData: Icons.person),  
       body: Column
       (
         children: <Widget>[
+
+        SafeArea( child: Container(), ),
 
         Row
         (
@@ -212,8 +211,6 @@ class _VocabCardPage extends State<VocabCardUIPage>
 
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(),
-      drawer: CustomDrawer(),
     );   
   } 
   

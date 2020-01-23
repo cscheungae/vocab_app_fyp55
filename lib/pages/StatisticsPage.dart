@@ -2,8 +2,6 @@
 
 
 import 'package:charts_flutter/flutter.dart' as charts;
-import '../components/CustomBottomNavBar.dart';
-import '../components/CustomDrawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -42,18 +40,16 @@ class _StatisticsPage extends State<StatisticsPage> with SingleTickerProviderSta
 
     return 
     Scaffold(
-      appBar: AppBar(
-        title: Text("Statistics"),
-        bottom: TabBar(
-          controller: _tabController,
-          labelStyle:  TextStyle( fontWeight: FontWeight.w400,),
-          tabs: [
-            Tab(text: "NET MATURE CARDS",),
-            Tab(text: "TRACKED WORDS",),
-            Tab(text: "LEARNING WORDS"),
-          ],
-        ),
-      ),
+    appBar: TabBar(
+        controller: _tabController,
+        labelStyle:  TextStyle( fontWeight: FontWeight.w400, color: Colors.white ),
+        tabs: [
+          Tab(text: "NET MATURE CARDS",),
+          Tab(text: "TRACKED WORDS",),
+          Tab(text: "LEARNING WORDS"),
+        ],
+    ),
+      
 
 
       body: TabBarView(
@@ -95,8 +91,8 @@ class _StatisticsPage extends State<StatisticsPage> with SingleTickerProviderSta
         ],
       ),
 
-      bottomNavigationBar: CustomBottomNavBar(),
-      drawer: CustomDrawer(),
+      //bottomNavigationBar: CustomBottomNavBar(),
+      //drawer: CustomDrawer(),
     );
   }
 }

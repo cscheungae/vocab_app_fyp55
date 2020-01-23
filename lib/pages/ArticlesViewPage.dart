@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
 import '../components/CustomDrawer.dart';
-import '../components/CustomAppBar.dart';
 import '../model/news.dart';
 import '../services/fetchdata_news.dart';
 
@@ -39,8 +38,6 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: "articles", iconData: Icons.person),
-      drawer: CustomDrawer(),
       body: 
       NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification notification){

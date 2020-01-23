@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import '../pages/NewsWebViewPage.dart';
 import '../model/news.dart';
 
+/// Widget displaying the news information
 class CustomNewsCard extends StatelessWidget{
 
-  final news;
+  /// News to be displayed
+  final News news;
 
-  CustomNewsCard(News news): news = news;
+  ///Constructor
+  ///[news] - required
+  CustomNewsCard(News news): this.news = news;
+
 
   @override
   Widget build(BuildContext context){
@@ -16,7 +21,6 @@ class CustomNewsCard extends StatelessWidget{
     return new Card(
       elevation: 3.0,
       shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(15.0),  ),
-
       child: GestureDetector(
         onTap: (){ 
           print("Open WebView for " + news.url); 

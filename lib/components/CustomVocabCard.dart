@@ -4,14 +4,22 @@ import '../res/theme.dart' as CustomTheme;
 import '../model/vocabulary.dart';
 import '../pages/VocabDetailsPage.dart';
 
+import '../util/Router.dart' as Router;
 
+/// Widget containing data 
 class CustomVocabCard extends StatefulWidget
 {
+  /// Vocab that will be displayed by the widget
   final vocabulary _item;
+
+  /// An optional list of all other vocabularies can be supplied in the constructor (otherwise empty list)
+  /// If supplied, [VocabDetailsPageView] will be opened, enabling swiping to navigate among [VocabDetailsUIPage] of other vocabularies
   final List<vocabulary> _vocablist;
+
+  ///determines the visibility of the widget
   bool isVisibleCardDescription;
 
-
+  ///getter of the vocabulary
   vocabulary get item => _item;
 
 
@@ -32,25 +40,25 @@ class CustomVocabCard extends StatefulWidget
 
 class _CustomVocabCard extends State<CustomVocabCard>
 {
-
-  /* Open a Page view if a _vocablist is provided and the item exists in such list
-  Else, just open a vocab detail page */
+  /// Function determining how the vocab details page will be opened upon pressing the card itself
+  /// See also: 
+  /// * [_vocablist], which determines how the page will be opened
   void openDetails(){
-    
-    if ( widget._vocablist.isEmpty || ! widget._vocablist.contains(widget.item) )
-      Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsUIPage( widget.item, title: widget.item.getImageURL() ) ) );
-    else
-      Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsPageView(widget._vocablist, startPage: widget._vocablist.indexOf(widget.item) ) ) );
+    if ( widget._vocablist.isEmpty || ! widget._vocablist.contains(widget.item) ){
+      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsUIPage( widget.item, title: widget.item.getImageURL())  ));
+      //Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsUIPage( widget.item, title: widget.item.getImageURL() ) ) );
+    }
+    else {
+      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsPageView(widget._vocablist, startPage: widget._vocablist.indexOf(widget.item))  ));
+      //Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsPageView(widget._vocablist, startPage: widget._vocablist.indexOf(widget.item) ) ) );
+    }
   }
 
 
-
-  /* Return the Card Widget Structure of the vocabulary Card */
   Widget build(BuildContext context)
   { 
-    final cardHeight = MediaQuery.of(context).size.height * 0.25;
-    final cardWidth = MediaQuery.of(context).size.width;
-
+    final double cardHeight = MediaQuery.of(context).size.height * 0.25;
+    final double cardWidth = MediaQuery.of(context).size.width;
     return Card 
     (
       elevation: 7.0,

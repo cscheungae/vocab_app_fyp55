@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/components/CustomDrawer.dart';
 import '../res/theme.dart' as CustomTheme;
-import 'package:percent_indicator/percent_indicator.dart';
-import '../components/CustomAppBar.dart';
-import '../components/CustomBottomNavBar.dart';
-import '../components/DismissibleBlock.dart';
+import '../components/NavigationBlock.dart';
+import '../components/CircleStatisticsIndicator.dart';
+
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -15,165 +13,59 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+
+  ///controller and animation
+  AnimationController animeController;
+  Animation<Offset> slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    animeController = AnimationController( duration: const Duration(milliseconds: 700), vsync: this);
+    slideAnimation = Tween<Offset>(begin: const Offset( 0, 0.3), end: Offset.zero,  ).animate(CurvedAnimation(parent: animeController, curve: Curves.decelerate));
+    animeController.forward();
+  }
+
+  @override
+  void dispose() {
+    animeController.dispose();
+    super.dispose();
+  }
   
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: "home", iconData: Icons.person ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 8.0),
-        children: <Widget>[
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Container(
-                  height: 255,
-                  color: CustomTheme.BLACK,
-                  child: ListView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.all(16.0),
-                    children: <Widget>[
-                      Text(
-                        "progress".toUpperCase(),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          letterSpacing: 2.5,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: CircularPercentIndicator(
-                          radius: 155.0,
-                          lineWidth: 8.0,
-                          animation: true,
-                          percent: 0.3,
-                          center: Container(
-                            padding: const EdgeInsets.all(38.0),
-                            child: Column(
-                              children: <Widget>[
-                                Text(
-                                  "39",
-                                  style: TextStyle(
-                                    fontSize: 35.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Wrap(
-                                  alignment: WrapAlignment.center,
-                                  children: <Widget>[
-                                    Text(
-                                      "words",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.w200,
-                                      ),
-                                    ),
-                                    Text(
-                                      "learned",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.w200,
-                                      ),
-                                    )
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                          circularStrokeCap: CircularStrokeCap.round,
-                          progressColor: CustomTheme.GREEN,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          RaisedButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40.0),
-                            ),
-                            onPressed: () => debugPrint("More button is clicked"),
-                            textColor: CustomTheme.WHITE,
-                            color: CustomTheme.GREEN,
-                            child: Text(
-                                'More',
-                                style: TextStyle(fontSize: 14.0)
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              )
-          ),
+      body:  
+      SlideTransition(
+        position: slideAnimation,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 8.0),
+          children: <Widget>[
 
-          DismissibleBlock(text: "Remind to make 8 flashcards",),
-          DismissibleBlock(color: CustomTheme.TOMATO_RED, text: "Remind to study 13 flashcards today",),
+            SafeArea(child: Container(),),
 
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  color: CustomTheme.BLACK,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                        child: Text(
-                          "Articles",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            fontSize: 32.0,
-                            letterSpacing: 0.5,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        "\"The more important thing is to read as much as you can, like I did. It will give you an understanding of what makes good writing and it will enlarge your vocabulary.\" - J.K. Rowling",
-                        style: TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w200,
-                            height: 1.1
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          RaisedButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40.0),
-                            ),
-                            onPressed: () => Navigator.pushNamed(context, '/articles'),
-                            textColor: CustomTheme.WHITE,
-                            color: CustomTheme.GREEN,
-                            child: Text(
-                                'Start Reading',
-                                style: TextStyle(fontSize: 14.0)
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              )
-          ),
-        ],
+            CircleStatisticsIndicator(),
+
+            Container(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
+              child: NavigationBlock(title: "Article", body: "jojo", colors: CustomTheme.BLUE_GRADIENT_COLORS, ),
+            ),
+
+            Container(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
+              child: NavigationBlock(title: "Study", body: "hi, I am in love with you", colors: CustomTheme.RED_GRADIENT_COLORS, direction: NavigationBlockAlignment.RtoL, ),
+            ),
+
+            Container(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
+              child: NavigationBlock(title: "Prepare", body: "love", colors: CustomTheme.GREEN_GRADIENT_COLORS, ),
+            ),
+          ],
+        ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(),
-      backgroundColor: CustomTheme.GREY,// This trailing comma makes auto-formatting nicer for build methods.
-      drawer: CustomDrawer(),
+      
     );
   }
 }

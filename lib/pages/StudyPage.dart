@@ -1,8 +1,6 @@
 
-import 'package:vocab_app_fyp55/components/CustomAppBar.dart';
-import 'package:vocab_app_fyp55/components/CustomBottomNavBar.dart';
+
 import 'package:vocab_app_fyp55/pages/VocabDetailsPage.dart';
-import '../components/CustomDrawer.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../provider/vocabularyBank.dart';
 import '../model/vocabulary.dart';
@@ -39,7 +37,7 @@ class _StudyPage extends State<StudyPage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-        appBar: CustomAppBar(title: "Study Mode",),
+        
         
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -132,8 +130,7 @@ class _StudyPage extends State<StudyPage> {
 
           ],
         ),
-        bottomNavigationBar: CustomBottomNavBar(),   
-        drawer: CustomDrawer(),
+
     );
   }
 
