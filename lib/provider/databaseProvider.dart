@@ -9,7 +9,7 @@ import 'package:vocab_app_fyp55/model/Bundle/PronunciationBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/VocabBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/UserBundle.dart';
 import 'package:vocab_app_fyp55/model/Genre.dart';
-import 'package:vocab_app_fyp55/model/User.dart';
+import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/model/definition.dart';
 import 'package:vocab_app_fyp55/model/example.dart';
 import 'package:vocab_app_fyp55/model/flashcard.dart';
@@ -80,7 +80,7 @@ class DatabaseProvider
     /// Tables to be created
     ///
     try{
-        String query = "CREATE TABLE " + userTableName + " (uid INTEGER PRIMARY KEY, name TEXT UNIQUE, trackThres INTEGER NOT NULL, wordFreqThres INTEGER NOT NULL, region TEXT NOT NULL)";
+        String query = "CREATE TABLE " + userTableName + " (uid INTEGER PRIMARY KEY, name TEXT, password TEXT, trackThres INTEGER NOT NULL, wordFreqThres INTEGER NOT NULL, region TEXT NOT NULL, genres TEXT)";
         await db.execute(query);
     } catch(e) { debugPrint(e.toString() + " failure in create User table"); }
 
@@ -142,6 +142,16 @@ class DatabaseProvider
       response = await db.query(userTableName, columns: null, where: "uid = ?", whereArgs: [uid]);
     } catch(e) { debugPrint(e.toString() + " failure in reading User"); response = null; }
     return response != null ? User.fromJson(response.first) : null;
+  }
+
+  Future<List<User>> readAllUser() async
+  {
+    final db = await database;
+    List<Map<String, dynamic>> response;
+    try {
+      response = await db.rawQuery("SELECT * FROM " + userTableName);
+    } catch(e) { debugPrint(e.toString() + " read all users failure"); response = null; }
+    return response != null ? response.map((item) => User.fromJson(item)).toList() : null;
   }
 
   Future<int> updateUser(User user) async
