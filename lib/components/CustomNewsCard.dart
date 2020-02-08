@@ -1,40 +1,180 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../pages/NewsWebViewPage.dart';
 import '../model/news.dart';
 
 /// Widget displaying the news information
-class CustomNewsCard extends StatelessWidget{
-
+class CustomNewsCard extends StatelessWidget {
   /// News to be displayed
-  final News news;
+  final NewsItem newsItem;
 
   ///Constructor
   ///[news] - required
-  CustomNewsCard(News news): this.news = news;
+  CustomNewsCard(NewsItem news) : this.newsItem = news;
 
+  String _parsedate(DateTime dateTime) {
+    String day = dateTime.day.toString();
+    String year = dateTime.year.toString();
+    String month;
+    switch (dateTime.month) {
+      case 1:
+        month = "January";
+        break;
+      case 2:
+        month = "Feburary";
+        break;
+      case 3:
+        month = "March";
+        break;
+      case 4:
+        month = "April";
+        break;
+      case 5:
+        month = "May";
+        break;
+      case 6:
+        month = "June";
+        break;
+      case 7:
+        month = "July";
+        break;
+      case 8:
+        month = "August";
+        break;
+      case 9:
+        month = "September";
+        break;
+      case 10:
+        month = "October";
+        break;
+      case 11:
+        month = "November";
+        break;
+      case 12:
+        month = "December";
+        break;
+      default:
+        month = "January";
+        break;
+    }
+    return "$day $month $year";
+  }
 
   @override
-  Widget build(BuildContext context){
-    final cardHeight = MediaQuery.of(context).size.height * 0.20;
-    final cardWidth = MediaQuery.of(context).size.width;
+  Widget build(BuildContext context) {
+//    Remove these two fixed constraints
+//    final cardHeight = MediaQuery.of(context).size.height * 0.40;
+//    final cardWidth = MediaQuery.of(context).size.width;
 
     return new Card(
       elevation: 3.0,
-      shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(15.0),  ),
       child: GestureDetector(
-        onTap: (){ 
-          print("Open WebView for " + news.url); 
-          Navigator.push(context, MaterialPageRoute(builder: (context) =>  NewsWebViewPage(url: news.url,) )); 
+        onTap: () {
+          print("Open WebView for " + newsItem.url);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => NewsWebViewPage(
+                        url: newsItem.url,
+                      )));
         },
-          child: Container(
-            height: cardHeight,
-            width: cardWidth,                 
-            child: RichText(
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              text: TextSpan(text: news.description, style: TextStyle(fontSize: 18,) ),
-            ),
+        child: Container(
+          color: Colors.white70,
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 10.0, 0, 20.0),
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 2.0, color: Colors.black54),
+//                        color: Colors.red,
+                    ),
+                    child: Text(
+                      newsItem.category[0].toUpperCase() +
+                          newsItem.category.substring(1),
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              Text(
+                newsItem.press,
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              RichText(
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                    text: newsItem.title,
+                    style: TextStyle(
+                        fontSize: 26,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700)),
+              ),
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 8.0, 0),
+                    child: Icon(Icons.create),
+                  ),
+                  RichText(
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                        text: newsItem.author,
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500)),
+                  ),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 8.0, 0),
+                    child: Icon(Icons.timelapse),
+                  ),
+                  RichText(
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                        text: _parsedate(DateTime.parse(newsItem.publishedAt)),
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500)),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 6.0, 0, 10.0),
+                child: RichText(
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                      text: newsItem.description,
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w300)),
+                ),
+              ),
+            ],
           ),
+        ),
       ),
     );
   }

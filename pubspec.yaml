@@ -24,7 +24,7 @@ dependencies:
   equatable:
   bloc: 
   flutter_bloc: ^3.0.0
-  flutter_webview_plugin:
+  flutter_webview_plugin: ^0.3.10+1
   charts_flutter: 
   path_provider:
   cached_network_image: 2.0.0-rc

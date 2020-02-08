@@ -7,36 +7,48 @@ class FetchNews {
 
   FetchNews._();
 
-  List<News> _newsList = [];
-  List<News> get newsList => _newsList;
+  List<NewsItem> _newsList = [];
+  List<NewsItem> get newsList => _newsList;
 
-  factory FetchNews.fromJson( Map<String, dynamic> json ){
+  factory FetchNews.fromJson( response ){
     FetchNews fn = new FetchNews._();
-    List<dynamic> newsList = json["sources"];
-    for ( Map<String, dynamic> newsJson in newsList ){
-      fn._newsList.add( new News.fromJson(newsJson));
+    for ( int i=0; i<response.length; i++ ){
+      fn._newsList.add( new NewsItem.fromJson(response[i]));
     }
     return fn; 
   }
 
-  
-  static Future< List<News> > requestAPIData( {String textQuery = "",} ) async {
-    String url = "https://newsapi.org/v2/sources";
 
-    if ( textQuery != "")
-      url += "?" + textQuery;
+  // previous request method
+//  static Future< List<News> > requestAPIData( {String username, String password, List<String> categories, } ) async {
+  static Future< List<NewsItem> > requestAPIData( {List<String> categories, } ) async {
+    assert(categories != null);
 
-    var returnedResponse = await http.get(url,
+    String url = "http://10.0.2.2:5555/ext/api/news";
+
+    // generating the query url
+    if ( categories.isEmpty ) {
+      return null;
+    } else {
+      url += "?";
+      for(int i=0; i<categories.length; i++) {
+        url += "categories[]=${categories[i]}";
+        if(i!=categories.length-1)
+          url += "&";
+      }
+    }
+
+    var returnedResponse = await http.get(
+      url,
       headers: {
         "X-Api-Key": APIKey.NewsAPI
       },
     );
     if ( returnedResponse.statusCode == 200 ){
-      FetchNews fn = FetchNews.fromJson(json.decode(returnedResponse.body));
+      var response = json.decode(returnedResponse.body);
+      FetchNews fn = FetchNews.fromJson(response);
       return fn._newsList;
     }
     else { print("Failure in making NewsAPI request: " + returnedResponse.statusCode.toString()); return null; }
   }
-
-
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
+import 'package:vocab_app_fyp55/model/user.dart';
+import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 import '../components/CustomDrawer.dart';
 import '../model/news.dart';
 import '../services/fetchdata_news.dart';
@@ -18,20 +21,20 @@ class ArticleViewPage extends StatefulWidget {
 class _ArticleViewPageState extends State<ArticleViewPage> {
   
   // out the widget's state here
-  List<News> newsList;
+  List<NewsItem> newsList;
   int load = 0;
 
-  Future<List<News>> initNewsList() async {
-    if (newsList == null )
-      newsList = await FetchNews.requestAPIData();
-    load += 6;
+  Future<List<NewsItem>> initNewsList() async {
+    if (newsList == null ) {
+      // get the user articles preference
+      List<User> users = await Provider
+          .of<DatabaseNotifier>(context, listen: false)
+          .dbHelper
+          .readAllUser();
+      newsList = await FetchNews.requestAPIData(categories: users[0].genres);
+    }
+    load = newsList.length;
     return newsList.sublist( load -1);
-  }
-
-  loadMoreFromList(){
-    setState(() {
-      load += 6;
-    });
   }
 
 
@@ -39,26 +42,58 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: 
-      NotificationListener<ScrollNotification>(
-        onNotification: (ScrollNotification notification){
-          if ( notification.metrics.pixels == notification.metrics.maxScrollExtent){
-              loadMoreFromList();
-          }
-          return true;
-        },
-        child: FutureBuilder<List<News>>(
-          future: initNewsList(),
-          builder: (context, snapshot ){
-            return ( ! snapshot.hasData ) ? Text("Still loading") : 
-            ListView.builder(
+      FutureBuilder<List<NewsItem>>(
+        future: initNewsList(),
+//          builder: (context, snapshot ){
+//            return ( ! snapshot.hasData ) ? Text("Still loading") :
+//            ListView.builder(
+//              itemCount: load,
+//              itemBuilder: (context, position){
+//                  return CustomNewsCard( newsList[position] );
+//              },
+//            );
+//          }
+      builder: (BuildContext context, AsyncSnapshot<List<NewsItem>> snapshot) {
+          Widget widget;
+          if(snapshot.hasData) {
+            widget = ListView.builder(
               itemCount: load,
-              itemBuilder: (context, position){
+                itemBuilder: (context, position) {
                   return CustomNewsCard( newsList[position] );
-              },
+                }
             );
+          } else if (snapshot.hasError) {
+            print(snapshot.error);
+            print(snapshot);
+            widget = Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text("Error in loading Articles", style: TextStyle(color: Colors.red),),
+                  ],
+                )
+              ],
+            );
+          } else {
+            widget =
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                          child: CircularProgressIndicator(backgroundColor: Colors.blue,),
+                          width: 60,
+                          height: 60,
+                        )],
+                      ),]
+                );
           }
-        ),
-      ),
+          return widget;
+      }),
 
     );
   }
