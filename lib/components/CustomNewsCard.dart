@@ -79,8 +79,11 @@ class CustomNewsCard extends StatelessWidget {
                       )));
         },
         child: Container(
-          color: Colors.white,
           padding: const EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
