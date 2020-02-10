@@ -24,14 +24,15 @@ dependencies:
   equatable:
   bloc: 
   flutter_bloc: ^3.0.0
-  flutter_webview_plugin:
+  flutter_webview_plugin: ^0.3.10+1
   charts_flutter: 
   path_provider:
   cached_network_image: 2.0.0-rc
   shared_preferences:
   sqflite:
   dbutils:
-  path: 
+  path:
+  toast: ^0.1.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -62,6 +63,8 @@ flutter:
   assets:
     - assets/FlutterLogo.png
     - assets/initialAddVocab.jpg  # - source: https://www.flickr.com/photos/abee5/8314929977
+    - assets/images/
+    - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

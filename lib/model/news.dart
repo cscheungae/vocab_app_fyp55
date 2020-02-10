@@ -1,48 +1,48 @@
 
 /* a model class containing information about the news */
-class News {
-  String _id;
-  String _name;
+class NewsItem {
+  String _press;
+  String _author;
+  String _title;
   String _description;
   String _url;
   String _category;
-  String _language;
-  String _country;
+  String _publishedAt;
 
-  String get id => _id;
-  String get name => _name;
+  String get press => _press;
+  String get author => (_author == null) ? "Anonymous" : _author;
+  String get title=> _title;
   String get description => _description;
   String get url => _url;
-  String get category => _category;
-  String get language => _language;
-  String get country => _country;
+  String get category => (_category == null) ? "General" : _category;
+  String get publishedAt => _publishedAt;
 
-  News({
-    String id = "",
-    String name = "",
+  NewsItem({
+    String press,
+    String author,
+    String title,
     String description = "",
     String url = "",
     String category = "",
-    String language = "",
-    String country = "",
+    String publishedAt,
   }):
-    this._id = id,
-    this._name = name,
+      this._press = press,
+    this._author = author,
+    this._title = title,
     this._description = description,
     this._url = url,
     this._category = category,
-    this._language = language,
-    this._country = country;
+    this._publishedAt = publishedAt;
 
   
-  factory News.fromJson(Map<String, dynamic> json) => new News(
-    id: json["id"],
-    name: json["name"],
+  factory NewsItem.fromJson(Map<String, dynamic> json) => new NewsItem(
+    press: json["source"]["name"],
+    author: json["author"],
+    title: json["title"],
     description: json["description"],
     url: json["url"],
     category: json["category"],
-    language: json["language"],
-    country: json["country"],
+    publishedAt: json["publishedAt"],
   );
 
 
