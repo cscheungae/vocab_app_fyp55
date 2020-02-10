@@ -79,14 +79,29 @@ class CustomNewsCard extends StatelessWidget {
                       )));
         },
         child: Container(
-          color: Colors.white70,
-          padding: const EdgeInsets.all(10.0),
+          color: Colors.white,
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 10.0, 0, 20.0),
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: Colors.black54, width: 3.0))
+                    ),
+                    child: Text(
+                      newsItem.press,
+                      style: TextStyle(
+                        color: Colors.lightBlue,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                   Container(
                     margin: const EdgeInsets.fromLTRB(0, 10.0, 0, 20.0),
                     padding: const EdgeInsets.all(10.0),
@@ -98,20 +113,13 @@ class CustomNewsCard extends StatelessWidget {
                       newsItem.category[0].toUpperCase() +
                           newsItem.category.substring(1),
                       style: TextStyle(
-                        fontSize: 16.0,
+                        color: Colors.black54,
+                        fontSize: 12.0,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                  )
+                  ),
                 ],
-              ),
-              Text(
-                newsItem.press,
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                ),
               ),
               RichText(
                 maxLines: 2,
@@ -127,7 +135,7 @@ class CustomNewsCard extends StatelessWidget {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 8.0, 0),
-                    child: Icon(Icons.create),
+                    child: Icon(Icons.create, color: Colors.black26,),
                   ),
                   RichText(
                     maxLines: 2,
@@ -145,7 +153,7 @@ class CustomNewsCard extends StatelessWidget {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 8.0, 0),
-                    child: Icon(Icons.timelapse),
+                    child: Icon(Icons.timelapse, color: Colors.black26,),
                   ),
                   RichText(
                     maxLines: 2,
@@ -160,14 +168,14 @@ class CustomNewsCard extends StatelessWidget {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(0, 6.0, 0, 10.0),
+                padding: const EdgeInsets.fromLTRB(0, 16.0, 0, 10.0),
                 child: RichText(
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   text: TextSpan(
                       text: newsItem.description,
                       style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           color: Colors.black,
                           fontWeight: FontWeight.w300)),
                 ),

@@ -7,8 +7,6 @@ import '../components/CustomDrawer.dart';
 import '../model/news.dart';
 import '../services/fetchdata_news.dart';
 
-
-
 class ArticleViewPage extends StatefulWidget {
   ArticleViewPage({Key key, this.title}) : super(key: key);
 
@@ -19,82 +17,73 @@ class ArticleViewPage extends StatefulWidget {
 }
 
 class _ArticleViewPageState extends State<ArticleViewPage> {
-  
   // out the widget's state here
   List<NewsItem> newsList;
   int load = 0;
 
   Future<List<NewsItem>> initNewsList() async {
-    if (newsList == null ) {
+    if (newsList == null) {
       // get the user articles preference
-      List<User> users = await Provider
-          .of<DatabaseNotifier>(context, listen: false)
-          .dbHelper
-          .readAllUser();
+      List<User> users =
+          await Provider.of<DatabaseNotifier>(context, listen: false)
+              .dbHelper
+              .readAllUser();
       newsList = await FetchNews.requestAPIData(categories: users[0].genres);
     }
     load = newsList.length;
-    return newsList.sublist( load -1);
+    return newsList.sublist(load - 1);
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: 
-      FutureBuilder<List<NewsItem>>(
-        future: initNewsList(),
-//          builder: (context, snapshot ){
-//            return ( ! snapshot.hasData ) ? Text("Still loading") :
-//            ListView.builder(
-//              itemCount: load,
-//              itemBuilder: (context, position){
-//                  return CustomNewsCard( newsList[position] );
-//              },
-//            );
-//          }
-      builder: (BuildContext context, AsyncSnapshot<List<NewsItem>> snapshot) {
-          Widget widget;
-          if(snapshot.hasData) {
-            widget = ListView.builder(
-              itemCount: load,
-                itemBuilder: (context, position) {
-                  return CustomNewsCard( newsList[position] );
-                }
-            );
-          } else if (snapshot.hasError) {
-            print(snapshot.error);
-            print(snapshot);
-            widget = Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
+      body: FutureBuilder<List<NewsItem>>(
+          future: initNewsList(),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<NewsItem>> snapshot) {
+            Widget widget;
+            if (snapshot.hasData) {
+              widget = ListView.builder(
+                  itemCount: load,
+                  itemBuilder: (context, position) {
+                    return CustomNewsCard(newsList[position]);
+                  });
+            } else if (snapshot.hasError) {
+              print(snapshot.error);
+              print(snapshot);
+              widget = Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        "Error in loading Articles",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  )
+                ],
+              );
+            } else {
+              widget =
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("Error in loading Articles", style: TextStyle(color: Colors.red),),
+                  children: [
+                    SizedBox(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.blue,
+                      ),
+                      width: 60,
+                      height: 60,
+                    )
                   ],
-                )
-              ],
-            );
-          } else {
-            widget =
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                          child: CircularProgressIndicator(backgroundColor: Colors.blue,),
-                          width: 60,
-                          height: 60,
-                        )],
-                      ),]
-                );
-          }
-          return widget;
-      }),
-
+                ),
+              ]);
+            }
+            return widget;
+          }),
     );
   }
 }
