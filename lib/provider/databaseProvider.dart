@@ -504,7 +504,7 @@ class DatabaseProvider
       await db.rawUpdate(
           '''
           UPDATE $flashcardTableName
-          SET overdue = julianday('now') - julianday(dateLastReviewed, 'utc') / daysBetweenReview
+          SET overdue = ( julianday('now') - julianday(dateLastReviewed, 'utc') ) / daysBetweenReview
           '''
       );
       await db.rawUpdate(
