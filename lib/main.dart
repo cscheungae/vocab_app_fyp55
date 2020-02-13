@@ -7,6 +7,7 @@ import 'pages/SettingsPage.dart';
 import 'package:provider/provider.dart';
 import 'pages/NativePage.dart';
 
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         '/articles': (context) => ArticleViewPage(title: "Article"),
         '/settings': (context) => SettingsPage(),
         '/testNative': (content) => NativePage(),
+
       },
     );
   }
