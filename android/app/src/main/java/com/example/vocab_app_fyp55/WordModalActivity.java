@@ -87,8 +87,8 @@ public class WordModalActivity extends Activity {
             try {
                 AccessSQLite task = new AccessSQLite();
 
-                VocabBank vocab = new VocabBank(12,1,1,word,"sample image.gif");
-                VocabDefinitions def = new VocabDefinitions(12,12, posValue.getText().toString(),
+                VocabBank vocab = new VocabBank(1,1,word,"sample image.gif");
+                VocabDefinitions def = new VocabDefinitions( posValue.getText().toString(),
                         defValue.getText().toString(),"lul","example generated from the word "+word);
                 HashMap<String,Object> vocabInfo = new HashMap<>();
                 vocabInfo.put("vocab",vocab);
@@ -224,7 +224,9 @@ public class WordModalActivity extends Activity {
                     VocabBank vocab = (VocabBank) (info[0].get("vocab"));
                     VocabDefinitions def = (VocabDefinitions) (info[0].get("defs"));
                     database.runInTransaction(() -> {
-                        database.VocabDao().insert(vocab);
+                        //insertID
+                        Long insertedVID =  database.VocabDao().insert(vocab);
+                        def.ReferencesVocab(insertedVID.intValue());
                         database.VocabDefinitionsDao().insert(def);
 
                     });

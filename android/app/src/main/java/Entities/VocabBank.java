@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 @Entity(tableName = "VocabBank")
 public class VocabBank {
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     public Integer vid;
 
     @ColumnInfo(name = "zipf")
@@ -24,13 +24,13 @@ public class VocabBank {
     @ColumnInfo(name = "image")
     public  String image;
 
-    public VocabBank(Integer vid,Integer zipf,Integer frequency,String name,@Nullable String image){
-        this.vid = vid;
+    public VocabBank(Integer zipf,Integer frequency,String name,@Nullable String image){
         this.zipf = zipf;
         this.frequency = frequency;
         this.name = name;
         if(image!=null)
             this.image = image;
     }
+
 
 }

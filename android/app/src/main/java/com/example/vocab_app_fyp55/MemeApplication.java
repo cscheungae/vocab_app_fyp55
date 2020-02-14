@@ -8,7 +8,7 @@ public class MemeApplication extends FlutterApplication {
     //initialize any android settings here.
     @Override
     public void onCreate() {
-        super.onCreate();
+            super.onCreate();
         //enable Stetho inspection tools. For more, google Stetho,
         Stetho.initializeWithDefaults(this);
 
