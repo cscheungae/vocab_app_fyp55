@@ -46,7 +46,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // states
   List<String> selectedGenresList = List();
-  String selectedLang;
+  String selectedLang = "gb";
   double trackThres = 3;
   double zipfThres = 4;
 
@@ -382,7 +382,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   user.setTrackThres(trackThres.toInt());
                   user.setWordFreqThres(zipfThres.toInt());
                   user.setRegion(selectedLang);
-                  user.setGenres(selectedGenresList);
+                  user.setGenres(selectedGenresList.isNotEmpty ? selectedGenresList : GenresList);
                   // by using the userid, update the preference
                   await dbHelper.updateUser(user);
                   // update to the server
@@ -399,7 +399,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           "trackThres": user.trackThres,
                           "wordFreqThres": user.wordFreqThres,
                           "region": selectedLang,
-                          "genres": selectedGenresList.isEmpty ? GenresList : selectedGenresList,
+                          "genres": selectedGenresList.isNotEmpty ? selectedGenresList : GenresList,
                         })
                       })
                   );
