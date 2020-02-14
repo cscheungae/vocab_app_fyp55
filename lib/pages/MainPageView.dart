@@ -1,6 +1,6 @@
 
-
 import 'package:flutter/material.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 import '../res/theme.dart' as CustomTheme;
 
@@ -8,6 +8,7 @@ import '../pages/HomePage.dart';
 import '../pages/StudyPage.dart';
 import '../pages/VocabBanksPage.dart';
 import '../pages/StatisticsPage.dart';
+
 
 
 class MainPageView extends StatefulWidget {
@@ -22,16 +23,21 @@ class MainPageView extends StatefulWidget {
 
 class _MainPageView extends State<MainPageView> {  
 
-  List<Widget> pages = [new HomePage(), new StudyPage(), new VocabCardUIPage(), new StatisticsPage(), ];
+  List<Widget> pages = [
+    new HomePage(), 
+    new StudyPage(), 
+    new VocabCardUIPage(), 
+    new StatisticsPage(), 
+  ];
 
   int currentPosition = 0;
 
-  PageController pController;
+  PreloadPageController pController;
 
   @override
   void initState() {
     super.initState();
-    pController = new PageController(initialPage: this.currentPosition,);
+    pController = new PreloadPageController(initialPage: this.currentPosition,);
   }
 
   @override
@@ -53,7 +59,7 @@ class _MainPageView extends State<MainPageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView.builder(
+      body: PreloadPageView.builder(
         itemBuilder: (context, position){
           return this.pages[position];
         },
@@ -77,11 +83,13 @@ class _MainPageView extends State<MainPageView> {
             buildBottomNavItem(iconData: Icons.library_books, title: "VOCAB"),
             buildBottomNavItem(iconData: Icons.pie_chart, title: "STATS"),
           ],
-          onTap: (index){
-            setState(() {
+          onTap: (index) async{
+            if (this.currentPosition != index ){
+              int duration = 250 + 250 * (this.currentPosition - index).abs();
+              await pController.animateToPage(index, duration: Duration(milliseconds: duration), curve: Curves.decelerate );
               this.currentPosition = index;
-              pController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.decelerate );
-            });
+            }
+            setState(() {});
           }   
     ),
   );

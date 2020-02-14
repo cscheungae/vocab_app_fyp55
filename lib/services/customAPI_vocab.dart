@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:vocab_app_fyp55/model/vocabulary.dart';
 import 'package:http/http.dart' as http;
 
+import 'AddressMiddleWare.dart';
+
 class CustomAPIVocab {
 
   vocabulary vocab;
@@ -18,7 +20,7 @@ class CustomAPIVocab {
 
   //data request from API
   static Future<vocabulary> requestAPIData(String word, {String region = "us"}) async {
-    final String url = "localhost:5555/ext/api/vocab?" + "word=" + word + "&region=" + region;
+    final String url = AddressMiddleWare.address + "/ext/api/vocab?" + "word=" + word + "&region=" + region;
     var returnedResponse = await http.get(url);
     if ( returnedResponse.statusCode == 200 ){
       CustomAPIVocab apiVocab = CustomAPIVocab.fromJson(json.decode(returnedResponse.body));

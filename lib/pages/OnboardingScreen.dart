@@ -8,6 +8,7 @@ import 'package:vocab_app_fyp55/components/Chip/MultiSelectChip.dart';
 import 'package:vocab_app_fyp55/components/Chip/styles.dart';
 import 'package:vocab_app_fyp55/components/RegisterForm.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
+import 'package:vocab_app_fyp55/services/AddressMiddleWare.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -389,7 +390,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     'Content-type': 'application/json'
                   };
                   http.Response response = await http.post(
-                      "http://10.0.2.2:5555/user/update",
+                      AddressMiddleWare.address + "/user/update",
                       headers: headers,
                       body: jsonEncode({
                         "uid": user.uid,

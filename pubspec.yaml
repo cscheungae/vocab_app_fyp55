@@ -27,6 +27,7 @@ dependencies:
   flutter_webview_plugin: ^0.3.10+1
   charts_flutter: 
   path_provider:
+  preload_page_view:
   cached_network_image: 2.0.0-rc
   shared_preferences:
   sqflite:

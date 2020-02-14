@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
+import 'package:vocab_app_fyp55/services/AddressMiddleWare.dart';
 
 
 class RegisterForm extends StatefulWidget {
@@ -65,7 +66,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         'Content-type': 'application/json'
                       };
                       http.Response response = await http.post(
-                          'http://10.0.2.2:5555/user/reg',
+                          AddressMiddleWare.address + '/user/reg',
                           headers: headers,
                           body: jsonEncode({
                             'email': usernameController.text,

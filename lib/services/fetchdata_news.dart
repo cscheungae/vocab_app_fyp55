@@ -1,7 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'package:vocab_app_fyp55/services/APIKey.dart';
+import 'package:vocab_app_fyp55/services/AddressMiddleWare.dart';
+import 'package:vocab_app_fyp55/model/news.dart';
+
 import 'dart:convert';
-import '../model/news.dart';
 
 class FetchNews {
 
@@ -24,7 +26,7 @@ class FetchNews {
   static Future< List<NewsItem> > requestAPIData( {List<String> categories, } ) async {
     assert(categories != null);
 
-    String url = "http://10.0.2.2:5555/ext/api/news";
+    String url = AddressMiddleWare.address + "/ext/api/news";
 
     // generating the query url
     if ( categories.isEmpty ) {

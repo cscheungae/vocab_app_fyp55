@@ -3,6 +3,9 @@ import '../res/theme.dart' as CustomTheme;
 import '../components/NavigationBlock.dart';
 import '../components/CircleStatisticsIndicator.dart';
 
+import '../pages/ArticlesViewPage.dart';
+import '../util/Router.dart' as Router;
+
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
 
@@ -28,7 +31,6 @@ class _HomePageState extends State<HomePage>
       end: Offset.zero,
     ).animate(
         CurvedAnimation(parent: animeController, curve: Curves.decelerate));
-    animeController.forward();
   }
 
   @override
@@ -39,6 +41,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((dur){animeController.forward();});
     return Scaffold(
       body: SlideTransition(
         position: slideAnimation,
@@ -54,11 +57,12 @@ class _HomePageState extends State<HomePage>
               child: GestureDetector(
                 child: NavigationBlock(
                   title: "Article",
-                  body: "jojo",
+                  body: "Read more articles in here, and explore new vocabularies!",
                   colors: CustomTheme.BLUE_GRADIENT_COLORS,
                 ),
                 onTap: () {
-                  Navigator.pushNamed(context, '/articles');
+                  //Navigator.pushNamed(context, '/articles');
+                  Navigator.push(context, Router.AnimatedRoute(newWidget: new ArticleViewPage()  ));
                 },
               ),
             ),
@@ -66,7 +70,7 @@ class _HomePageState extends State<HomePage>
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: NavigationBlock(
                 title: "Study",
-                body: "hi, I am in love with you",
+                body: "Want to test your skill? Challenge yourself here!",
                 colors: CustomTheme.RED_GRADIENT_COLORS,
                 direction: NavigationBlockAlignment.RtoL,
               ),
@@ -75,7 +79,7 @@ class _HomePageState extends State<HomePage>
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: NavigationBlock(
                 title: "Prepare",
-                body: "love",
+                body: "Prepare for new vocabularies",
                 colors: CustomTheme.GREEN_GRADIENT_COLORS,
               ),
             ),

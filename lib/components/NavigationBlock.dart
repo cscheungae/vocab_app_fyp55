@@ -70,13 +70,16 @@ class NavigationBlock extends StatelessWidget {
                 RichText(
                   text: TextSpan(
                     children: [
-                      TextSpan(
-                        text: "Learn More",
-                        style: TextStyle( fontSize: 18, fontWeight: FontWeight.w400, height: 1.1),
-                      ),
-                      WidgetSpan(
-                        child: Icon(Icons.arrow_right),
-                      ),
+                        this.direction == NavigationBlockAlignment.RtoL ? WidgetSpan(
+                          child: Icon(Icons.arrow_left),
+                        ) : TextSpan(text: ""), 
+                        TextSpan(
+                          text: "Learn More",
+                          style: TextStyle( fontSize: 18, fontWeight: FontWeight.w400, height: 1.1),
+                        ),
+                        this.direction == NavigationBlockAlignment.LtoR ? WidgetSpan(
+                          child: Icon(Icons.arrow_right),
+                        ) : TextSpan(text: ""),
                     ] 
                   ),
                 ),

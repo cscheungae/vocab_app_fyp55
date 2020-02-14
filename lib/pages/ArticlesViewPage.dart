@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
-import '../components/CustomDrawer.dart';
 import '../model/news.dart';
 import '../services/fetchdata_news.dart';
 
@@ -16,10 +15,32 @@ class ArticleViewPage extends StatefulWidget {
   _ArticleViewPageState createState() => _ArticleViewPageState();
 }
 
-class _ArticleViewPageState extends State<ArticleViewPage> {
-  // out the widget's state here
+class _ArticleViewPageState extends State<ArticleViewPage> with SingleTickerProviderStateMixin {
+  
+
+  /// A list of News object containing info of each
   List<NewsItem> newsList;
+
+  /// number of news loaded in the presentation layer
   int load = 0;
+
+  ///Animation
+  AnimationController animeController;
+  Animation<Offset> slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    animeController = AnimationController( duration: const Duration(milliseconds: 500), vsync: this);
+    slideAnimation = Tween<Offset>(begin: const Offset( 0, 0.4), end: Offset.zero,  ).animate(CurvedAnimation(parent: animeController, curve: Curves.decelerate));
+  }
+
+  @override
+  void dispose() {
+    animeController.dispose();
+    super.dispose();
+  }
+
 
   Future<List<NewsItem>> initNewsList() async {
     if (newsList == null) {
@@ -28,11 +49,24 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
           await Provider.of<DatabaseNotifier>(context, listen: false)
               .dbHelper
               .readAllUser();
+      print("number of users genres is " + users[0].genres.length.toString() );
       newsList = await FetchNews.requestAPIData(categories: users[0].genres);
     }
     load = newsList.length;
     return newsList.sublist(load - 1);
   }
+
+
+  //Based on CustomNewsCard, but wrap it with Transition Animation
+  Widget buildAnimatedCustomNewsCard( int pos){
+    var item = SlideTransition(
+      position: slideAnimation, 
+      child: CustomNewsCard( newsList[pos] ),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((dur){animeController.forward();});
+    return item;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +80,12 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
               widget = ListView.builder(
                   itemCount: load,
                   itemBuilder: (context, position) {
-                    return CustomNewsCard(newsList[position]);
+                    return buildAnimatedCustomNewsCard(position);
+                    //return CustomNewsCard(newsList[position]);
                   });
-            } else if (snapshot.hasError) {
+            }
+            //Error Screen 
+            else if (snapshot.hasError) {
               print(snapshot.error);
               print(snapshot);
               widget = Row(
@@ -65,7 +102,9 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
                   )
                 ],
               );
-            } else {
+            } 
+            //Loading Screen
+            else {
               widget =
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Column(
