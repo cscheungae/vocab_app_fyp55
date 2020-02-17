@@ -817,11 +817,16 @@ class DatabaseProvider
   }
 
   /// This function return the vocabs that are ready to be prepared as Flashcard
-  Future<List<Vocab>> getReadyVocab(int wordTrackThreshold, int wordFreqThreshold) async
+  Future<List<Vocab>> getReadyVocab() async
   {
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
+      // collect the required parameters
+      List<User> users = await readAllUser();
+      int wordTrackThreshold = users[0].trackThres;
+      int wordFreqThreshold = users[0].wordFreqThres;
+      // request for the ready vocabs
       response = await db.query(vocabTableName, columns: null, where: "status = ?, trackFreq >= ?, wordFreq >= ?", whereArgs: [Status.tracked.index, wordTrackThreshold, wordFreqThreshold]);
     } catch(e) { debugPrint( e.toString() + "getReadyVocab failure"); response = null;}
     return response != null ? response.map((item) => Vocab.fromJson(item)).toList() : null;
