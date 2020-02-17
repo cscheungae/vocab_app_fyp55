@@ -399,7 +399,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           "trackThres": user.trackThres,
                           "wordFreqThres": user.wordFreqThres,
                           "region": selectedLang,
-                          "genres": selectedGenresList.isNotEmpty ? selectedGenresList : GenresList,
+                          "genres": jsonEncode(selectedGenresList.isNotEmpty ? selectedGenresList : GenresList),
                         })
                       })
                   );

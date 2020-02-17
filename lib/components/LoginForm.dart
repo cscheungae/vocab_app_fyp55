@@ -8,15 +8,14 @@ import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 import 'package:vocab_app_fyp55/services/AddressMiddleWare.dart';
 
-
-class RegisterForm extends StatefulWidget {
-  const RegisterForm({Key key}) : super(key: key);
+class LoginForm extends StatefulWidget {
+  const LoginForm({Key key}) : super(key: key);
 
   @override
-  _RegisterFormState createState() => _RegisterFormState();
+  _LoginFormState createState() => _LoginFormState();
 }
 
-class _RegisterFormState extends State<RegisterForm> {
+class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController usernameController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
@@ -57,44 +56,72 @@ class _RegisterFormState extends State<RegisterForm> {
             child: RaisedButton(
               onPressed: () async {
                 if (_formKey.currentState.validate()) {
-                  Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text('Processing ... ')));
+                  Scaffold.of(context)
+                      .showSnackBar(SnackBar(content: Text('Processing ... ')));
                   // TODO:: call the middleware api to register
                   try {
                     Map<String, String> headers = {
                       'Content-type': 'application/json'
                     };
                     http.Response response = await http.post(
-                        AddressMiddleWare.address + '/user/reg',
+                        AddressMiddleWare.address + '/user/login',
                         headers: headers,
                         body: jsonEncode({
-                          'email': usernameController.text,
+                          'username': usernameController.text,
                           'password': passwordController.text
                         }));
-                    if(response.statusCode == 200) {
+                    if (response.statusCode == 200) {
                       // get the insertId
-                      int insertId = json.decode(response.body)['data']['insertId'];
-                      print("response: $response");
+                      var data = jsonDecode(response.body)['data'];
+                      // TODO:: check the attributes name on the RHS
+                      int uid = data[0]['uid'];
+                      // TODO:: parse the JSON, get the preference value in seperate
+                      var preference = jsonDecode(jsonDecode(data[0]['preference']));
+                      int trackThres = preference['trackThres'];
+                      int wordFreqThres = preference['wordFreqThres'];
+                      String region = preference['region'];
+                      List<String> genres = jsonDecode(preference['genres']).cast<String>();
                       // when success create a user instance and store it in the flutter sqlite
-                      final dbHelper = Provider.of<DatabaseNotifier>(context, listen: false).dbHelper;
-                      await dbHelper.insertUser(User(uid: insertId, name: usernameController.text, password: passwordController.text));
+                      final dbHelper =
+                          Provider.of<DatabaseNotifier>(context, listen: false)
+                              .dbHelper;
+                      await dbHelper.insertUser(User(
+                          uid: uid,
+                          name: usernameController.text,
+                          password: passwordController.text,
+                          trackThres: trackThres,
+                          wordFreqThres: wordFreqThres,
+                          region: region,
+                          genres: genres,
+                      ));
                       // Navigate to the welcome route when succeed
-                      Scaffold.of(context).showSnackBar(
-                          SnackBar(content: Text('Success'), backgroundColor: Colors.green, onVisible: () => Navigator.pushReplacementNamed(context, '/welcome'), duration: Duration(milliseconds: 500),));
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text('Success'),
+                        backgroundColor: Colors.green,
+                        onVisible: () =>
+                            Navigator.pushReplacementNamed(context, '/'),
+                        duration: Duration(milliseconds: 500),
+                      ));
                     } else {
                       throw HttpException(response.body);
                     }
                   } on Exception catch (err) {
                     print("Network error: $err");
-                    Scaffold.of(context).showSnackBar(
-                        SnackBar(content: Text('Network Error: ${err.toString()}'), backgroundColor: Colors.red,));
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text('Network Error: ${err.toString()}'),
+                      backgroundColor: Colors.red,
+                    ));
                   }
                 } else {
-                  Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text('Invalid Fields'), backgroundColor: Colors.red));
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text('Invalid Fields'),
+                      backgroundColor: Colors.red));
                 }
               },
-              child: Text('Submit', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
+              child: Text(
+                'Submit',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
             ),
           ),
         ],

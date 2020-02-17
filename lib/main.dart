@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/pages/LeaderBoardPage.dart';
+import 'package:vocab_app_fyp55/pages/LoginPage.dart';
 import 'package:vocab_app_fyp55/pages/OnboardingScreen.dart';
 import 'package:vocab_app_fyp55/pages/RegisterPage.dart';
 import 'package:vocab_app_fyp55/pages/VocabBanksPage.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
                   // When navigating to the "/" route, build the HomeScreen
                   '/': (context) => MainPageView.instance,
                   '/register': (context) => RegisterPage(),
+                  '/login': (context) => LoginPage(),
                   '/welcome': (context) => OnboardingScreen(),
                   '/articles': (context) => ArticleViewPage(title: "Article"),
                   '/settings': (context) => SettingsPage(),
