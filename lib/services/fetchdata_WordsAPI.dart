@@ -1,21 +1,19 @@
 import 'package:http/http.dart' as http;
-import 'package:vocab_app_fyp55/model/vocabularyDefinition.dart';
+import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
 import 'dart:convert';
-import '../model/vocabulary.dart';
 import 'APIKey.dart';
 
 class FetchDataWordsAPI{
 
-  vocabulary _vocab;
-  
+  VocabBundle _vocab;  
   get vocab => _vocab;
 
   /* Prevent Over-requesting */
   static int limit = 0;
-  static const int LIMIT = 10;
+  static const int LIMIT = 20;
 
   //Constructor
-  FetchDataWordsAPI(vocabulary vocab ){ this._vocab = vocab; }
+  FetchDataWordsAPI( this._vocab );
 
 
   factory FetchDataWordsAPI.fromJson( Map<String, dynamic> json ){
@@ -40,23 +38,34 @@ class FetchDataWordsAPI{
       for ( int i = 0; i < synonymsJson.length; i++ ) synonyms.add(synonymsJson[i]);
       for ( int i = 0; i < antonymsJson.length; i++ ) antonyms.add(antonymsJson[i]);
 
-      return FetchDataWordsAPI( new vocabulary( word: word, defs: [new VocabDefinition(partOfSpeech: wordForm, definition: meaning, exampleSentence: sampleSentence)]));
+      //Word returned
+      VocabBundle vb = new VocabBundle(
+        word: word,
+        definitionsBundle: [
+          DefinitionBundle(
+            defineText: meaning,
+            pos: wordForm,
+            examplesBundle: [
+              ExampleBundle(
+                sentence: sampleSentence,
+              ),
+            ]
+          ),
+        ]
+      );
+      return FetchDataWordsAPI(vb);
     }
-    else return FetchDataWordsAPI( new vocabulary());
+    else return null;
   }
 
 
-  /* Request From API Online */
-  static Future<vocabulary> requestFromAPI(String word) async{
-
+  static Future<VocabBundle> requestFromAPI(String word) async{
     //Prevent Over-Requesting
-    limit++;
-    if ( limit > LIMIT ) return null;
+    if ( ++limit > LIMIT ){ print("You have spammed the request too much!"); return null; }
     
     final String apiAdress = "https://wordsapiv1.p.rapidapi.com/words/";
     final String query = word.toLowerCase();
     
-    //Very Dangerous!
     var returnedResponse = await http.get( apiAdress + query,
       headers: { "X-RapidAPI-Key" : APIKey.WordsAPI,
                  "X-RapidAPI-Host" : "wordsapiv1.p.rapidapi.com",
@@ -69,6 +78,4 @@ class FetchDataWordsAPI{
     }
     else { print("Failed WordsAPI Call! :  " + returnedResponse.statusCode.toString() ); return null; }
   }
-
-
 }

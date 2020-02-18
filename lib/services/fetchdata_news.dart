@@ -24,33 +24,37 @@ class FetchNews {
   // previous request method
 //  static Future< List<News> > requestAPIData( {String username, String password, List<String> categories, } ) async {
   static Future< List<NewsItem> > requestAPIData( {List<String> categories, } ) async {
-    assert(categories != null);
+  try{
+      assert(categories != null);
+      
+      String url = AddressMiddleWare.address + "/ext/api/news";
 
-    String url = AddressMiddleWare.address + "/ext/api/news";
-
-    // generating the query url
-    if ( categories.isEmpty ) {
-      return null;
-    } else {
-      url += "?";
-      for(int i=0; i<categories.length; i++) {
-        url += "categories[]=${categories[i]}";
-        if(i!=categories.length-1)
-          url += "&";
+      // generating the query url
+      if ( categories.isEmpty ) {
+        return null;
+      } else {
+        url += "?";
+        for(int i=0; i<categories.length; i++) {
+          url += "categories[]=${categories[i]}";
+          if(i!=categories.length-1)
+            url += "&";
+        }
       }
-    }
 
-    var returnedResponse = await http.get(
-      url,
-      headers: {
-        "X-Api-Key": APIKey.NewsAPI
-      },
-    );
-    if ( returnedResponse.statusCode == 200 ){
-      var response = json.decode(returnedResponse.body);
-      FetchNews fn = FetchNews.fromJson(response);
-      return fn._newsList;
+      var returnedResponse = await http.get(
+        url,
+        headers: {
+          "X-Api-Key": APIKey.NewsAPI
+        },
+      );
+      if ( returnedResponse.statusCode == 200 ){
+        var response = json.decode(returnedResponse.body);
+        FetchNews fn = FetchNews.fromJson(response);
+        return fn._newsList;
+      }
+      else { print("Failure in making NewsAPI request: " + returnedResponse.statusCode.toString()); return null; }
+    } catch(e){
+      print("Function Failure - requestAPIData"); return null;
     }
-    else { print("Failure in making NewsAPI request: " + returnedResponse.statusCode.toString()); return null; }
   }
 }

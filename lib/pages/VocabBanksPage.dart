@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import '../util/manage_vocabbank.dart';
-import '../model/vocabulary.dart';
-import '../provider/vocabularyBank.dart';
-import '../components/CustomVocabCard.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
+import 'package:vocab_app_fyp55/components/CustomVocabCard.dart';
+import 'package:vocab_app_fyp55/model/vocab.dart';
+import 'package:vocab_app_fyp55/pages/VocabFormPage.dart';
+//import 'package:vocab_app_fyp55/util/manage_vocabbank.dart';
 
 
-
-import 'VocabFormPage.dart';
 import 'dart:async';
 
 
@@ -26,25 +25,26 @@ class VocabCardUIPage extends StatefulWidget
 
 class _VocabCardPage extends State<VocabCardUIPage>
 {
-  //vocabs through UI
-  List<vocabulary> _vocabList;
+  /// vocabs through UI
+  /// Note that it only takes [Vocab] instead of [VocabBundle]
+  /// Convertion from Vocab to VocabBundle will only be performed later on
+  List<Vocab> _vocabList;
 
+  /// Determine whether all cards are visible
   bool allCardsVisible = true;   
   
-  //search Constructor
+  /// search Constructor
   final TextEditingController _searchController = new TextEditingController();
 
 
 
   //initialize the vocab list 
-  Future<List<vocabulary>> initVocabCardList( {forceUpdate = false} ) async
+  Future<List<Vocab>> initVocabCardList( {forceUpdate = false} ) async
   {
     if (_vocabList == null || forceUpdate == true ){
-      _vocabList = await VocabularyBank.instance.getVocabList();
-      debugPrint( "total vocabs is " + _vocabList.length.toString());
+      this._vocabList = await DatabaseProvider.instance.readAllVocab();
     }
-
-    return _vocabList;
+    return this._vocabList;
   }
 
 
@@ -79,7 +79,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
             new FlatButton(
               child: Text("Accept"),
               onPressed: () async { 
-                await VocabularyBank.instance.deleteAllVocabs(); 
+                await DatabaseProvider.instance.deleteAllVocab(); 
                 Navigator.of(context).pop();
                 await initVocabCardList(forceUpdate: true);
                 setState(() { });
@@ -100,7 +100,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
     switch ( choice )
     {
       case 0: 
-        _vocabList = sortVocabListByWords( _vocabList );        
+        //_vocabList = sortVocabListByWords( _vocabList );        
         break;
       case 1:
         Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabFormPage() ) )
@@ -110,7 +110,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
           await _deleteAllVocabs();
           break;
       case 3: 
-          await VocabularyBank.deleteDB();
+          //await DatabaseProvider.instance.dropDatabase();
           break;
       default: {}
     }
@@ -120,7 +120,6 @@ class _VocabCardPage extends State<VocabCardUIPage>
 
 
 
-  //Widget Building
   @override
   Widget build( BuildContext context )
   {
@@ -144,8 +143,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
                 controller: _searchController,
                 onChanged: (query) async {
 
-                  var vocabList = await VocabularyBank.instance.getVocabList(forceUpdate: false);
-                  _vocabList =getSearchResultVocabList( vocabList, query.toLowerCase());
+                  //TODO:  Filtering
+                  //var vocabList = await DatabaseProvider.instance.getVocabList(forceUpdate: false);
+                  //_vocabList = getSearchResultVocabList( vocabList, query.toLowerCase());
                   setState((){ });   
                 },
                 decoration: InputDecoration
@@ -154,9 +154,10 @@ class _VocabCardPage extends State<VocabCardUIPage>
                   hintText: "Enter a Search Term",
                   suffixIcon: IconButton(
                     onPressed: () async { 
-
-                      _searchController.clear(); 
-                      _vocabList = await VocabularyBank.instance.getVocabList(forceUpdate: false); 
+                      
+                      //TODO:  Filtering
+                      //_searchController.clear(); 
+                      //_vocabList = await VocabularyBank.instance.getVocabList(forceUpdate: false); 
                       setState(() {});  
                     },
                     icon: Icon(Icons.clear),
@@ -191,9 +192,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
         
         
         Expanded(
-          child: FutureBuilder<List<vocabulary>>(
+          child: FutureBuilder<List<Vocab>>(
           future: initVocabCardList(),
-            builder: ( context, AsyncSnapshot<List<vocabulary>> snapshot ){
+            builder: ( context, AsyncSnapshot<List<Vocab>> snapshot ){
               if ( snapshot.hasData )
               {
                 return  ListView.builder

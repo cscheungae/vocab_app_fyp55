@@ -1,19 +1,23 @@
 
 import 'package:flutter/material.dart';
-import '../model/vocabulary.dart';
+import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
+import 'package:vocab_app_fyp55/model/vocab.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import '../pages/VocabDetailsPage.dart';
 
 
-
+/// This Page View allows swiping between Vocabularies
+/// It also handles the important transition from [Vocab] to [VocabBundle]
 class VocabDetailsPageView extends StatefulWidget {
 
-  final List<vocabulary> _vocablist;
-  List<vocabulary> get vocablist => _vocablist; 
+  final List<Vocab> _vocabList;
   final int _startPage;
 
+  List<Vocab> get vocablist => _vocabList; 
+
   //Constructor
-  VocabDetailsPageView( List<vocabulary> vocablist, { int startPage = 0,  Key key} ): 
-  this._vocablist = vocablist,
+  VocabDetailsPageView( List<Vocab> vocablist, { int startPage = 0,  Key key} ): 
+  this._vocabList = vocablist,
   this._startPage = startPage,
   super(key: key);
 
@@ -28,6 +32,8 @@ class _VocabDetailsPageView extends State<VocabDetailsPageView>
 {
   PageController pController;
 
+  List<VocabBundle> vocabBundlesList;
+
   @override
   void initState() {
     super.initState();
@@ -35,14 +41,75 @@ class _VocabDetailsPageView extends State<VocabDetailsPageView>
   }
 
   @override
+  void dispose() {
+    pController.dispose();
+    super.dispose();
+  }
+
+  Future<List<VocabBundle>> initVocabBundleList() async {
+    this.vocabBundlesList = [];
+    for ( int i = 0; i < widget._vocabList.length; i++ ){
+      VocabBundle vb = await DatabaseProvider.instance.readVocabBundle( widget._vocabList[i].vid );
+      this.vocabBundlesList.add(vb);
+    }
+    return this.vocabBundlesList;
+  }
+
+
+
+  @override
   Widget build( BuildContext context ){
-    return PageView.builder(
-      itemBuilder: ( context, position ){
-        return VocabDetailsUIPage( widget.vocablist[position], title: widget.vocablist[position].getWord() );
+    return 
+    FutureBuilder<List<VocabBundle>>(
+      future: initVocabBundleList(),
+      builder: ( context, AsyncSnapshot<List<VocabBundle>> snapshot ){
+        if ( snapshot.hasData ){
+          return PageView.builder(
+            itemBuilder: ( context, position ){
+              return VocabDetailsUIPage( this.vocabBundlesList[position] , title: this.vocabBundlesList[position].word );
+            },
+            controller: pController,
+            itemCount: widget.vocablist.length,
+            scrollDirection: Axis.horizontal,
+          );
+        }
+        //Error
+        else if ( snapshot.hasError ){
+          return 
+           Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      "Error in loading vocabularies",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
+                )
+              ],
+            );
+        }
+        //Loading
+        else {
+          return 
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.blue,
+                  ),
+                  width: 60,
+                  height: 60,
+                )
+              ],
+            ),
+          ]);
+        }
       },
-      controller: pController,
-      itemCount: widget.vocablist.length,
-      scrollDirection: Axis.horizontal,
     );
   }
 

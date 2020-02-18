@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/model/vocabularyDefinition.dart';
+import 'package:vocab_app_fyp55/pages/MainPageView.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
+import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
+import 'package:vocab_app_fyp55/components/DefinitionBlock.dart';
 import 'package:vocab_app_fyp55/pages/VocabFormPage.dart';
-import '../model/vocabulary.dart';
-import '../components/DefinitionBlock.dart';
-import '../provider/vocabularyBank.dart';
-import '../pages/VocabBanksPage.dart';
+
 
 class VocabDetailsUIPage extends StatefulWidget 
 {
   final String title;
-  final vocabulary targetWord;
+  final VocabBundle targetWord;
 
   //Constructor
-  VocabDetailsUIPage(vocabulary word, {Key key, String title = "vocabulary", }):
+  VocabDetailsUIPage( VocabBundle word, {Key key, String title = "vocabulary", }):
   this.title = title,
   this.targetWord = word, 
   super( key: key);
@@ -25,9 +25,9 @@ class VocabDetailsUIPage extends StatefulWidget
 
 class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerProviderStateMixin
 {
-  vocabulary targetWord; 
+  VocabBundle targetWord; 
   @override
-  _VocabDetailsUIPage( vocabulary vocab ){  this.targetWord = vocab; }
+  _VocabDetailsUIPage( VocabBundle vocab ){  this.targetWord = vocab; }
 
   TabController _defTabController;
   int defIndex = 0;
@@ -36,7 +36,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
   @override
   void initState(){ 
     super.initState(); 
-    _defTabController =  TabController(length: targetWord.getAllDefinitions().length, vsync: this );
+    _defTabController =  TabController(length: targetWord.definitionsBundle.length, vsync: this );
     _defTabController.addListener((){ 
       if (_defTabController.indexIsChanging){ setState(() {
         defIndex = _defTabController.index;
@@ -57,7 +57,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
       context: context,
       builder: (BuildContext context ){
         return AlertDialog(
-          title: new Text("Delete the vocabulary " + targetWord.getWord()),
+          title: new Text("Delete the vocabulary " + targetWord.word ),
           content: new Text("Are you sure about that? Such change is irreversible."),
           actions: <Widget>[
             new FlatButton(
@@ -70,12 +70,15 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
 
             new FlatButton(
               child: Text("Yes"),
-              onPressed: () async { 
+              onPressed: () async {                 
                 //Do the actual deletion
-                await VocabularyBank.instance.deleteVocab(targetWord);
-                Navigator.of(context).pop();
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => new VocabCardUIPage() ) );
-                setState(() { });
+                try {
+                  await DatabaseProvider.instance.deleteVocab(targetWord.vid);
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainPageView.instance ) );
+                }
+                catch (exception){ debugPrint("Failure in deletion\n" + exception); }
               },
             )
           ]
@@ -95,7 +98,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
           (
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height * 0.32,
-            child: targetWord.getHeroImage(),
+            child: targetWord.getImage(),
           ),
 
           //Image Filter
@@ -142,7 +145,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
 
   
   //build Definitions
-  Widget _buildDefinition( VocabDefinition vd ){
+  Widget _buildDefinition( DefinitionBundle vd ){
     return Column(children: <Widget>[
         
         //Part Of Speech
@@ -159,14 +162,14 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
         (
           alignment: Alignment.topLeft,
           padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new DefinitionBlock( header: "Meaning", body: vd.definition ),                        
+          child: new DefinitionBlock( header: "Meaning", body: vd.defineText ),                        
         ),
 
         Container
         (
           alignment: Alignment.topLeft,
           padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new DefinitionBlock( header: "Example Sentence", body: vd.exampleSentence ),                        
+          child: new DefinitionBlock( header: "Example Sentence", body: vd.examplesBundle[0].sentence ),                        
         ), 
         
         Container
@@ -209,13 +212,13 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                     ( 
                       backgroundColor: Color.fromRGBO(0, 0, 0, 0.4),
                       elevation: 0,
-                      title: Text(targetWord.getWord() ),
+                      title: Text(targetWord.word ),
                       actions: <Widget>[
                         IconButton(
                           icon: Icon(Icons.edit),
                           onPressed: (){
                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => new VocabFormPage(
-                               title: "Edit " + targetWord.getWord() , vocab: targetWord,
+                               title: "Edit " + targetWord.word , vocab: targetWord,
                              )));
                           }
                         ),
@@ -234,7 +237,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                   (
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.fromLTRB(15, 80, 0, 0),
-                    child: Text ( targetWord.getWord(), style: TextStyle(color: Colors.blue, fontSize: 28, fontWeight: FontWeight.bold, ),  ),
+                    child: Text ( targetWord.word, style: TextStyle(color: Colors.blue, fontSize: 28, fontWeight: FontWeight.bold, ),  ),
                   ),
 
 
@@ -256,7 +259,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                         topLeft: Radius.circular(20),
                         topRight: Radius.circular(20),
                       )),
-                      tabs: targetWord.getAllDefinitions().isEmpty ? <Widget>[] :  targetWord.getAllDefinitions().map((context){
+                      tabs: targetWord.definitionsBundle.isEmpty ? <Widget>[] :  targetWord.definitionsBundle.map((context){
                         return Tab(
                           child: Text("DEF", style: TextStyle(fontSize: 14),),
                         );
@@ -265,7 +268,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                   ),
 
                   //Definitions
-                  targetWord.getAllDefinitions().isEmpty ? Container() : targetWord.getAllDefinitions().map((context){
+                  targetWord.definitionsBundle.isEmpty ? Container() : targetWord.definitionsBundle.map((context){
                     return _buildDefinition(context);
                   }).toList()[defIndex],
                   

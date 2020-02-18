@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/pages/PrepareCardPage.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../components/NavigationBlock.dart';
 import '../components/CircleStatisticsIndicator.dart';
@@ -68,18 +69,23 @@ class _HomePageState extends State<HomePage>
             ),
             Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
-              child: NavigationBlock(
-                title: "Study",
-                body: "Want to test your skill? Challenge yourself here!",
-                colors: CustomTheme.RED_GRADIENT_COLORS,
-                direction: NavigationBlockAlignment.RtoL,
+              child: GestureDetector(
+                child: NavigationBlock(
+                  title: "Prepare",
+                  body: "Prepare for new vocabularies",
+                  colors: CustomTheme.RED_GRADIENT_COLORS,
+                  direction: NavigationBlockAlignment.RtoL,
+                ),
+                onTap: (){
+                  Navigator.push(context, Router.AnimatedRoute(newWidget: new PrepareCardPage()  ));
+                },
               ),
             ),
             Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: NavigationBlock(
-                title: "Prepare",
-                body: "Prepare for new vocabularies",
+                title: "Study",
+                body: "Want to test your skill? Challenge yourself here!",
                 colors: CustomTheme.GREEN_GRADIENT_COLORS,
               ),
             ),

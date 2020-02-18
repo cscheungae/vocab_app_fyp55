@@ -28,7 +28,7 @@ class DefinitionBlock extends StatelessWidget{
           backgroundColor: Colors.white,
           initiallyExpanded: true,
           trailing: IconTheme( data: IconThemeData(color: Colors.black,), child: Icon(Icons.menu), ),
-          title: Text( header, 
+          title: Text( header ?? "null", 
             style: TextStyle(
               color: Colors.blue, 
               fontSize: 20, 
@@ -38,7 +38,7 @@ class DefinitionBlock extends StatelessWidget{
           children: <Widget>[
             Container( child: Divider(color: Colors.black,),),
             Container(
-              child: Text( this.body, 
+              child: Text( this.body ?? "null", 
               style: TextStyle(
                 color: Colors.black, 
                 fontSize: 18, 

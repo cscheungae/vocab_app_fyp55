@@ -1,36 +1,37 @@
 
 
-import 'package:vocab_app_fyp55/model/vocab.dart';
-import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
+import 'package:provider/provider.dart';
+import 'package:vocab_app_fyp55/model/user.dart';
+import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 
 import '../res/theme.dart' as CustomTheme;
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/tag.dart';
 
+import 'package:vocab_app_fyp55/model/vocab.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 
 
-class StudyPage extends StatefulWidget {
+
+class PrepareCardPage extends StatefulWidget {
   
   //Constructor
-  StudyPage({Key key}) : super(key: key);
+  PrepareCardPage({Key key}) : super(key: key);
 
   @override
-  _StudyPage createState() => _StudyPage();
+  _PrepareCardPage createState() => _PrepareCardPage();
 }
 
 
 
-class _StudyPage extends State<StudyPage> with SingleTickerProviderStateMixin {
+class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderStateMixin {
 
   //vocabs through UI
-  List<Vocab> _vocabList;
+  List<Vocab> _readyVocabList;
 
   ///controller and animation
   AnimationController animeController;
   Animation fadeAnimation;
-
-  /// the widget that determines what should be displayed
-  Widget mainPage;
 
 
   @override
@@ -38,8 +39,6 @@ class _StudyPage extends State<StudyPage> with SingleTickerProviderStateMixin {
     super.initState();
     animeController = AnimationController( duration: const Duration(milliseconds: 700), vsync: this);
     fadeAnimation = Tween( begin: 0.0, end: 1.0,).animate(animeController);
-
-    mainPage = buildStartPage();
   }
 
 
@@ -50,20 +49,22 @@ class _StudyPage extends State<StudyPage> with SingleTickerProviderStateMixin {
   }
   
 
-  //initialize the vocab list 
-  Future<List<Vocab>> initVocabCardList( {forceUpdate = false} ) async
+  /// initialize the Ready Vocab List
+  /// Call the database, and check if the word exceed threshold (Ready) or not
+  Future<List<Vocab>> initReadyWordsList() async
   {
-    if (_vocabList == null || forceUpdate == true ){
-      _vocabList = [];
+    if (_readyVocabList == null ){
+      //List<User> users = await DatabaseProvider.instance.readAllUser();  
+      _readyVocabList = await DatabaseProvider.instance.getReadyVocab() ?? [];
     }
-    return _vocabList;
+    return _readyVocabList;
   }
 
 
-  //Start Page of The App
-  Widget buildStartPage(){
-    return 
-      Column(
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(        
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
 
@@ -76,7 +77,7 @@ class _StudyPage extends State<StudyPage> with SingleTickerProviderStateMixin {
                 text: TextSpan (
                   children: [
                     TextSpan(
-                      text: "Words that will be tested are as follows:",
+                      text: "Ready word(s) for preparing flashcards:",
                       style: TextStyle(fontSize: 18.0),
                     ),
                   ]
@@ -85,33 +86,33 @@ class _StudyPage extends State<StudyPage> with SingleTickerProviderStateMixin {
             ),
           ),
 
-          //Vocabulary
+          //Ready Word
           FutureBuilder<List<Vocab>>(
-            future: initVocabCardList(),
+            future: initReadyWordsList(),
             builder: ( context, AsyncSnapshot<List<Vocab>> snapshot ){
               if ( snapshot.hasData )
               {
-                //No Vocabulary
-                if ( _vocabList.length == 0 ){
+                //No Ready Word
+                if ( _readyVocabList.length == 0 ){
                   return Container(
                     child: Column(children: <Widget>[
                       Container(
                         padding: EdgeInsets.all(10.0),
                         child: Icon(Icons.hourglass_empty),
                       ),
-                      Text("Sorry, It seems like you have no vocabularies ready to be studied"),
+                      Text("Currently, there is no ready word available"),
                     ],),
                   );
                 }
                 else return 
                 Container(
                   child: Tags(
-                    itemCount: _vocabList.length,
+                    itemCount: _readyVocabList.length,
                     columns: 4,
                     itemBuilder: (position){
                       return ItemTags(
                         index: position,
-                        title: _vocabList[position].word,
+                        title: _readyVocabList[position].word,
                         textStyle: TextStyle(fontSize: 18),
                         pressEnabled: false,
                       );
@@ -139,10 +140,7 @@ class _StudyPage extends State<StudyPage> with SingleTickerProviderStateMixin {
                         color: CustomTheme.TOMATO_RED,
                         child: Text("Back"),
                         onPressed: (){
-                          print("You touched me to back!");
-                          setState(() {
-                            mainPage = buildFadeAnimatedPage(buildStartPage());
-                          });
+                          Navigator.pop(context);
                         }
                       ),
                     ),
@@ -153,10 +151,7 @@ class _StudyPage extends State<StudyPage> with SingleTickerProviderStateMixin {
                         color: CustomTheme.LIGHT_GREEN,
                         child: Text("Start"),
                         onPressed: (){ 
-                          print("You touched me to start!"); 
-                          setState(() {
-                            mainPage = buildFadeAnimatedPage(buildStudyVocabPage());
-                          });
+                          
                         },
                       ),
                     )
@@ -164,32 +159,12 @@ class _StudyPage extends State<StudyPage> with SingleTickerProviderStateMixin {
             ),
           ),
         ],
-      );
-  }
-
-
-
-  Widget buildStudyVocabPage(){
-    return SafeArea(child: Text("HELLO", style: TextStyle(color: Colors.white, fontSize: 30, ),));
-  }
-
-
-
-  //Function for Animated Page
-  Widget buildFadeAnimatedPage( Widget child ){
-    WidgetsBinding.instance.addPostFrameCallback((dur){animeController.forward();});
-    return FadeTransition(
-      opacity: animeController,
-      child: child,
+      ),
     );
   }
 
 
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(        
-        body: mainPage,
-    );
-  }
+
+
 
 }

@@ -877,6 +877,7 @@ class DatabaseProvider
             DefinitionBundle(
               did: definition.did,
               pos: definition.pos,
+              defineText: definition.defineText,
               pronunciationsBundle: pronunciationsBundle.isNotEmpty ? pronunciationsBundle : null,
               examplesBundle: examplesBundle.isNotEmpty ? examplesBundle : null,
             )

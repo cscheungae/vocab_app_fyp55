@@ -17,6 +17,7 @@ class MainPageView extends StatefulWidget {
   MainPageView._();
   static MainPageView get instance => _instance;
 
+  @override
   _MainPageView createState() => _MainPageView();
 }
 
@@ -46,6 +47,18 @@ class _MainPageView extends State<MainPageView> {
     super.dispose();
   }
 
+
+
+  //Private Function for setting current page
+  void changePage( int position ){
+    if ( position < 0 || position >= this.pages.length ) return;
+    setState(() {
+      this.currentPosition = position;
+    });
+  }
+
+
+
   ///Function for building items within the bottom appbar
   buildBottomNavItem({ IconData iconData = Icons.home, String title = ""  }){
     return 
@@ -67,9 +80,7 @@ class _MainPageView extends State<MainPageView> {
         scrollDirection: Axis.horizontal,
         itemCount: this.pages.length,
         onPageChanged: (position){
-          setState(() {
-            this.currentPosition = position;
-          });
+          changePage(position);
         },
 
       ),

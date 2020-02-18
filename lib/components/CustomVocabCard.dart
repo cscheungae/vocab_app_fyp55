@@ -1,30 +1,30 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/pages/VocabDetailsPageView.dart';
-import '../res/theme.dart' as CustomTheme;
-import '../model/vocabulary.dart';
-import '../pages/VocabDetailsPage.dart';
-
-import '../util/Router.dart' as Router;
+import 'package:vocab_app_fyp55/res/theme.dart' as CustomTheme;
+import 'package:vocab_app_fyp55/pages/VocabDetailsPage.dart';
+import 'package:vocab_app_fyp55/util/Router.dart' as Router;
 
 /// Widget containing data 
 class CustomVocabCard extends StatefulWidget
 {
   /// Vocab that will be displayed by the widget
-  final vocabulary _item;
+  final Vocab _item;
 
   /// An optional list of all other vocabularies can be supplied in the constructor (otherwise empty list)
   /// If supplied, [VocabDetailsPageView] will be opened, enabling swiping to navigate among [VocabDetailsUIPage] of other vocabularies
-  final List<vocabulary> _vocablist;
+  final List<Vocab> _vocablist;
 
   ///determines the visibility of the widget
   bool isVisibleCardDescription;
 
   ///getter of the vocabulary
-  vocabulary get item => _item;
+  Vocab get item => _item;
 
 
   //Constructor  
-  CustomVocabCard({ Key key, vocabulary item, List<vocabulary> vocablist = const [], bool isVisibleCardDescription = true  }): 
+  CustomVocabCard({ Key key, Vocab item, List<Vocab> vocablist = const [], bool isVisibleCardDescription = true  }): 
   this._item = item,
   this._vocablist = vocablist,
   this.isVisibleCardDescription = isVisibleCardDescription,
@@ -45,13 +45,22 @@ class _CustomVocabCard extends State<CustomVocabCard>
   /// * [_vocablist], which determines how the page will be opened
   void openDetails(){
     if ( widget._vocablist.isEmpty || ! widget._vocablist.contains(widget.item) ){
-      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsUIPage( widget.item, title: widget.item.getImageURL())  ));
-      //Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsUIPage( widget.item, title: widget.item.getImageURL() ) ) );
+      List<Vocab> list = [widget._item]; 
+      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsPageView( list , startPage: 0)  ));
     }
     else {
-      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsPageView(widget._vocablist, startPage: widget._vocablist.indexOf(widget.item))  ));
-      //Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabDetailsPageView(widget._vocablist, startPage: widget._vocablist.indexOf(widget.item) ) ) );
+      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsPageView( widget._vocablist, startPage: widget._vocablist.indexOf(widget.item))  ));
     }
+  }
+
+
+  //Get Image
+  Widget getImage(Vocab vocab){
+    return new CachedNetworkImage(
+      imageUrl: vocab.imageUrl,
+      placeholder: (context, url) => Image( image: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover,),
+      fit: BoxFit.cover,
+    );
   }
 
 
@@ -84,7 +93,7 @@ class _CustomVocabCard extends State<CustomVocabCard>
                   Container
                   (
                     width: cardWidth * 0.35,
-                    child: widget.item.getHeroImage(),
+                    child: getImage(widget.item),
                   ),
                   
                   Container
@@ -96,7 +105,7 @@ class _CustomVocabCard extends State<CustomVocabCard>
                       padding: const EdgeInsets.all(10.0),
                       child: Text
                       (
-                        widget.item.getWord(),  
+                        widget.item.word,  
                         style: TextStyle( 
                           fontSize: 20.0, 
                           fontWeight: FontWeight.bold,
@@ -134,7 +143,7 @@ class _CustomVocabCard extends State<CustomVocabCard>
                 alignment: Alignment.topLeft,
                 height: cardHeight * 0.75,
                 width: cardWidth,
-                child: Text( "Hello Everyone this is a lovely vocab card description about " + widget.item.getWord() + ", you can learn more about it in here",  ),               
+                child: Text( "Hello Everyone this is a lovely vocab card description about " + widget.item.word + ", you can learn more about it in here",  ),               
               ),
             ),
 

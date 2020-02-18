@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/model/vocabularyDefinition.dart';
-import '../services/fetchdata_WordsAPI.dart';
-import '../services/fetchimage_Bing.dart';
-import '../model/vocabulary.dart';
-import '../provider/vocabularyBank.dart';
-import '../provider/addVocabFormController.dart';
-import '../res/theme.dart' as CustomTheme;
-import 'VocabBanksPage.dart';
+import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
+import 'package:vocab_app_fyp55/model/definition.dart';
+import 'package:vocab_app_fyp55/model/example.dart';
+import 'package:vocab_app_fyp55/model/flashcard.dart';
+import 'package:vocab_app_fyp55/model/pronunciation.dart';
+import 'package:vocab_app_fyp55/model/vocab.dart';
+import 'package:vocab_app_fyp55/pages/MainPageView.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
+import 'package:vocab_app_fyp55/provider/addVocabFormController.dart';
+import 'package:vocab_app_fyp55/services/fetchdata_WordsAPI.dart';
+import 'package:vocab_app_fyp55/services/fetchimage_Bing.dart';
+import 'package:vocab_app_fyp55/pages/VocabBanksPage.dart';
+import 'package:vocab_app_fyp55/res/theme.dart' as CustomTheme;
+
 
 
 class VocabFormPage extends StatefulWidget
 {
   final String title;
-  final vocabulary initVocab;
+  final VocabBundle initVocab;
   
   //Constructor
-  VocabFormPage( {Key key, String title = "Create a new word", vocab}) 
+  VocabFormPage( {Key key, String title = "Create a new word", VocabBundle vocab} ) 
   : title = title, 
   initVocab = vocab,
   super(key: key);
@@ -69,25 +75,37 @@ class _VocabFormPage extends State <VocabFormPage> with TickerProviderStateMixin
   }
 
 
-  //init all the form, if there is a vocab available
-  //return false if cannot be filled
-  bool fillVocabForm( vocabulary vocab, {bool doUpdateImage = false }){
-    if (vocab == null ) return false;
-    this.wordController.text = vocab.getWord();
-    if (doUpdateImage){
-      this._imageURL = vocab.getImageURL();
-      this._bgImage = vocab.getImage();
-    }
-    for ( int i = 0; i < vocab.getAllDefinitions().length; i++ ){
-      if ( i > 0 ){
-        this.formKeys.add(new GlobalKey<FormState>());
-        this.formControllers.add( new AddVocabFormController());
+  /// init all the form, if there is a vocab available
+  /// return false if cannot be filled
+  /// [vocab] - the vocabulary Bundle
+  /// [doUpdateImage] - Optional parameter in updating the image
+  Future<bool> fillVocabForm( VocabBundle vocab, {bool doUpdateImage = false }) async {
+    try {
+      if (vocab == null ){return false;}
+      
+      //Update Word
+      this.wordController.text = vocab.word;
+
+      //Update Image when needed
+      if (doUpdateImage){
+        this._imageURL = vocab.imageUrl;
+        this._bgImage = vocab.getImage();
       }
-      var definition = vocab.getDefinition(index:i);
-      formControllers[i].wordPartOfSpeechController.text = definition.partOfSpeech;
-      formControllers[i].wordDefinitionController.text = definition.definition;
-      formControllers[i].wordSampleSentenceController.text = definition.exampleSentence;
+
+      //Update definitions, examples 
+      //TODO: pronunciation
+      for ( int i = 0; i < vocab.definitionsBundle.length; i++ ){
+        if ( i > 0 ){
+          this.formKeys.add(new GlobalKey<FormState>());
+          this.formControllers.add( new AddVocabFormController());
+        }
+        var definition = vocab.definitionsBundle[i];
+        formControllers[i].wordPartOfSpeechController.text = definition.pos ?? "unknown";
+        formControllers[i].wordDefinitionController.text = definition.defineText ?? "";
+        formControllers[i].wordSampleSentenceController.text = (definition.examplesBundle.length != 0 ) ? definition.examplesBundle[0].sentence : "";
+      }
     }
+    catch( exception ){ debugPrint("Fatal Error in auto-filling the vocab form. Process Terminated\n" + exception.toString() ); return false; }
     setState(() { });
     return true;
   }
@@ -119,7 +137,7 @@ class _VocabFormPage extends State <VocabFormPage> with TickerProviderStateMixin
   //this function automatically fills the form based on API calls
   Future<bool> autoFillForms() async {
     try{
-      vocabulary vocab = await FetchDataWordsAPI.requestFromAPI(wordController.value.text);
+      VocabBundle vocab = await FetchDataWordsAPI.requestFromAPI(wordController.value.text);
       return fillVocabForm(vocab);
     } catch (Exception){debugPrint("Failed to auto-fill form"); return false;}
   }
@@ -134,26 +152,36 @@ class _VocabFormPage extends State <VocabFormPage> with TickerProviderStateMixin
   }
 
 
-
-  //update new vocab, in such case update can be: either create new vocab or update existing vocab
+  /// Function called after submitting the form
+  /// update new vocab, in such case update can be: either create new vocab or update existing vocab
+  /// TODO: More to Add?
   Future<bool> updateNewVocab() async {
-    List<VocabDefinition> defs = [];
-    for (int i = 0; i < formControllers.length; i++ ){
-      VocabDefinition def = new VocabDefinition(
-        partOfSpeech: formControllers[i].wordPartOfSpeechController.text,
-        definition: formControllers[i].wordDefinitionController.text,
-        exampleSentence: formControllers[i].wordSampleSentenceController.text,
-      );
-      defs.add(def);
-    }
+    try {
+      //Insert Vocab
+      String word = wordController.text;
+      String imageUrl = _imageURL;
+      int vid = await DatabaseProvider.instance.insertVocab( new Vocab( word: word, imageUrl: imageUrl,) );
 
-    vocabulary newVocab = new vocabulary(
-      word: wordController.text,
-      defs: defs,
-      imageURL: _imageURL, 
-    ); 
-    await VocabularyBank.instance.createNewVocab(newVocab);
-    return true;
+      //Insert FlashCard
+      await DatabaseProvider.instance.insertFlashcard( new Flashcard(vid: vid));
+
+      //Insert Definitions
+      for (int i = 0; i < formControllers.length; i++ ){
+        String pos = formControllers[i].wordPartOfSpeechController.text;
+        String defineText =  formControllers[i].wordDefinitionController.text;
+        int did = await DatabaseProvider.instance.insertDefinition( new Definition( vid: vid, pos: pos, defineText: defineText, ) );
+
+
+        //Insert Pronunciation
+        await DatabaseProvider.instance.insertPronunciation( new Pronunciation( did: did));
+
+        //Insert Example     
+        await DatabaseProvider.instance.insertExample( new Example(did: did, sentence: formControllers[i].wordSampleSentenceController.text ) );       
+      }
+          
+      print("Successfully Update the vocab");
+      return true;
+    } catch (e){ print( "Fatal Error in submitting:\n" + e.toString()); return false; }
   }
 
   
@@ -422,7 +450,8 @@ class _VocabFormPage extends State <VocabFormPage> with TickerProviderStateMixin
                 onPressed: () async {
                   if (_wordFormFieldKey.currentState.validate()) {
                     await updateNewVocab();
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => new VocabCardUIPage() ) );
+                    Navigator.of(context).pop();
+                    setState(() { });
                   }
                 },
               ),

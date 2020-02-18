@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:vocab_app_fyp55/model/Bundle/FlashcardBundle.dart';
 import 'package:vocab_app_fyp55/model/flashcard.dart';
 import 'package:vocab_app_fyp55/model/Bundle/DefinitionBundle.dart';
@@ -14,6 +16,15 @@ class VocabBundle
   Status status;
   FlashcardBundle flashcardBundle;
   List<DefinitionBundle> definitionsBundle;
+
+  //Get Image
+  Widget getImage(){
+    return new CachedNetworkImage(
+      imageUrl: imageUrl,
+      placeholder: (context, url) => Image( image: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover,),
+      fit: BoxFit.cover,
+    );
+  }
 
 
   // Constructor
