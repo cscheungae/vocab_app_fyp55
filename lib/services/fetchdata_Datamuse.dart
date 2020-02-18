@@ -9,42 +9,42 @@ enum FetchOption {Datamuse, }
 class FetchData {
 
   //Field Members  
-  List<vocabulary> FetchedVocabs;
+  List<vocabulary> fetchedVocabs;
 
   //Constructor
-  FetchData( {fetchedvocabs}  ){this.FetchedVocabs = fetchedvocabs; }
+  FetchData( {fetchedvocabs}  ){this.fetchedVocabs = fetchedvocabs; }
 
   // Convert Fetched Data from JSON to Words
   factory FetchData.fromJson( List <dynamic> json, [FetchOption option]  ) {   
 
-    List<vocabulary> ResultVocabs = new List<vocabulary>();
+    List<vocabulary> resultVocabs = new List<vocabulary>();
 
     // Return Best 5 Words
     for ( int i = 0; i < 5; i++ )  
     {
       var mapFromJson = json[i]; 
       Map<String, dynamic> mapjson = new Map<String, dynamic>.from( mapFromJson );
-      ResultVocabs.add( new vocabulary( word: mapjson['word'])   );
+      resultVocabs.add( new vocabulary( word: mapjson['word'])   );
     }
 
-    return FetchData( fetchedvocabs: ResultVocabs );  
+    return FetchData( fetchedvocabs: resultVocabs );  
   }
 
 
   //Async function that makes http request to the API
   //This function ISN't inside the FetchData class!
-  static Future< List<vocabulary> > requestAPIData( [String TextQuery = "",] ) async 
+  static Future< List<vocabulary> > requestAPIData( [String textQuery = "",] ) async 
   {
-    String Input = TextQuery;
-    Input = Input.replaceAll(" ", "+");
+    String input = textQuery;
+    input = input.replaceAll(" ", "+");
 
-    String APIAddress = "https://api.datamuse.com/words?ml=" + Input;
-    var ReturnedResponse = await http.get(APIAddress);
+    String apiAddress = "https://api.datamuse.com/words?ml=" + input;
+    var returnedResponse = await http.get(apiAddress);
 
-    if ( ReturnedResponse.statusCode == 200 )  //Success Request
+    if ( returnedResponse.statusCode == 200 )  //Success Request
     {
-      FetchData fd = FetchData.fromJson(json.decode(ReturnedResponse.body), FetchOption.Datamuse );
-      return fd.FetchedVocabs;
+      FetchData fd = FetchData.fromJson(json.decode(returnedResponse.body), FetchOption.Datamuse );
+      return fd.fetchedVocabs;
     }
     else { return null; }
   }

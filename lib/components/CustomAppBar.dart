@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vocab_app_fyp55/pages/LoginPage.dart';
-import '../res/theme.dart' as CustomTheme;
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({Key key, this.title, this.iconData}) : super(key: key);

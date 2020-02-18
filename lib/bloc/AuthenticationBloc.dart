@@ -1,6 +1,6 @@
 
 import 'package:bloc/bloc.dart';
-import 'package:vocab_app_fyp55/state/authenicationState.dart';
+import '../state/authenicationState.dart';
 import '../event/AuthenticationEvent.dart';
 
 class AuthenticationBloc extends Bloc< AuthenticationEvent,  AuthenticationState > {

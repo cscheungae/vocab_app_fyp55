@@ -9,13 +9,16 @@ import '../pages/VocabBanksPage.dart';
 class VocabDetailsUIPage extends StatefulWidget 
 {
   final String title;
-  vocabulary TargetWord;
+  final vocabulary targetWord;
 
   //Constructor
-  VocabDetailsUIPage( vocabulary word, {Key key, this.title, }  ) : super( key: key){ this.TargetWord = word; }
+  VocabDetailsUIPage(vocabulary word, {Key key, String title = "vocabulary", }):
+  this.title = title,
+  this.targetWord = word, 
+  super( key: key);
 
   @override
-  _VocabDetailsUIPage createState() => _VocabDetailsUIPage( this.TargetWord );
+  _VocabDetailsUIPage createState() => _VocabDetailsUIPage( this.targetWord );
 }
 
 
@@ -92,7 +95,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
           (
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height * 0.32,
-            child: targetWord.getImage(),
+            child: targetWord.getHeroImage(),
           ),
 
           //Image Filter

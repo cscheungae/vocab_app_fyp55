@@ -1,6 +1,7 @@
 
 import 'package:vocab_app_fyp55/components/CustomAppBar.dart';
 import 'package:vocab_app_fyp55/components/CustomBottomNavBar.dart';
+import 'package:vocab_app_fyp55/pages/VocabDetailsPage.dart';
 import '../components/CustomDrawer.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../provider/vocabularyBank.dart';
@@ -31,12 +32,11 @@ class _StudyPage extends State<StudyPage> {
   {
     if (_vocabList == null || forceUpdate == true )
       _vocabList = await VocabularyBank.instance.getVocabList();
-    
     return _vocabList;
   }
 
 
-
+  @override
   Widget build(BuildContext context){
     return Scaffold(
         appBar: CustomAppBar(title: "Study Mode",),
@@ -47,6 +47,7 @@ class _StudyPage extends State<StudyPage> {
 
             Text(""),
 
+            //Title
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
               child: ClipRRect(
@@ -72,6 +73,7 @@ class _StudyPage extends State<StudyPage> {
 
             Text(""),
 
+            
             FutureBuilder<List<vocabulary>>(
               future: initVocabCardList(),
               builder: ( context, AsyncSnapshot<List<vocabulary>> snapshot ){
@@ -87,6 +89,10 @@ class _StudyPage extends State<StudyPage> {
                           index: position,
                           title: _vocabList[position].getWord(),
                           textStyle: TextStyle(fontSize: 18),
+                          onPressed: (item){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => 
+                            new VocabDetailsUIPage(_vocabList[position])));
+                          },
                         );
                       },
                     )
@@ -95,6 +101,7 @@ class _StudyPage extends State<StudyPage> {
               }
             ),
 
+            //Buttons
             Expanded(
               child: Align(
                 alignment: Alignment.bottomCenter,

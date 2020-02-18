@@ -22,6 +22,7 @@ class CustomAPIVocab {
     var returnedResponse = await http.get(url);
     if ( returnedResponse.statusCode == 200 ){
       CustomAPIVocab apiVocab = CustomAPIVocab.fromJson(json.decode(returnedResponse.body));
+      return apiVocab.vocab;
     } 
     else return null;
   }

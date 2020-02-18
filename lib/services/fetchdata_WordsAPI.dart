@@ -54,12 +54,15 @@ class FetchDataWordsAPI {
   static Future<vocabulary> requestFromAPI(String word) async {
     //Prevent Over-Requesting
     limit++;
+
     if (limit > LIMIT) return null;
 
     final String APIAdress = "https://wordsapiv1.p.rapidapi.com/words/";
+
     final String query = word.toLowerCase();
 
     //Very Dangerous!
+
     var returnedResponse = await http.get(
       APIAdress + query,
       headers: {
