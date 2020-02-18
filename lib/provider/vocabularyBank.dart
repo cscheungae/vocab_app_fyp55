@@ -47,7 +47,7 @@ class VocabularyBank
   Future<Database> initializeDB() async
   {
     Directory dbDirectory = await getApplicationDocumentsDirectory();
-    String dbPath = join(dbDirectory.path, dbName );
+    String dbPath = join(await getDatabasesPath(), dbName );
     return await openDatabase( 
       dbPath, 
       version: dbVersion, 
@@ -55,7 +55,8 @@ class VocabularyBank
         _initializeVocabTables(db);
         debugPrint("Database created");
       },
-      onOpen:(db) async { 
+      onOpen:(db) async {
+        await db.execute("PRAGMA foreign_keys = ON");
         debugPrint("Database opened: " + dbDirectory.path );
         var response = await db.query(tableName);
         nextVID = ( response.isNotEmpty ) ? response.first["vid"] : 0;
@@ -66,11 +67,8 @@ class VocabularyBank
   //
   Future<void> _initializeVocabTables(Database db) async{
     try{
-      await db.execute( "CREATE TABLE "+ tableName + " (vid INTEGER, zipf INTEGER, frequency INTEGER, name TEXT, image TEXT)");
-    } catch(e){ debugPrint(e.toString() + " init vocab table failure"); }
-
-    try{
-      await db.execute( "CREATE TABLE " + defName +  " (vid INTEGER, did INTEGER, pos TEXT, pronunciation TEXT, definition TEXT, example TEXT)");
+      await db.execute( "CREATE TABLE " +tableName+" (vid INTEGER PRIMARY KEY, zipf INTEGER, frequency INTEGER, name TEXT, image TEXT)");
+      await db.execute( "CREATE TABLE  "+defName +" (did INTEGER PRIMARY KEY, vid INTEGER, pos TEXT, pronunciation TEXT, definition TEXT, example TEXT, foreign key (vid) REFERENCES "+tableName+ "(vid))");
     } catch(e){debugPrint(e.toString() + " init def table failure"); }
 
 
