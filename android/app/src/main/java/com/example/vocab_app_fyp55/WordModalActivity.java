@@ -215,7 +215,7 @@ public class WordModalActivity extends Activity {
     }
 
     private class AccessSQLite extends AsyncTask<HashMap<String,?>,Void,Integer>{
-        private String firstName;
+
 
         @Override
         protected Integer doInBackground(HashMap<String,?>... info) {
@@ -233,7 +233,7 @@ public class WordModalActivity extends Activity {
                     return RESULT_OK;
                 }
                 else
-                    throw new IllegalArgumentException("#Garbage. Please Check if the arguments are correct.");
+                    throw new IllegalArgumentException("Please Check if the arguments are correct.");
 
             }
             catch(Exception e){
@@ -246,12 +246,11 @@ public class WordModalActivity extends Activity {
                     database.close();
             }
         }
-
+        //where you will update UI after the async task is complete
         @Override
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
-            Log.e("Garbage",this.firstName,new Exception("You have found it"));
-            Toast.makeText(getApplicationContext(),firstName,Toast.LENGTH_SHORT).show();
+
         }
     }
 }
