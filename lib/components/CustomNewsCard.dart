@@ -140,15 +140,17 @@ class CustomNewsCard extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(0, 0, 8.0, 0),
                     child: Icon(Icons.create, color: Colors.black26,),
                   ),
-                  RichText(
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    text: TextSpan(
-                        text: newsItem.author,
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500)),
+                  Flexible(
+                    child: RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                          text: newsItem.author,
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500)),
+                    ),
                   ),
                 ],
               ),
@@ -158,15 +160,17 @@ class CustomNewsCard extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(0, 0, 8.0, 0),
                     child: Icon(Icons.timelapse, color: Colors.black26,),
                   ),
-                  RichText(
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    text: TextSpan(
-                        text: _parsedate(DateTime.parse(newsItem.publishedAt)),
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500)),
+                  Flexible(
+                    child: RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                          text: _parsedate(DateTime.parse(newsItem.publishedAt)),
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500)),
+                    ),
                   ),
                 ],
               ),
