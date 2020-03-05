@@ -2,27 +2,24 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="0.7">
+    android:layout_weight="0.7"
+    android:visibility="gone"
+    android:id ="@+id/word_model_v2">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <Space
-            android:id="@+id/left_space"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_weight="0.15" />
+
 
         <LinearLayout
             android:id="@+id/wordModel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center|center_horizontal"
-            android:layout_marginLeft="0sp"
-            android:layout_marginRight="0sp"
+            android:layout_marginLeft="50sp"
+            android:layout_marginRight="50sp"
             android:layout_weight="0.7"
             android:background="@drawable/wordmodelbgv2"
             android:gravity="center"
@@ -89,7 +86,7 @@
                 android:gravity="center_horizontal">
 
                 <Button
-                    android:id="@+id/button4"
+                    android:id="@+id/trackButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
@@ -100,7 +97,7 @@
                     android:text="Track" />
 
                 <Button
-                    android:id="@+id/button3"
+                    android:id="@+id/cancelButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
@@ -110,12 +107,7 @@
 
         </LinearLayout>
 
-        <Space
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:layout_weight="0.15"
-            android:visibility="visible" />
+
 
     </LinearLayout>
 
@@ -138,7 +130,7 @@
             android:translationX="25dp" />
 
         <Button
-            android:id="@+id/NextButton"
+            android:id="@+id/nextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="false"

@@ -5,12 +5,16 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Choreographer;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.room.Room;
@@ -19,6 +23,8 @@ import Entities.VocabBank;
 import Entities.VocabDefinitions;
 
 import com.google.gson.Gson;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,22 +36,25 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.os.Build.VERSION_CODES.N;
 
 
 public class WordModalActivity extends Activity {
     //UI Component
-    private LinearLayout layout;
-    private TextView wordTitle;
-    private TextView posTitle;
-    private TextView posValue;
-    private TextView defTitle;
-    private TextView defValue;
-    private Button backBtn;
+    private LinearLayout wordmodelView;
+    private RelativeLayout buttonNav;
+    private View divider;
+    private Button prevButton,nextButton;
+    private TextView nameView;
+    private TextView posView;
+    private TextView definitionsView;
+    private TextView examplesView;
+    private Button trackButton,cancelButton;
 
+    //data and metadata
+    private int page;
     private String word;
-
-    private Button addButton;
-
+    private WordsAPIResponseData rsp=null;
     /*
      * References:
      *
@@ -67,29 +76,22 @@ public class WordModalActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_word_modal);
+        setContentView(R.layout.word_model_v2);
 
         word = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString();
+        LoadView();
 
-        layout = findViewById(R.id.linearLayout);
-        wordTitle = findViewById(R.id.wordTitle);
-        posTitle = findViewById(R.id.posTitle);
-        posValue = findViewById(R.id.posValue);
-        defTitle = findViewById(R.id.defTitle);
-        defValue = findViewById(R.id.defValue);
-        backBtn = findViewById(R.id.backBtn);
-
-        addButton = findViewById(R.id.AddButton);
 
         database = Room.databaseBuilder(getApplicationContext(),VocabDB.class,"FYPVocabDB.db").createFromAsset("FYPVocabDB.db").build();
         createNotification();
-        addButton.setOnClickListener((View view)->{
+
+        trackButton.setOnClickListener((View view)->{
             try {
                 AccessSQLite task = new AccessSQLite();
 
                 VocabBank vocab = new VocabBank(1,1,word,"sample image.gif");
-                VocabDefinitions def = new VocabDefinitions( posValue.getText().toString(),
-                        defValue.getText().toString(),"lul","example generated from the word "+word);
+                VocabDefinitions def = new VocabDefinitions( definitionsView.getText().toString(),
+                        definitionsView.getText().toString(),"lul","example generated from the word "+word);
                 HashMap<String,Object> vocabInfo = new HashMap<>();
                 vocabInfo.put("vocab",vocab);
                 vocabInfo.put("defs",def);
@@ -114,7 +116,7 @@ public class WordModalActivity extends Activity {
                 System.out.println("Exception occurred");
             }
         });
-        backBtn.setOnClickListener((View view) -> {
+        cancelButton.setOnClickListener((View view) -> {
             try {
                 finish();
             }
@@ -124,6 +126,8 @@ public class WordModalActivity extends Activity {
             }
 
         });
+
+
     }
 
     private void createNotification(){
@@ -145,6 +149,80 @@ public class WordModalActivity extends Activity {
         super.onResume();
         // call the service to upload word
         checkVocabAndUpload(word);
+    }
+    //set the contents of the views in the background.To show the view you should use RenderViewWithPageNumber instead.
+    private void LoadView(){
+        buttonNav = (RelativeLayout) findViewById(R.id.navButtons);
+        prevButton = (Button) findViewById(R.id.prevButton);
+        nextButton = (Button) findViewById(R.id.nextButton);
+
+        wordmodelView = (LinearLayout) findViewById(R.id.wordModel);
+        nameView = (TextView) findViewById(R.id.word);
+        divider = (View) findViewById(R.id.divider);
+        posView = (TextView) findViewById(R.id.pos);
+        definitionsView = (TextView) findViewById(R.id.def);
+        examplesView = (TextView) findViewById(R.id.examples);
+        trackButton = (Button) findViewById(R.id.trackButton);
+        cancelButton = (Button) findViewById(R.id.cancelButton);
+    }
+    //render the view.Eg,
+    @RequiresApi(N)
+    private void RenderViewWithPageNumber(int i){
+        findViewById(R.id.word_model_v2).setVisibility(View.VISIBLE);
+        //word model
+        /*
+        wordmodelView.setVisibility(View.VISIBLE);
+        nameView.setVisibility(View.VISIBLE);
+        posView.setVisibility(View.VISIBLE);
+        definitionsView.setVisibility(View.VISIBLE);
+        examplesView.setVisibility(View.VISIBLE);
+        trackButton.setVisibility(View.VISIBLE);
+        cancelButton.setVisibility(View.VISIBLE);
+
+        prevButton.setVisibility(View.VISIBLE);
+        nextButton.setVisibility(View.VISIBLE);
+        */
+
+        //set content
+        WordDefinitions model = rsp.getResult(i);
+
+        nameView.setText(word);
+        posView.setText(model.getPartOfSpeech());
+        definitionsView.setText(model.getDefinition());
+        examplesView.setText(model.getExamples().stream().reduce("",(sub,string)->sub+string+"\n"));
+
+        prevButton.setVisibility(View.VISIBLE);
+        nextButton.setVisibility(View.VISIBLE);
+
+        prevButton.setOnClickListener((View view)->{
+            try{
+                page--;
+                RenderViewWithPageNumber(page);
+            }catch(Exception e){
+                e.printStackTrace();
+                System.out.println("Navigating to data which is out of bounds.");
+            }
+        });
+
+        nextButton.setOnClickListener((View view)->{
+            try{
+                page++;
+                RenderViewWithPageNumber(page);
+            }catch(Exception e){
+                e.printStackTrace();
+                System.out.println("Navigating to data which is out of bounds.");
+            }
+        });
+
+        if(i==0){
+            prevButton.setVisibility(View.INVISIBLE);
+        }
+        if (i==rsp.getResults().size()-1){
+            nextButton.setVisibility(View.INVISIBLE);
+        }
+
+
+
     }
 
     // use set time out to mimic the delay of the call of api
@@ -182,7 +260,7 @@ public class WordModalActivity extends Activity {
 
         protected Integer doInBackground(String... word) {
             Request request = new Request.Builder()
-                    .url(baseUrl + "words/" + word[0] + "/definitions")
+                    .url(baseUrl + "words/" + word[0] )
                     .header("X-RapidAPI-Host", host)
                     .addHeader("X-RapidAPI-Key", apiKey)
                     .build();
@@ -190,21 +268,11 @@ public class WordModalActivity extends Activity {
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-                Data rsp = new Gson().fromJson(response.body().string(), Data.class);
+                rsp = new Gson().fromJson(response.body().string(),WordsAPIResponseData.class);
+                System.out.println(rsp);
+                page = 0;
+                RenderViewWithPageNumber(page);
 
-                // update the UI
-                wordTitle.setText(rsp.getWord());
-                posValue.setText(rsp.getDefinitions().get(0).getPartOfSpeech());
-                defValue.setText(rsp.getDefinitions().get(0).getDefinition());
-                // make the UI visible
-                layout.setVisibility(View.VISIBLE);
-                wordTitle.setVisibility(View.VISIBLE);
-                posTitle.setVisibility(View.VISIBLE);
-                posValue.setVisibility(View.VISIBLE);
-                defTitle.setVisibility(View.VISIBLE);
-                defValue.setVisibility(View.VISIBLE);
-                backBtn.setVisibility(View.VISIBLE);
-                addButton.setVisibility(View.VISIBLE);
                 return RESULT_OK;
 
             } catch (IOException ex) {

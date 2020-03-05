@@ -34,7 +34,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.example.vocab_app_fyp55"
-        minSdkVersion 22
+        minSdkVersion 24
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -90,6 +90,8 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.5.1'
     implementation "androidx.room:room-runtime:2.2.3"
     annotationProcessor "androidx.room:room-compiler:2.2.3"
+    //todo:material library
+    implementation 'com.google.android.material:material:1.1.0'
 }
 
 //apply plugin: 'com.google.gms.google-services'
