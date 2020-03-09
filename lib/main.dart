@@ -15,7 +15,9 @@ import 'res/theme.dart' as CustomTheme;
 import 'pages/HomePage.dart';
 import 'pages/ArticlesViewPage.dart';
 import 'pages/SettingsPage.dart';
-import 'pages/MainPageView.dart';
+import 'package:provider/provider.dart';
+import 'pages/NativePage.dart';
+import 'package:vocab_app_fyp55/model/vocab.dart';
 
 import 'package:flutter/services.dart';
 
@@ -31,7 +33,22 @@ void main() => runApp(
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
-//  final dbHelper = DatabaseProvider.instance;
+  final dbHelper = DatabaseProvider.instance;
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'FlashVocab',
+      theme: CustomTheme.customThemeData,
+      initialRoute: '/',
+      routes: {
+        // When navigating to the "/" route, build the HomeScreen
+        '/': (context) => HomePage(title: "HOME"),
+        '/articles': (context) => ArticleViewPage(title: "Article"),
+        '/settings': (context) => SettingsPage(),
+      },
+    );
+  }
+}
 
   Future<bool> isUserExist(BuildContext context) async {
     List<User> users = await Provider.of<DatabaseNotifier>(context, listen: false).dbHelper.readAllUser();
@@ -86,3 +103,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+*/
