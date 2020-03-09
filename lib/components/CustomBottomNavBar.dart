@@ -56,13 +56,6 @@ class CustomBottomNavBar extends StatelessWidget {
             style: TextStyle(fontSize: 10.0),
           ),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.android, size: 25.0),
-          title: Text(
-            "JAVA",
-            style: TextStyle(fontSize: 10.0),
-          ),
-        ),
       ],
       onTap: (index) {
         switch (index) {
@@ -87,9 +80,6 @@ class CustomBottomNavBar extends StatelessWidget {
             break;
           case 3:
             _selectIndex(context, StatisticsPage(), index);
-            break;
-          case 4:
-            _selectIndex(context, NativePage(), index);
             break;
         }
       },

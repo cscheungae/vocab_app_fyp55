@@ -16,7 +16,6 @@ import 'package:provider/provider.dart';
 import 'pages/NativePage.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -25,7 +24,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
       title: 'FlashVocab',
       theme: CustomTheme.customThemeData,
       initialRoute: '/',
@@ -34,7 +32,6 @@ class MyApp extends StatelessWidget {
         '/': (context) => HomePage(title: "HOME"),
         '/articles': (context) => ArticleViewPage(title: "Article"),
         '/settings': (context) => SettingsPage(),
-        '/testNative': (content) => NativePage(),
       },
     );
   }
