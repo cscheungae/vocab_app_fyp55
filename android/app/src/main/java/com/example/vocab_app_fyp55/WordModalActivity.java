@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.room.Room;
 
+import Entities.Example;
 import Entities.VocabBank;
 import Entities.VocabDefinitions;
 
@@ -89,19 +90,22 @@ public class WordModalActivity extends Activity {
         LoadView();
 
 
-        database = Room.databaseBuilder(getApplicationContext(),VocabDB.class,"FYPVocabDB.db").createFromAsset("FYPVocabDB.db").build();
+        database = Room.databaseBuilder(getApplicationContext(),VocabDB.class,"FYPVocabDB2.db").createFromAsset("FYPVocabDB.db").build();
         createNotification();
 
         trackButton.setOnClickListener((View view)->{
             try {
                 AccessSQLite task = new AccessSQLite();
+                VocabBank vocab = new VocabBank(word,null,0,(int) rsp.frequency);
+                VocabDefinitions   defs = new VocabDefinitions(posView.getText().toString(),definitionsView.getText().toString());
+                Example example = new Example(rsp.getResult(page).getExamples()!=null && !rsp.getResult(page).getExamples().isEmpty()
+                        ? rsp.getResult(page).getExamples().get(0)
+                        :"No example :(");
 
-                VocabBank vocab = new VocabBank(1,1,word,"sample image.gif");
-                VocabDefinitions def = new VocabDefinitions( definitionsView.getText().toString(),
-                        definitionsView.getText().toString(),"lul","example generated from the word "+word);
                 HashMap<String,Object> vocabInfo = new HashMap<>();
                 vocabInfo.put("vocab",vocab);
-                vocabInfo.put("defs",def);
+                vocabInfo.put("defs",defs);
+                vocabInfo.put("example",example);
                 //run background task.
                 Integer result = task.execute(vocabInfo).get();
 
@@ -301,12 +305,14 @@ public class WordModalActivity extends Activity {
                 if(info[0].get("vocab").getClass()==VocabBank.class && info[0].get("defs").getClass()==VocabDefinitions.class) {
                     VocabBank vocab = (VocabBank) (info[0].get("vocab"));
                     VocabDefinitions def = (VocabDefinitions) (info[0].get("defs"));
+                    Example example = (Example) (info[0].get("example"));
                     database.runInTransaction(() -> {
                         //insertID
                         Long insertedVID =  database.VocabDao().insert(vocab);
                         def.ReferencesVocab(insertedVID.intValue());
-                        database.VocabDefinitionsDao().insert(def);
-
+                        Long insertedDID = database.VocabDefinitionsDao().insert(def);
+                        example.ReferenceDefinition(insertedDID.intValue());
+                        Long insertedEID = database.ExampleDao().insert(example);
                     });
                     return RESULT_OK;
                 }

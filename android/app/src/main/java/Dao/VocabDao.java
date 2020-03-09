@@ -10,10 +10,10 @@ import java.util.List;
 
 @Dao
 public abstract class VocabDao {
-    @Query("select * from VocabBank")
+    @Query("select * from Vocab")
     public abstract List<VocabBank> getAll();
 
-    @Query("select * from VocabBank where name = :name")
+    @Query("select * from Vocab where word = :name")
     public abstract List<VocabBank> findByName(String name);
 
     @Insert

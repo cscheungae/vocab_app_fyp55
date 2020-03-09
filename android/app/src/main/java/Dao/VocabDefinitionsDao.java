@@ -12,7 +12,7 @@ import java.util.List;
 
 @Dao
 public abstract class VocabDefinitionsDao {
-    @Query("SELECT * from VocabDefinitions")
+    @Query("SELECT * from Definition")
     public abstract List<VocabDefinitions> getAll();
 
     @Insert

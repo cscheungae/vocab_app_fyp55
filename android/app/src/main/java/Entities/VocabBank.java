@@ -6,30 +6,34 @@ import androidx.room.PrimaryKey;
 
 import javax.annotation.Nullable;
 
-@Entity(tableName = "VocabBank")
+@Entity(tableName = "Vocab")
 public class VocabBank {
 
     @PrimaryKey(autoGenerate = true)
     public Integer vid;
 
-    @ColumnInfo(name = "zipf")
-    public  Integer zipf;
+    @ColumnInfo(name = "wordFreq")
+    public  Integer wordFreq;
 
-    @ColumnInfo(name = "frequency")
-    public  Integer frequency;
+    @ColumnInfo(name = "trackFreq")
+    public Integer trackFreq;
 
-    @ColumnInfo(name = "name")
-    public  String name;
+    @ColumnInfo(name = "word")
+    public  String word;
 
-    @ColumnInfo(name = "image")
-    public  String image;
+    @ColumnInfo(name = "imageUrl")
+    public  String imageUrl;
 
-    public VocabBank(Integer zipf,Integer frequency,String name,@Nullable String image){
-        this.zipf = zipf;
-        this.frequency = frequency;
-        this.name = name;
-        if(image!=null)
-            this.image = image;
+    @ColumnInfo(name = "status")
+    public Integer status;
+
+    public VocabBank(String word,@Nullable String imageUrl,Integer wordFreq,Integer trackFreq){
+        this.word = word;
+        this.wordFreq = wordFreq;
+        this.trackFreq=trackFreq;
+        if(imageUrl!=null)
+            this.imageUrl = imageUrl;
+        this.status=0;
     }
 
 
