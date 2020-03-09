@@ -76,4 +76,4 @@
 **/lib/services/APIKey.dart
 
 #node server related
-**/services/AddressMiddleWare.dart
+**/lib/services/AddressMiddleWare.dart
