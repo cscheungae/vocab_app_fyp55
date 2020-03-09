@@ -15,9 +15,8 @@ class ArticleViewPage extends StatefulWidget {
   _ArticleViewPageState createState() => _ArticleViewPageState();
 }
 
-class _ArticleViewPageState extends State<ArticleViewPage> with SingleTickerProviderStateMixin {
-  
-
+class _ArticleViewPageState extends State<ArticleViewPage>
+    with SingleTickerProviderStateMixin {
   /// A list of News object containing info of each
   List<NewsItem> newsList;
 
@@ -31,8 +30,13 @@ class _ArticleViewPageState extends State<ArticleViewPage> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    animeController = AnimationController( duration: const Duration(milliseconds: 500), vsync: this);
-    slideAnimation = Tween<Offset>(begin: const Offset( 0, 0.4), end: Offset.zero,  ).animate(CurvedAnimation(parent: animeController, curve: Curves.decelerate));
+    animeController = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
+    slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.4),
+      end: Offset.zero,
+    ).animate(
+        CurvedAnimation(parent: animeController, curve: Curves.decelerate));
   }
 
   @override
@@ -41,7 +45,6 @@ class _ArticleViewPageState extends State<ArticleViewPage> with SingleTickerProv
     super.dispose();
   }
 
-
   Future<List<NewsItem>> initNewsList() async {
     if (newsList == null) {
       // get the user articles preference
@@ -49,24 +52,24 @@ class _ArticleViewPageState extends State<ArticleViewPage> with SingleTickerProv
           await Provider.of<DatabaseNotifier>(context, listen: false)
               .dbHelper
               .readAllUser();
-      print("number of users genres is " + users[0].genres.length.toString() );
+      print("number of users genres is " + users[0].genres.length.toString());
       newsList = await FetchNews.requestAPIData(categories: users[0].genres);
     }
     load = newsList.length;
     return newsList.sublist(load - 1);
   }
 
-
   //Based on CustomNewsCard, but wrap it with Transition Animation
-  Widget buildAnimatedCustomNewsCard( int pos){
+  Widget buildAnimatedCustomNewsCard(int pos) {
     var item = SlideTransition(
-      position: slideAnimation, 
-      child: CustomNewsCard( newsList[pos] ),
+      position: slideAnimation,
+      child: CustomNewsCard(newsList[pos]),
     );
-    WidgetsBinding.instance.addPostFrameCallback((dur){animeController.forward();});
+    WidgetsBinding.instance.addPostFrameCallback((dur) {
+      animeController.forward();
+    });
     return item;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +87,7 @@ class _ArticleViewPageState extends State<ArticleViewPage> with SingleTickerProv
                     //return CustomNewsCard(newsList[position]);
                   });
             }
-            //Error Screen 
+            //Error Screen
             else if (snapshot.hasError) {
               print(snapshot.error);
               print(snapshot);
@@ -102,7 +105,7 @@ class _ArticleViewPageState extends State<ArticleViewPage> with SingleTickerProv
                   )
                 ],
               );
-            } 
+            }
             //Loading Screen
             else {
               widget =
