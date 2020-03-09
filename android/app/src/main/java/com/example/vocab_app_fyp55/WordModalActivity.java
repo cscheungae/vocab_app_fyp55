@@ -14,7 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
+
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.room.Room;
@@ -22,6 +22,7 @@ import androidx.room.Room;
 import Entities.VocabBank;
 import Entities.VocabDefinitions;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 
 import org.w3c.dom.Text;
@@ -69,7 +70,12 @@ public class WordModalActivity extends Activity {
     private String host = "wordsapiv1.p.rapidapi.com";
 
     // Initialize a http client
-    private final OkHttpClient client = new OkHttpClient();
+    //private final OkHttpClient client = new OkHttpClient();
+    //check http requests.
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .addNetworkInterceptor(new StethoInterceptor())
+            .build();
+
 
     VocabDB database;
 
@@ -78,7 +84,8 @@ public class WordModalActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_model_v2);
 
-        word = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString();
+        word = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().trim().toLowerCase();
+        Log.d("DDDDD",word);
         LoadView();
 
 
@@ -166,7 +173,7 @@ public class WordModalActivity extends Activity {
         cancelButton = (Button) findViewById(R.id.cancelButton);
     }
     //render the view.Eg,
-    @RequiresApi(N)
+
     private void RenderViewWithPageNumber(int i){
         findViewById(R.id.word_model_v2).setVisibility(View.VISIBLE);
         //word model
@@ -188,8 +195,11 @@ public class WordModalActivity extends Activity {
 
         nameView.setText(word);
         posView.setText(model.getPartOfSpeech());
-        definitionsView.setText(model.getDefinition());
-        examplesView.setText(model.getExamples().stream().reduce("",(sub,string)->sub+string+"\n"));
+
+        if(model.getDefinition()!=null)
+            definitionsView.setText(model.getDefinition());
+        if(model.getExamples()!=null)
+            examplesView.setText(model.getExamples().stream().reduce("",(sub,string)->sub+string+"\n"));
 
         prevButton.setVisibility(View.VISIBLE);
         nextButton.setVisibility(View.VISIBLE);

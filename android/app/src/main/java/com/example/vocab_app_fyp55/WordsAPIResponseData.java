@@ -118,8 +118,6 @@ public class WordsAPIResponseData {
         return results.get(i);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @NonNull
     @Override
     public String toString() {
         String definitions = "";
@@ -187,9 +185,10 @@ class WordDefinitions{
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public String toString() {
         return  "definition: "+definition+"\n"+
-                "examples: "+examples.stream().reduce("",(sub,string)->sub+string+"\n");
+                (examples==null?
+                "NO EXAMPLES.\n":
+                examples.size()+" EXAMPLES.\n");
     }
 }
