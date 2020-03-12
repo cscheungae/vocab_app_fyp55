@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// import 'package:vocab_app_fyp55/services/APIKey.dart';
+import 'package:vocab_app_fyp55/services/APIKey.dart';
 
 class FetchImage {
   //Field Members
@@ -26,6 +26,7 @@ class FetchImage {
     return FetchImage(urls);
   }
 
+
   //Request The Image by Bing API
   static Future<List<String>> requestImgURLs(String word) async {
     //Prevent OverRequesting
@@ -38,7 +39,7 @@ class FetchImage {
     var response = await http.get(
       apiAddress + word,
       headers: {
-        // "Ocp-Apim-Subscription-Key": APIKey.BingAPI,
+        "Ocp-Apim-Subscription-Key": APIKey.BingAPI,
         "license": "ShareCommercially",
       },
     );
@@ -53,6 +54,7 @@ class FetchImage {
 
   //Only request one image
   static Future<String> requestImgURL(String word, {index: 0}) async {
-    return (await requestImgURLs(word))[index];
+    List<String> urls = await requestImgURLs(word) ?? [""];
+    return urls[0];
   }
 }

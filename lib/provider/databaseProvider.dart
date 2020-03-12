@@ -991,7 +991,7 @@ class DatabaseProvider {
       // request for the ready vocabs
       response = await db.query(vocabTableName,
           columns: null,
-          where: "status = ?, trackFreq >= ?, wordFreq >= ?",
+          where: "status = ? AND trackFreq >= ? AND wordFreq >= ?",
           whereArgs: [
             Status.tracked.index,
             wordTrackThreshold,
@@ -1005,6 +1005,20 @@ class DatabaseProvider {
         ? response.map((item) => Vocab.fromJson(item)).toList()
         : null;
   }
+
+
+  //This function returns all vocabs that are already prepared as Flashcards ( i.e. status of learning)
+  Future<List<Vocab>> getLearningVocabs() async {
+    List<Map<String, dynamic>> response;
+    try {
+      final db = await database;
+      response = await db.query(vocabTableName, where: "status = ?", whereArgs: [Status.learning.index]);
+    } catch(e) { debugPrint(e.toString() + "getLearningVocabs failure"); response = null;}
+    return response != null ? response.map((item) => Vocab.fromJson(item)).toList() : null;
+  }
+
+
+
 
   /// This function will be used when user lands on the vocabulary bank page
   Future<List<Vocab>> readAllVocab() async {

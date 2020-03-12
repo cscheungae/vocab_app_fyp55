@@ -1,4 +1,4 @@
-import '../model/vocabulary.dart';
+import 'package:vocab_app_fyp55/model/vocab.dart';
 
 
 /* Compare Vocab based on Word */
@@ -23,17 +23,17 @@ bool isShorterThan( String a, String b )
 
 
 /* Sort Vocab List by Letter, Linear Sorting */
-List<vocabulary> sortVocabListByWords( List<vocabulary> originalList )
+List<Vocab> sortVocabListByWords( List<Vocab> originalList )
 {
   var resultList = originalList;
-  vocabulary key;
+  Vocab key;
 
   for ( int i = 0; i < resultList.length; i++ )
   {
     int index = i;
     while ( index > 0 )
     {
-      if (  isShorterThan(resultList[index].getWord(), resultList[index-1].getWord())  ) 
+      if (  isShorterThan(resultList[index].word, resultList[index-1].word) ) 
       { 
         key = resultList[index];
         resultList[index] = resultList[index-1];
@@ -50,19 +50,17 @@ List<vocabulary> sortVocabListByWords( List<vocabulary> originalList )
 
 
 /* A linear Search of Vocab List */
-List<vocabulary> getSearchResultVocabList( List<vocabulary> originalList , final String query )
+List<Vocab> getSearchResultVocabList( List<Vocab> originalList , final String query )
 {
-  List<vocabulary> resultList = [];
-
+  List<Vocab> resultList = [];
   for ( int i = 0; i < originalList.length; i++ )
   {
-    if ( query.length <= originalList[i].getWord().length  )
+    if ( query.length <= originalList[i].word.length  )
     {
-      if ( originalList[i].getWord().substring(0, query.length).toLowerCase() == query )
+      if ( originalList[i].word.substring(0, query.length).toLowerCase() == query )
       { resultList.add(originalList[i]);  }
     }
   }
-
   return resultList;
 }
 

@@ -3,10 +3,9 @@ import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import 'package:vocab_app_fyp55/components/CustomVocabCard.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/pages/VocabFormPage.dart';
-//import 'package:vocab_app_fyp55/util/manage_vocabbank.dart';
-
-
+import 'package:vocab_app_fyp55/util/manage_vocabbank.dart';
 import 'dart:async';
+
 
 
 
@@ -25,6 +24,9 @@ class VocabCardUIPage extends StatefulWidget
 
 class _VocabCardPage extends State<VocabCardUIPage>
 {
+  /// This stores the original state of [_vocabList]
+  List<Vocab> _originalVocabList = []; 
+
   /// vocabs through UI
   /// Note that it only takes [Vocab] instead of [VocabBundle]
   /// Convertion from Vocab to VocabBundle will only be performed later on
@@ -42,7 +44,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
   Future<List<Vocab>> initVocabCardList( {forceUpdate = false} ) async
   {
     if (_vocabList == null || forceUpdate == true ){
-      this._vocabList = await DatabaseProvider.instance.readAllVocab();
+      this._vocabList = await DatabaseProvider.instance.getLearningVocabs();
+      //Deep Copy
+      for ( int i = 0; i < this._vocabList.length; i++ ) this._originalVocabList.add(this._vocabList[i]);
     }
     return this._vocabList;
   }
@@ -100,7 +104,7 @@ class _VocabCardPage extends State<VocabCardUIPage>
     switch ( choice )
     {
       case 0: 
-        //_vocabList = sortVocabListByWords( _vocabList );        
+        _vocabList = sortVocabListByWords( _vocabList );        
         break;
       case 1:
         Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabFormPage() ) )
@@ -141,11 +145,8 @@ class _VocabCardPage extends State<VocabCardUIPage>
               
               child: Padding( padding: EdgeInsets.all(3) , child: TextField(
                 controller: _searchController,
-                onChanged: (query) async {
-
-                  //TODO:  Filtering
-                  //var vocabList = await DatabaseProvider.instance.getVocabList(forceUpdate: false);
-                  //_vocabList = getSearchResultVocabList( vocabList, query.toLowerCase());
+                onChanged: (query){
+                  _vocabList = getSearchResultVocabList( this._originalVocabList, query.toLowerCase());
                   setState((){ });   
                 },
                 decoration: InputDecoration
@@ -153,11 +154,9 @@ class _VocabCardPage extends State<VocabCardUIPage>
                   border: OutlineInputBorder ( borderSide: BorderSide(color: Colors.grey), ),
                   hintText: "Enter a Search Term",
                   suffixIcon: IconButton(
-                    onPressed: () async { 
-                      
-                      //TODO:  Filtering
-                      //_searchController.clear(); 
-                      //_vocabList = await VocabularyBank.instance.getVocabList(forceUpdate: false); 
+                    onPressed: (){ 
+                      this._searchController.clear(); 
+                      this._vocabList = this._originalVocabList; 
                       setState(() {});  
                     },
                     icon: Icon(Icons.clear),
@@ -181,10 +180,10 @@ class _VocabCardPage extends State<VocabCardUIPage>
             PopupMenuButton<int>(
               onSelected: _select,
               itemBuilder: (context) => [
-                PopupMenuItem(value: 0, child: Text("Sorted By Letters"),  ),
-                PopupMenuItem(value: 1, child: Text("Add New Vocabulary"), ),
-                PopupMenuItem(value: 2, child: Text("Delete All Vocabularies", style: TextStyle(color: Colors.red),), ),
-                PopupMenuItem(value: 3, child: Text("Delete Database", style: TextStyle(color: Colors.red),), ),
+                PopupMenuItem(value: 0, child: Text("Sorted by letters"),  ),
+                PopupMenuItem(value: 1, child: Text("Directly add a flashcard"), ),
+                PopupMenuItem(value: 2, child: Text("Delete all vocabularies", style: TextStyle(color: Colors.red),), ),
+                PopupMenuItem(value: 3, child: Text("Delete database", style: TextStyle(color: Colors.red),), ),
               ],
             ),
           ],

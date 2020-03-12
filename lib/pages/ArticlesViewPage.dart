@@ -48,11 +48,7 @@ class _ArticleViewPageState extends State<ArticleViewPage>
   Future<List<NewsItem>> initNewsList() async {
     if (newsList == null) {
       // get the user articles preference
-      List<User> users =
-          await Provider.of<DatabaseNotifier>(context, listen: false)
-              .dbHelper
-              .readAllUser();
-      print("number of users genres is " + users[0].genres.length.toString());
+      List<User> users = await Provider.of<DatabaseNotifier>(context, listen: false).dbHelper.readAllUser();     
       newsList = await FetchNews.requestAPIData(categories: users[0].genres);
     }
     load = newsList.length;

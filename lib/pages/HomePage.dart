@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/pages/DebugPage.dart';
 import 'package:vocab_app_fyp55/pages/PrepareCardPage.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../components/NavigationBlock.dart';
@@ -49,10 +50,11 @@ class _HomePageState extends State<HomePage>
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 8.0),
           children: <Widget>[
+            
             SafeArea(
-              child: Container(),
+              child: CircleStatisticsIndicator(),
             ),
-            CircleStatisticsIndicator(),
+            
             Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: GestureDetector(
@@ -67,6 +69,7 @@ class _HomePageState extends State<HomePage>
                 },
               ),
             ),
+
             Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: GestureDetector(
@@ -81,14 +84,37 @@ class _HomePageState extends State<HomePage>
                 },
               ),
             ),
+
             Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
-              child: NavigationBlock(
-                title: "Study",
-                body: "Want to test your skill? Challenge yourself here!",
-                colors: CustomTheme.GREEN_GRADIENT_COLORS,
+              child: GestureDetector(
+                child: NavigationBlock(
+                  title: "Study",
+                  body: "Want to test your skill? Challenge yourself here!",
+                  colors: CustomTheme.GREEN_GRADIENT_COLORS,
+                ),
+                onTap:(){
+                  //Something
+                },
               ),
             ),
+
+
+            //Debug Use only
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, Router.AnimatedRoute(newWidget: new DebugPage()  ));
+              },
+              child: Container(
+                height: 50,
+                color: Colors.grey,
+                child: Icon(Icons.alarm),
+              ),
+            ),
+
+
+
+
           ],
         ),
       ),

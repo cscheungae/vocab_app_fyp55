@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_image/network.dart';
+import 'package:toast/toast.dart';
 import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
 import 'package:vocab_app_fyp55/model/definition.dart';
 import 'package:vocab_app_fyp55/model/example.dart';
@@ -162,16 +164,35 @@ class _VocabFormPage extends State<VocabFormPage>
 
   /// Function called after submitting the form
   /// update new vocab, in such case update can be: either create new vocab or update existing vocab
-  /// TODO: More to Add?
   Future<bool> updateNewVocab() async {
     try {
       //Insert Vocab
       String word = wordController.text;
       String imageUrl = _imageURL;
-      int vid = await DatabaseProvider.instance.insertVocab(new Vocab(
-        word: word,
-        imageUrl: imageUrl,
-      ));
+      Status status = Status.learning;
+
+      int vid;
+      Vocab existVocab = await DatabaseProvider.instance.getVocab(word);
+
+      //Case 1, completely new word
+      if ( existVocab == null ){
+        print("New word");
+        vid = await DatabaseProvider.instance.insertVocab( new Vocab( word: word, imageUrl: imageUrl, status: status) );
+      }
+      //Case 2, traced word
+      else if ( existVocab.status == Status.tracked ) {
+        print("Existed Traced Word");
+        existVocab.imageUrl = _imageURL;
+        existVocab.status = status;
+        vid = existVocab.vid;
+        await DatabaseProvider.instance.updateVocab(existVocab);
+      }
+      //Case 3, update existing learning/mature word through delete+create
+      else {
+        print("Learnt Word");
+        await DatabaseProvider.instance.deleteVocab(existVocab.vid);
+        vid = await DatabaseProvider.instance.insertVocab( existVocab );
+      }
 
       //Insert FlashCard
       await DatabaseProvider.instance.insertFlashcard(new Flashcard(vid: vid));
@@ -179,25 +200,18 @@ class _VocabFormPage extends State<VocabFormPage>
       //Insert Definitions
       for (int i = 0; i < formControllers.length; i++) {
         String pos = formControllers[i].wordPartOfSpeechController.text;
-        String defineText = formControllers[i].wordDefinitionController.text;
-        int did =
-            await DatabaseProvider.instance.insertDefinition(new Definition(
-          vid: vid,
-          pos: pos,
-          defineText: defineText,
-        ));
+        String defineText =  formControllers[i].wordDefinitionController.text;
+        int did = await DatabaseProvider.instance.insertDefinition( new Definition( vid: vid, pos: pos, defineText: defineText, ) );
 
         //Insert Pronunciation
         await DatabaseProvider.instance
             .insertPronunciation(new Pronunciation(did: did));
 
-        //Insert Example
-        await DatabaseProvider.instance.insertExample(new Example(
-            did: did,
-            sentence: formControllers[i].wordSampleSentenceController.text));
-      }
-
-      print("Successfully Update the vocab");
+        //Insert Example     
+        await DatabaseProvider.instance.insertExample( new Example(did: did, sentence: formControllers[i].wordSampleSentenceController.text ) );       
+      } 
+              
+      Toast.show("Success in submitting", context, duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM, backgroundColor: Colors.white70);
       return true;
     } catch (e) {
       print("Fatal Error in submitting:\n" + e.toString());
@@ -433,10 +447,9 @@ class _VocabFormPage extends State<VocabFormPage>
                                               imageSelectURLs[position]);
                                           showImageSelect = false;
                                           setState(() {});
-                                        },
-                                        child: Image.network(
-                                          imageSelectURLs[position],
-                                          fit: BoxFit.cover,
+                                        }, 
+                                        child: Image(
+                                          image: NetworkImageWithRetry(imageSelectURLs[position]),
                                         ),
                                       );
                                     },
@@ -483,7 +496,7 @@ class _VocabFormPage extends State<VocabFormPage>
                         onPressed: () async {
                           if (_wordFormFieldKey.currentState.validate()) {
                             await updateNewVocab();
-                            Navigator.of(context).pop();
+                            Navigator.pop(context, true);
                             setState(() {});
                           }
                         },

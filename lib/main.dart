@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/provider.dart';
-import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/pages/LeaderBoardPage.dart';
 import 'package:vocab_app_fyp55/pages/LoginPage.dart';
@@ -49,7 +47,8 @@ class MyApp extends StatelessWidget {
           widget = MaterialApp(
             title: 'FlashVocab',
             theme: CustomTheme.customThemeData,
-            initialRoute: (!!snapshot.data == true) ? '/' : '/register',
+            //initialRoute: (!!snapshot.data == true) ? '/' : '/register',
+            initialRoute: '/',
             routes: {
               // When navigating to the "/" route, build the HomeScreen
               '/': (context) => MainPageView.instance,

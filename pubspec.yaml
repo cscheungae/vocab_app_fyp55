@@ -28,6 +28,7 @@ dependencies:
   charts_flutter: 
   path_provider:
   preload_page_view:
+  flutter_image:
   cached_network_image: 2.0.0-rc
   shared_preferences:
   sqflite:
