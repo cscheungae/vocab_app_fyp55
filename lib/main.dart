@@ -13,7 +13,7 @@ import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 import 'res/theme.dart' as CustomTheme;
 import 'pages/HomePage.dart';
-import 'pages/ArticlesViewPage.dart';
+import 'pages/ReadViewPage.dart';
 import 'pages/SettingsPage.dart';
 import 'pages/MainPageView.dart';
 
@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
                   '/register': (context) => RegisterPage(),
                   '/login': (context) => LoginPage(),
                   '/welcome': (context) => OnboardingScreen(),
-                  '/articles': (context) => ArticleViewPage(title: "Article"),
+                  '/articles': (context) => ReadViewPage(title: "Article"),
                   '/settings': (context) => SettingsPage(),
                   '/dictionary': (context) => VocabCardUIPage(),
                   '/LeaderBoardPage' : ( context ) => LeaderBoardPage(),

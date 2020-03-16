@@ -70,7 +70,6 @@ class CustomNewsCard extends StatelessWidget {
       elevation: 3.0,
       child: GestureDetector(
         onTap: () {
-          print("Open WebView for " + newsItem.url);
           Navigator.push(
               context,
               MaterialPageRoute(
