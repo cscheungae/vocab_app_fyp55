@@ -5,7 +5,7 @@ import '../res/theme.dart' as CustomTheme;
 import '../components/NavigationBlock.dart';
 import '../components/CircleStatisticsIndicator.dart';
 
-import '../pages/ArticlesViewPage.dart';
+import '../pages/ReadViewPage.dart';
 import '../util/Router.dart' as Router;
 
 class HomePage extends StatefulWidget {
@@ -59,13 +59,13 @@ class _HomePageState extends State<HomePage>
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: GestureDetector(
                 child: NavigationBlock(
-                  title: "Article",
+                  title: "Read",
                   body: "Read more articles in here, and explore new vocabularies!",
                   colors: CustomTheme.BLUE_GRADIENT_COLORS,
                 ),
                 onTap: () {
                   //Navigator.pushNamed(context, '/articles');
-                  Navigator.push(context, Router.AnimatedRoute(newWidget: new ArticleViewPage()  ));
+                  Navigator.push(context, Router.AnimatedRoute(newWidget: new ReadViewPage()  ));
                 },
               ),
             ),

@@ -1,5 +1,4 @@
 import 'package:http/http.dart' as http;
-import 'package:vocab_app_fyp55/services/APIKey.dart';
 import 'package:vocab_app_fyp55/services/AddressMiddleWare.dart';
 import 'package:vocab_app_fyp55/model/news.dart';
 
@@ -21,17 +20,15 @@ class FetchNews {
 
   // previous request method
 //  static Future< List<News> > requestAPIData( {String username, String password, List<String> categories, } ) async {
-  static Future<List<NewsItem>> requestAPIData({
-    List<String> categories,
-  }) async {
-    try {
+  static Future< List<NewsItem> > requestAPIData( {List<String> categories } ) async {
+  try{
       assert(categories != null);
 
       String url = AddressMiddleWare.address + "/ext/api/news";
 
       // generating the query url
-      if (categories.isEmpty) {
-        return null;
+      if ( categories.isEmpty ) {
+        throw new Exception("fetchdata_news requestData method requires non null parameter");
       } else {
         url += "?";
         for (int i = 0; i < categories.length; i++) {
@@ -42,19 +39,19 @@ class FetchNews {
 
       var returnedResponse = await http.get(
         url,
-        headers: {"X-Api-Key": APIKey.NewsAPI},
+        headers: {
+//          "X-Api-Key": APIKey.NewsAPI
+        },
       );
       if (returnedResponse.statusCode == 200) {
         var response = json.decode(returnedResponse.body);
         FetchNews fn = FetchNews.fromJson(response);
         return fn._newsList;
       } else {
-        print("Failure in making NewsAPI request: " +
-            returnedResponse.statusCode.toString());
-        return null;
+        throw new Exception("Failure in making NewsAPI request: " + returnedResponse.statusCode.toString());
       }
-    } catch (e) {
-      print("Function Failure - requestAPIData");
+    } catch(e){
+      print("Function Failure - requestAPIData: " + e.toString());
       return null;
     }
   }

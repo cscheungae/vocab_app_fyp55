@@ -9,7 +9,8 @@
     <application
         android:name=".MemeApplication"
         android:label="vocab_app_fyp55"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

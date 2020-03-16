@@ -6,7 +6,7 @@ var customThemeData = new ThemeData(
   // Define the default brightness and colors.
   brightness: Brightness.dark,
   primaryColor: Color(0xFFF7FFF7),
-  accentColor:  Color(0xFF343434),
+  accentColor:  Color(0xFF56C596),
 
 
   // Define the default font family.
