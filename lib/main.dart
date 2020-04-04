@@ -25,22 +25,9 @@ void main() => runApp(MultiProvider(
     ));
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-//  final dbHelper = DatabaseProvider.instance;
-
-  Future<bool> isUserExist(BuildContext context) async {
-    List<User> users =
-        await Provider.of<DatabaseNotifier>(context, listen: false)
-            .dbHelper
-            .readAllUser();
-    debugPrint("users size: ${users.length}");
-    if (users.isNotEmpty) return true;
-    return false;
-  }
-
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: isUserExist(context),
+      future: Provider.of<DatabaseNotifier>(context, listen: false).dbHelper.isUserExist(),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           Widget widget;
           if(snapshot.hasData) {
@@ -48,7 +35,7 @@ class MyApp extends StatelessWidget {
               MaterialApp(
                 title: 'FlashVocab',
                 theme: CustomTheme.customThemeData,
-                initialRoute: (!!snapshot.data == true) ? '/' : '/register',
+                initialRoute: (!!snapshot.data == false) ? '/' : '/register',
                 routes: {
                   // When navigating to the "/" route, build the HomeScreen
                   '/': (context) => MainPageView.instance,

@@ -154,6 +154,21 @@ class DatabaseProvider {
   /// **********************************************************************
   /// ***************************** User Route *****************************
   /// **********************************************************************
+  Future<bool> isUserExist() async {
+    bool response;
+    try{
+      List<User> users = await readAllUser();
+      if(users.isNotEmpty)
+        response = false;
+      else
+        response = true;
+    } catch(e) {
+      print("error in isUserExist: " + e.toString());
+    }
+    return response;
+  }
+
+
   Future<int> insertUser(User user) async {
     int response;
     try {
