@@ -1,5 +1,5 @@
 import 'package:http/http.dart' as http;
-import 'package:vocab_app_fyp55/model/WordnikResponse.dart';
+import 'package:vocab_app_fyp55/model/ResponseFormat/WordnikResponse.dart';
 import 'package:vocab_app_fyp55/services/AddressMiddleWare.dart';
 import 'dart:convert';
 
