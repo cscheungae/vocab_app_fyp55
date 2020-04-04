@@ -6,11 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/components/Chip/MultiSelectChip.dart';
 import 'package:vocab_app_fyp55/components/Chip/styles.dart';
-import 'package:vocab_app_fyp55/components/RegisterForm.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/services/AddressMiddleWare.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
 
