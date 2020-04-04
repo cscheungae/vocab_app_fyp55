@@ -1,5 +1,5 @@
 /* a model class containing sentence about the news */
-import 'package:vocab_app_fyp55/model/HyperSentence.dart';
+import 'package:vocab_app_fyp55/model/ResponseFormat/HyperSentence.dart';
 
 class WordnikResponse {
   String word;

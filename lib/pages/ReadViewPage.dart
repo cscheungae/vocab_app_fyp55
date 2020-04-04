@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/components/CustomExpansionTile.dart';
 import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
-import 'package:vocab_app_fyp55/model/WordnikResponse.dart';
+import 'package:vocab_app_fyp55/model/ResponseFormat/WordnikResponse.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/services/fetchdata_sentences.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
-import '../model/news.dart';
+import '../model/ResponseFormat/news.dart';
 import '../services/fetchdata_news.dart';
 
 
@@ -208,7 +208,7 @@ class _ReadViewPageState extends State<ReadViewPage>
       length: tabs.length,
       child: Scaffold(
         appBar: AppBar(
-          bottom: TabBar(
+          title: TabBar(
             tabs: tabs,
           ),
         ),

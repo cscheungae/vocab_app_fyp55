@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/model/WordnikResponse.dart';
+import 'package:vocab_app_fyp55/model/ResponseFormat/WordnikResponse.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class CustomExpansionTile extends StatelessWidget {
