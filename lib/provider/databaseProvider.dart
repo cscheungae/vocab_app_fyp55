@@ -7,7 +7,6 @@ import 'package:vocab_app_fyp55/model/Bundle/ExampleBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/FlashcardBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/PronunciationBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/VocabBundle.dart';
-import 'package:vocab_app_fyp55/model/Bundle/UserBundle.dart';
 
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/model/definition.dart';
@@ -18,7 +17,6 @@ import 'package:vocab_app_fyp55/model/stat.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/provider/providerConstant.dart';
 import '../model/vocab.dart';
-import '../model/vocabularyDefinition.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -892,6 +890,18 @@ class DatabaseProvider {
     return response != null
         ? response.map((item) => Stat.fromJson(item)).toList()
         : null;
+  }
+
+  Future<Stat> readLatestStat() async {
+    final db = await database;
+    List<Map<String, dynamic>> response;
+    try {
+      response = await db.rawQuery(("SELECT sid, MAX(logDate) as logDate, trackingCount, learningCount, maturedCount FROM " + statisticTableName));
+    } catch (e) {
+      debugPrint(e.toString() + " read all statistics failure");
+      response = null;
+    }
+    return response != null ? response.map((item) => Stat.fromJson(item)).toList().first : null;
   }
 
   /// This function returns a list of Statistics in which each statistic is the
