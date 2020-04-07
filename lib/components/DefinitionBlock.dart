@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,10 +12,13 @@ class DefinitionBlock extends StatelessWidget{
   /// body of the expansion tile
   final String body;
 
+  //initial expand
+  final bool initiallyExpanded;
+
   /// Constructor
   /// [header] - required
   /// [body] - required
-  const DefinitionBlock({ Key key, @required this.header, @required this.body }) : super(key: key);
+  const DefinitionBlock({ Key key, @required this.header, @required this.body, this.initiallyExpanded = true }) : super(key: key);
 
   @override
   Widget build(BuildContext context){
@@ -26,7 +28,7 @@ class DefinitionBlock extends StatelessWidget{
       color: Colors.white,
       child: ExpansionTile(
           backgroundColor: Colors.white,
-          initiallyExpanded: true,
+          initiallyExpanded: this.initiallyExpanded,
           trailing: IconTheme( data: IconThemeData(color: Colors.black,), child: Icon(Icons.menu), ),
           title: Text( header ?? "null", 
             style: TextStyle(
