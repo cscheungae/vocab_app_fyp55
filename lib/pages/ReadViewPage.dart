@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/components/CustomExpansionTile.dart';
 import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
+import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
+import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
 import 'package:vocab_app_fyp55/model/ResponseFormat/WordnikResponse.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/services/fetchdata_sentences.dart';
@@ -78,7 +80,7 @@ class _ReadViewPageState extends State<ReadViewPage>
 
   Future<List<WordnikResponse>> initWordnikResponseList() async {
     if(wordnikResponsesList == null) {
-      // TODO::get the user readyvocab
+      // TODO::get the user readyvocab - bil
       wordnikResponsesList = await FetchSentences.requestAPIData(words: ["bypass", "encounter"]);
     }
     wordnikResponseLoad = wordnikResponsesList.length;
@@ -114,42 +116,8 @@ class _ReadViewPageState extends State<ReadViewPage>
                 });
           }
           //Error Screen
-          else if (snapshot.hasError) {
-            print(snapshot.error);
-            print(snapshot);
-            widget = Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "Error in loading Articles",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ],
-                )
-              ],
-            );
-          }
-          //Loading Screen
-          else {
-            widget =
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.blue,
-                    ),
-                    width: 60,
-                    height: 60,
-                  )
-                ],
-              ),
-            ]);
-          }
+          else if (snapshot.hasError) widget = new ErrorAlert("articles");
+          else widget = new LoadingIndicator();
           return widget;
         });
   }
@@ -166,38 +134,8 @@ class _ReadViewPageState extends State<ReadViewPage>
               return CustomExpansionTile(wordnikResponse: wordnikResponsesList[position]);
             }
           );
-        } else if(snapshot.hasError) {
-          widget = Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    "Error in loading Sentences",
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ],
-              )
-            ],
-          );
-        } else {
-          widget =
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.blue,
-                      ),
-                      width: 60,
-                      height: 60,
-                    )
-                  ],
-                ),
-              ]);
-        }
+        } else if(snapshot.hasError) widget = new ErrorAlert("Sentences");
+          else widget = new LoadingIndicator();
         return widget;
       });
   }

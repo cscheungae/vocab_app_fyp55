@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
+import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
 import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
@@ -74,41 +76,8 @@ class _VocabDetailsPageView extends State<VocabDetailsPageView>
           );
         }
         //Error
-        else if ( snapshot.hasError ){
-          return 
-           Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "Error in loading vocabularies",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ],
-                )
-              ],
-            );
-        }
-        //Loading
-        else {
-          return 
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.blue,
-                  ),
-                  width: 60,
-                  height: 60,
-                )
-              ],
-            ),
-          ]);
-        }
+        else if ( snapshot.hasError ) return new ErrorAlert("vocabularies");
+        else return new LoadingIndicator();
       },
     );
   }

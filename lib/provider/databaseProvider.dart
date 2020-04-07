@@ -879,10 +879,11 @@ class DatabaseProvider {
   }
 
   Future<List<Stat>> readAllStat() async {
+    // only read the statistics that is the latest one on that day
     final db = await database;
     List<Map<String, dynamic>> response;
     try {
-      response = await db.rawQuery("SELECT * FROM " + statisticTableName);
+      response = await db.rawQuery("SELECT MAX(sid) as sid, logDate, trackingCount, learningCount, maturedCount FROM " + statisticTableName + " GROUP BY logDate");
     } catch (e) {
       debugPrint(e.toString() + " read all statistics failure");
       response = null;

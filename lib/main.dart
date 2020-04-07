@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
+import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
+import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/pages/LeaderBoardPage.dart';
 import 'package:vocab_app_fyp55/pages/LoginPage.dart';
 import 'package:vocab_app_fyp55/pages/OnboardingScreen.dart';
 import 'package:vocab_app_fyp55/pages/RegisterPage.dart';
+import 'package:vocab_app_fyp55/pages/StatisticsPage.dart';
 import 'package:vocab_app_fyp55/pages/VocabBanksPage.dart';
 import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
@@ -46,26 +49,11 @@ class MyApp extends StatelessWidget {
                   '/settings': (context) => SettingsPage(),
                   '/dictionary': (context) => VocabCardUIPage(),
                   '/LeaderBoardPage' : ( context ) => LeaderBoardPage(),
+                  '/statistics': (context) => StatisticsPage(),
                 },
               );
-          } else if (snapshot.hasError) {
-            widget =
-                MaterialApp(
-                  title: "Error"
-                );
-          } else {
-            widget =
-                Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    child: CircularProgressIndicator(),
-                    width: 60,
-                    height: 60,
-                  ),]
-                );
-          }
+          } else if (snapshot.hasError) widget = new ErrorAlert("Error");
+            else widget = new LoadingIndicator();
           return widget;
       },
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
+import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
 import 'package:vocab_app_fyp55/model/ResponseFormat/StatResponse.dart';
 import 'package:vocab_app_fyp55/model/stat.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
@@ -115,51 +117,9 @@ class _LeaderboardState extends State<Leaderboard> {
               ],
               rows: dataRows,
             );
-          } else if (snapshot.hasError) {
-//            print("hasError");
-            widget = Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "Error in loading ranking",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ],
-                )
-              ],
-            );
-          } else {
-//            print("loading screen");
-            widget =
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: SizedBox(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.blue,
-                          ),
-                          width: 60,
-                          height: 60,
-                        ),
-                      )
-                    ],
-                  ),
-                ]);
-          }
+          } else if (snapshot.hasError) widget = new ErrorAlert("Leaderboard");
+            else widget = new LoadingIndicator();
           return widget;
         });
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    print("dispose Leaderboard");
   }
 }
