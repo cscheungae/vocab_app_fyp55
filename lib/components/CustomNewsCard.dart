@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import '../pages/NewsWebViewPage.dart';
-import '../model/news.dart';
+import '../model/ResponseFormat/news.dart';
 
 /// Widget displaying the news information
 class CustomNewsCard extends StatelessWidget {
