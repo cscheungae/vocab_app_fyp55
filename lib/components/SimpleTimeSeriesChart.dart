@@ -2,7 +2,6 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
-import 'package:vocab_app_fyp55/components/Label.dart';
 import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
 import 'package:vocab_app_fyp55/model/stat.dart';
 import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
