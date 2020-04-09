@@ -4,8 +4,11 @@ import 'package:vocab_app_fyp55/components/CustomExpansionTile.dart';
 import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
 import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
 import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
+import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
 import 'package:vocab_app_fyp55/model/ResponseFormat/WordnikResponse.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
+import 'package:vocab_app_fyp55/model/vocab.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import 'package:vocab_app_fyp55/services/fetchdata_sentences.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 import '../model/ResponseFormat/news.dart';
@@ -81,7 +84,9 @@ class _ReadViewPageState extends State<ReadViewPage>
   Future<List<WordnikResponse>> initWordnikResponseList() async {
     if(wordnikResponsesList == null) {
       // TODO::get the user readyvocab - bil
-      wordnikResponsesList = await FetchSentences.requestAPIData(words: ["bypass", "encounter"]);
+      List<VocabBundle> vocabs = await DatabaseProvider.instance.getStudyVocabs(7);
+      List<String> requestedWords = vocabs.map((vocab) => vocab.word).toList();
+      wordnikResponsesList = await FetchSentences.requestAPIData(words: requestedWords);
     }
     wordnikResponseLoad = wordnikResponsesList.length;
     return wordnikResponsesList.sublist(wordnikResponseLoad - 1);
