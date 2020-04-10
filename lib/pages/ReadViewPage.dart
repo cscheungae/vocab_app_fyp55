@@ -71,11 +71,6 @@ class _ReadViewPageState extends State<ReadViewPage>
               .dbHelper
               .readAllUser();
       newsList = await FetchNews.requestAPIData(categories: users[0].genres);
-      // for debugging when no user is in the database
-      /* newsList = await FetchNews.requestAPIData(categories: [
-        'entertainment',
-        'general'
-      ]);  */
     }
     newsLoad = newsList.length;
     return newsList.sublist(newsLoad - 1);
@@ -85,12 +80,12 @@ class _ReadViewPageState extends State<ReadViewPage>
     if(wordnikResponsesList == null) {
       // TODO::get the user readyvocab - bil
       List<VocabBundle> vocabs = await DatabaseProvider.instance.getStudyVocabs(7);
+      if(vocabs == null) return null;
       List<String> requestedWords = vocabs.map((vocab) => vocab.word).toList();
       wordnikResponsesList = await FetchSentences.requestAPIData(words: requestedWords);
     }
     wordnikResponseLoad = wordnikResponsesList.length;
     return wordnikResponsesList.sublist(wordnikResponseLoad - 1);
-
   }
 
 
@@ -132,14 +127,17 @@ class _ReadViewPageState extends State<ReadViewPage>
       future: initWordnikResponseList(),
       builder: (BuildContext context, AsyncSnapshot<List<WordnikResponse>> snapshot) {
         Widget widget;
-        if(snapshot.hasData) {
-          widget = ListView.builder(
-            itemCount: wordnikResponseLoad,
-            itemBuilder: (context, position) {
-              return CustomExpansionTile(wordnikResponse: wordnikResponsesList[position]);
-            }
-          );
-        } else if(snapshot.hasError) widget = new ErrorAlert("Sentences");
+        if(snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData) {
+            widget = ListView.builder(
+                itemCount: wordnikResponseLoad,
+                itemBuilder: (context, position) {
+                  return CustomExpansionTile(wordnikResponse: wordnikResponsesList[position]);
+                }
+            );
+          } else if(snapshot.hasError) widget = new ErrorAlert("Sentences");
+          else widget = new ErrorAlert("Sentences Not Available");
+        }
           else widget = new LoadingIndicator();
         return widget;
       });
