@@ -73,7 +73,5 @@
 **/ios/Flutter/flutter_export_environment.sh
 
 #API Key Related
+**/lib/services/AddressMiddleWare.dart
 **/lib/services/APIKey.dart
-
-#node server related
-lib/services/AddressMiddleWare.dart

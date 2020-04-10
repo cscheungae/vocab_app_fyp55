@@ -110,9 +110,11 @@ public class WordModalActivity extends Activity {
                 Integer result = task.execute(vocabInfo).get();
 
 
-                Intent updateVisitCount = new Intent(getApplicationContext(), MainActivity.class);
-                updateVisitCount.setAction(Intent.ACTION_SEND);
-                startActivity(updateVisitCount);
+                Intent navToArticles= new Intent(getApplicationContext(), MainActivity.class);
+                navToArticles.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                navToArticles.setAction(Intent.ACTION_RUN);
+                navToArticles.putExtra("route","/articles");
+                startActivity(navToArticles);
 
                 finish();
             }
@@ -140,6 +142,7 @@ public class WordModalActivity extends Activity {
 
 
     }
+
 
     private void createNotification(){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "12h3k123")
