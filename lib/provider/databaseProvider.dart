@@ -641,7 +641,7 @@ class DatabaseProvider {
       response = await db.rawQuery('''
         SELECT * 
         FROM $flashcardTableName
-        WHERE strftime('%s','now', 'localtime') - strftime('%s', dateLastReviewed) > 0
+        WHERE strftime('%s','now', 'localtime') - strftime('%s', dateLastReviewed) > strftime('%s', daysBetweenReview)
         ORDER BY overdue DESC
         LIMIT $quantity
         ''');
@@ -897,7 +897,7 @@ class DatabaseProvider {
     final db = await database;
     List<Map<String, dynamic>> response;
     try {
-      response = await db.rawQuery(("SELECT sid, MAX(logDate) as logDate, trackingCount, learningCount, maturedCount FROM " + statisticTableName));
+      response = await db.rawQuery(("SELECT MAX(sid) as sid, logDate, trackingCount, learningCount, maturedCount FROM " + statisticTableName));
     } catch (e) {
       debugPrint(e.toString() + " read all statistics failure");
       response = null;
@@ -1017,7 +1017,7 @@ class DatabaseProvider {
       // request for the ready vocabs
       response = await db.query(vocabTableName,
           columns: null,
-          where: "status = ? AND trackFreq >= ? AND wordFreq >= ?",
+          where: "status = ? AND trackFreq >= ? OR wordFreq >= ?",
           whereArgs: [
             Status.tracked.index,
             wordTrackThreshold,
@@ -1088,21 +1088,21 @@ class DatabaseProvider {
             await readPronunciation(definition.did);
         List<Example> examples = await readExample(definition.did);
         // construct pronunciationsBundle and examplesBundle
-        List<PronunciationBundle> pronunciationsBundle = pronunciations
+        List<PronunciationBundle> pronunciationsBundle = pronunciations != null ?  pronunciations
             .map((item) => PronunciationBundle(
                 pid: item.pid, ipa: item.ipa, audioUrl: item.audioUrl))
-            .toList();
-        List<ExampleBundle> examplesBundle = examples
+            .toList() : null;
+        List<ExampleBundle> examplesBundle = examples != null ? examples
             .map(
                 (item) => ExampleBundle(eid: item.eid, sentence: item.sentence))
-            .toList();
+            .toList() : null;
         definitionsBundle.add(DefinitionBundle(
           did: definition.did,
           pos: definition.pos,
           defineText: definition.defineText,
           pronunciationsBundle:
-              pronunciationsBundle.isNotEmpty ? pronunciationsBundle : null,
-          examplesBundle: examplesBundle.isNotEmpty ? examplesBundle : null,
+              pronunciationsBundle,
+          examplesBundle: examplesBundle,
         ));
       }
     }

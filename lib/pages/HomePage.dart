@@ -69,7 +69,6 @@ class _HomePageState extends State<HomePage>
                 },
               ),
             ),
-
             Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: GestureDetector(
@@ -98,8 +97,6 @@ class _HomePageState extends State<HomePage>
                 },
               ),
             ),
-
-
             //Debug Use only
             GestureDetector(
               onTap: (){
@@ -111,10 +108,6 @@ class _HomePageState extends State<HomePage>
                 child: Icon(Icons.alarm),
               ),
             ),
-
-
-
-
           ],
         ),
       ),

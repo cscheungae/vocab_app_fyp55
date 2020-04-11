@@ -1,13 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
 import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
 import 'package:vocab_app_fyp55/model/stat.dart';
 import 'package:vocab_app_fyp55/pages/StatisticsPage.dart';
 import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
-import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../util/Router.dart' as Router;
 
@@ -15,10 +12,9 @@ class CircleStatisticsIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<DatabaseNotifier>(context, listen: false)
-          .dbHelper
-          .readLatestStat(),
+      future: DatabaseProvider.instance.readLatestStat(),
       builder: (BuildContext context, AsyncSnapshot<Stat> snapshot) {
+//        print("CircularIndicator: " + snapshot.toString());
         Widget widget;
         if (snapshot.hasData) {
           Stat stat = snapshot.data;
@@ -48,7 +44,7 @@ class CircleStatisticsIndicator extends StatelessWidget {
                           radius: 155.0,
                           lineWidth: 8.0,
                           animation: true,
-                          percent: stat.learningCount / stat.trackingCount,
+                          percent: (stat.learningCount != 0 && stat.trackingCount != 0) ? stat.learningCount / stat.trackingCount : 0,
                           center: Container(
                             padding: const EdgeInsets.all(38.0),
                             child: Column(
