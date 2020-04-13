@@ -3,6 +3,9 @@ import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
 import 'dart:convert';
 import 'APIKey.dart';
 
+/// Fetching Vocabularies based on wordsAPI
+/// warning(1): currently this is directly fetched through API itself
+/// warning(2): This should go obselete once Oxford API is in use
 class FetchDataWordsAPI {
   VocabBundle _vocab;
   get vocab => _vocab;
@@ -16,7 +19,6 @@ class FetchDataWordsAPI {
 
   factory FetchDataWordsAPI.fromJson(Map<String, dynamic> json) {
     String word, meaning, wordForm, sampleSentence;
-    List<String> synonyms = [], antonyms = [];
 
     if (json["success"] != "false") {
       word = json["word"] ?? "";
@@ -27,14 +29,6 @@ class FetchDataWordsAPI {
 
       List<dynamic> examplesJson = resultJson[0]["examples"] ?? const [];
       sampleSentence = (examplesJson.isNotEmpty) ? examplesJson[0] : "";
-
-      List<dynamic> synonymsJson = resultJson[0]["synonyms"] ?? const [];
-      List<dynamic> antonymsJson = resultJson[0]["antonyms"] ?? const [];
-
-      for (int i = 0; i < synonymsJson.length; i++)
-        synonyms.add(synonymsJson[i]);
-      for (int i = 0; i < antonymsJson.length; i++)
-        antonyms.add(antonymsJson[i]);
 
       //Word returned
       VocabBundle vb = new VocabBundle(word: word, definitionsBundle: [

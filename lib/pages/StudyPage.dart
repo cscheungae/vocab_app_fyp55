@@ -253,19 +253,19 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
           (
             alignment: Alignment.topLeft,
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: new DefinitionBlock( header: "Example Sentence", body: context.examplesBundle[0].sentence, initiallyExpanded: false, ),                        
+            child: new DefinitionBlock( header: "Example 1", body: (context.examplesBundle.length > 0 ) ? context.examplesBundle[0].sentence : "" , initiallyExpanded: false, ),                        
           ),  
           Container
           (
             alignment: Alignment.topLeft,
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: new DefinitionBlock( header: "Synonyms", body: "", initiallyExpanded: false,),                        
+            child: new DefinitionBlock( header: "Example 2", body: (context.examplesBundle.length > 1 ) ? context.examplesBundle[1].sentence : "" , initiallyExpanded: false,),                        
           ),
           Container
           (
             alignment: Alignment.topLeft,
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: new DefinitionBlock( header: "Synonyms", body: "", initiallyExpanded: false,),                        
+            child: new DefinitionBlock( header: "Example 3", body: (context.examplesBundle.length > 2 ) ? context.examplesBundle[2].sentence : "" , initiallyExpanded: false,),                        
           ),
         ],
       );
@@ -315,9 +315,11 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
 
 
   Widget buildStartBottomBar(){ 
-    return buildButton("Back", "Start", 
-      (){
-
+    return buildButton("Refresh", "Start", 
+      () async {
+        await initVocabCardList(forceUpdate: true);
+        Toast.show("Refreshed!", context);
+        setState((){ });
       }, 
       () async {
         await this.gotoNextStudyVocabPage();

@@ -1061,22 +1061,26 @@ class DatabaseProvider {
         List<Pronunciation> pronunciations =
             await readPronunciation(definition.did);
         List<Example> examples = await readExample(definition.did);
-        // construct pronunciationsBundle and examplesBundle
-        List<PronunciationBundle> pronunciationsBundle = pronunciations
+        
+        // construct pronunciationsBundle and examplesBundle, possible to be null
+        List<PronunciationBundle> pronunciationsBundle = (pronunciations != null ) ? pronunciations
             .map((item) => PronunciationBundle(
                 pid: item.pid, ipa: item.ipa, audioUrl: item.audioUrl))
-            .toList();
-        List<ExampleBundle> examplesBundle = examples
+            .toList() : [] ;
+
+
+        List<ExampleBundle> examplesBundle = ( examples != null ) ? examples
             .map(
                 (item) => ExampleBundle(eid: item.eid, sentence: item.sentence))
-            .toList();
+            .toList() : [] ;
+
+
         definitionsBundle.add(DefinitionBundle(
           did: definition.did,
           pos: definition.pos,
           defineText: definition.defineText,
-          pronunciationsBundle:
-              pronunciationsBundle.isNotEmpty ? pronunciationsBundle : null,
-          examplesBundle: examplesBundle.isNotEmpty ? examplesBundle : null,
+          pronunciationsBundle: pronunciationsBundle,
+          examplesBundle: examplesBundle,
         ));
       }
     }
