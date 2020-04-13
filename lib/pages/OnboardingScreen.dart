@@ -6,11 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/components/Chip/MultiSelectChip.dart';
 import 'package:vocab_app_fyp55/components/Chip/styles.dart';
-import 'package:vocab_app_fyp55/components/RegisterForm.dart';
+import 'package:vocab_app_fyp55/model/stat.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/services/AddressMiddleWare.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
 
@@ -385,6 +384,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   user.setGenres(selectedGenresList.isNotEmpty ? selectedGenresList : GenresList);
                   // by using the userid, update the preference
                   await dbHelper.updateUser(user);
+                  // log the first stat
+                  await dbHelper.insertStat(new Stat(logDate: new DateTime.now(), trackingCount: 0, maturedCount: 0, learningCount: 0));
                   // update to the server
                   Map<String, String> headers = {
                     'Content-type': 'application/json'

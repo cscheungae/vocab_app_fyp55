@@ -7,7 +7,6 @@ import 'package:vocab_app_fyp55/model/Bundle/ExampleBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/FlashcardBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/PronunciationBundle.dart';
 import 'package:vocab_app_fyp55/model/Bundle/VocabBundle.dart';
-import 'package:vocab_app_fyp55/model/Bundle/UserBundle.dart';
 
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/model/definition.dart';
@@ -18,7 +17,6 @@ import 'package:vocab_app_fyp55/model/stat.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/provider/providerConstant.dart';
 import '../model/vocab.dart';
-import '../model/vocabularyDefinition.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -154,6 +152,21 @@ class DatabaseProvider {
   /// **********************************************************************
   /// ***************************** User Route *****************************
   /// **********************************************************************
+  Future<bool> isUserExist() async {
+    bool response;
+    try{
+      List<User> users = await readAllUser();
+      if(users.isNotEmpty)
+        response = false;
+      else
+        response = true;
+    } catch(e) {
+      print("error in isUserExist: " + e.toString());
+    }
+    return response;
+  }
+
+
   Future<int> insertUser(User user) async {
     int response;
     try {
@@ -628,7 +641,7 @@ class DatabaseProvider {
       response = await db.rawQuery('''
         SELECT * 
         FROM $flashcardTableName
-        WHERE strftime('%s','now', 'localtime') - strftime('%s', dateLastReviewed) > 0
+        WHERE strftime('%s','now', 'localtime') - strftime('%s', dateLastReviewed) > strftime('%s', daysBetweenReview)
         ORDER BY overdue DESC
         LIMIT $quantity
         ''');
@@ -866,10 +879,11 @@ class DatabaseProvider {
   }
 
   Future<List<Stat>> readAllStat() async {
+    // only read the statistics that is the latest one on that day
     final db = await database;
     List<Map<String, dynamic>> response;
     try {
-      response = await db.rawQuery("SELECT * FROM " + statisticTableName);
+      response = await db.rawQuery("SELECT MAX(sid) as sid, logDate, trackingCount, learningCount, maturedCount FROM " + statisticTableName + " GROUP BY logDate");
     } catch (e) {
       debugPrint(e.toString() + " read all statistics failure");
       response = null;
@@ -877,6 +891,18 @@ class DatabaseProvider {
     return response != null
         ? response.map((item) => Stat.fromJson(item)).toList()
         : null;
+  }
+
+  Future<Stat> readLatestStat() async {
+    final db = await database;
+    List<Map<String, dynamic>> response;
+    try {
+      response = await db.rawQuery(("SELECT MAX(sid) as sid, logDate, trackingCount, learningCount, maturedCount FROM " + statisticTableName));
+    } catch (e) {
+      debugPrint(e.toString() + " read all statistics failure");
+      response = null;
+    }
+    return response != null ? response.map((item) => Stat.fromJson(item)).toList().first : null;
   }
 
   /// This function returns a list of Statistics in which each statistic is the
@@ -991,7 +1017,7 @@ class DatabaseProvider {
       // request for the ready vocabs
       response = await db.query(vocabTableName,
           columns: null,
-          where: "status = ? AND trackFreq >= ? AND wordFreq >= ?",
+          where: "status = ? AND trackFreq >= ? OR wordFreq >= ?",
           whereArgs: [
             Status.tracked.index,
             wordTrackThreshold,

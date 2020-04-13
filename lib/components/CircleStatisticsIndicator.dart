@@ -1,27 +1,24 @@
-
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
+import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
+import 'package:vocab_app_fyp55/model/stat.dart';
+import 'package:vocab_app_fyp55/pages/StatisticsPage.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import '../res/theme.dart' as CustomTheme;
+import '../util/Router.dart' as Router;
 
 class CircleStatisticsIndicator extends StatelessWidget {
-
-  /// value displayed in the presentation layer
-  final int wordsLearnt;
-
-  /// percentage determining the circle indicator in the presentation layer
-  final double percentage;
-
-
-  /// Constructor of CircleStatisticsIndicator
-  /// Optional:
-  /// [wordsLearnt] - default to 0
-  /// [percentage]  - default to 0.3
-  CircleStatisticsIndicator({ this.wordsLearnt = 0, this.percentage = 0.3, });
-
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return FutureBuilder(
+      future: DatabaseProvider.instance.readLatestStat(),
+      builder: (BuildContext context, AsyncSnapshot<Stat> snapshot) {
+//        print("CircularIndicator: " + snapshot.toString());
+        Widget widget;
+        if (snapshot.hasData) {
+          Stat stat = snapshot.data;
+          widget = Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 0),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
@@ -32,7 +29,6 @@ class CircleStatisticsIndicator extends StatelessWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.all(8.0),
                     children: <Widget>[
-                      
                       Text(
                         "progress".toUpperCase(),
                         textAlign: TextAlign.center,
@@ -42,20 +38,19 @@ class CircleStatisticsIndicator extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-
                       Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: CircularPercentIndicator(
                           radius: 155.0,
                           lineWidth: 8.0,
                           animation: true,
-                          percent: this.percentage,
+                          percent: (stat.learningCount != 0 && stat.trackingCount != 0) ? stat.learningCount / stat.trackingCount : 0,
                           center: Container(
                             padding: const EdgeInsets.all(38.0),
                             child: Column(
                               children: <Widget>[
                                 Text(
-                                  this.wordsLearnt.toString(),
+                                  stat.learningCount.toString(),
                                   style: TextStyle(
                                     fontSize: 35.0,
                                     fontWeight: FontWeight.bold,
@@ -73,7 +68,7 @@ class CircleStatisticsIndicator extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      "learned",
+                                      "learning",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 18.0,
@@ -93,20 +88,28 @@ class CircleStatisticsIndicator extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           RaisedButton(
-                            shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(40.0),),
-                            textColor: CustomTheme.WHITE,
-                            color: CustomTheme.GREEN,
-                            child: Text( 'More', style: TextStyle(fontSize: 14.0)),
-                            onPressed:(){
-                                //Do Something
-                            }
-                          ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40.0),
+                              ),
+                              textColor: CustomTheme.WHITE,
+                              color: CustomTheme.GREEN,
+                              child: Text('More',
+                                  style: TextStyle(fontSize: 14.0)),
+                              onPressed: () {
+                                Navigator.push(context, Router.AnimatedRoute(newWidget: new StatisticsPage()))  ;
+                              }),
                         ],
                       )
                     ],
                   ),
                 ),
-              )
-          );
+              ));
+        } else if (snapshot.hasError)
+          widget = new ErrorAlert("CircleStatistics");
+        else
+          widget = new LoadingIndicator();
+        return widget;
+      },
+    );
   }
 }
