@@ -1,5 +1,5 @@
 
-
+import 'package:toast/toast.dart';
 import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
 import 'package:vocab_app_fyp55/model/definition.dart';
 import 'package:vocab_app_fyp55/model/example.dart';
@@ -13,7 +13,7 @@ import 'package:flutter_tags/tag.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import 'package:vocab_app_fyp55/pages/VocabFormPage.dart';
-import 'package:vocab_app_fyp55/services/fetchdata_WordsAPI.dart';
+import 'package:vocab_app_fyp55/services/fetchdata_OxfordAPI.dart';
 import 'package:vocab_app_fyp55/services/fetchimage_Bing.dart';
 
 
@@ -76,7 +76,7 @@ class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderS
   Future<void> oneClickPrepare() async{
     try {
       for ( Vocab vocab in _readyVocabList ){
-        VocabBundle vb = await FetchDataWordsAPI.requestFromAPI(vocab.word);
+        VocabBundle vb = await FetchDataOxfordAPI.requestFromAPI(vocab.word);
         vocab.imageUrl = await FetchImage.requestImgURL(vocab.word);
         vocab.status = Status.learning;
         
@@ -86,8 +86,10 @@ class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderS
           var dB = vb.definitionsBundle[i];
           int did = await DatabaseProvider.instance.insertDefinition(new Definition(vid: vocab.vid, pos: dB.pos, defineText: dB.defineText ));
           await DatabaseProvider.instance.insertPronunciation( new Pronunciation( did: did));        
-          for ( int j = 0; j < dB.examplesBundle.length; j++ )
+          for ( int j = 0; j < dB.examplesBundle.length  ; j++ ){
+            if (j==3) break;
             await DatabaseProvider.instance.insertExample( new Example(did: did, sentence: dB.examplesBundle[j].sentence  ));
+          }
         }
         print(vb.word + " done");
       }
@@ -199,7 +201,9 @@ class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderS
                         color: CustomTheme.LIGHT_GREEN,
                         child: Text("One-Click Prepare"),
                         onPressed: () async { 
+                          Toast.show("Processing...", context);
                           await oneClickPrepare();
+                          Toast.show("Success!", context);
                           Navigator.of(context).pop();
                           setState(() { });
                         },

@@ -147,43 +147,36 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
   //build Definitions
   Widget _buildDefinition( DefinitionBundle vd ){
     return Column(children: <Widget>[
-        
         //Part Of Speech
-        /*
         Container
         (
           alignment: Alignment.topLeft,
           padding: EdgeInsets.fromLTRB(15, 10, 0, 0),
-          child: Text( vd.partOfSpeech , style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
+          child: Text( vd.pos , style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
         ),
-        */
-
        Container
         (
           alignment: Alignment.topLeft,
           padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
           child: new DefinitionBlock( header: "Meaning", body: vd.defineText ),                        
+        ),   
+        Container
+        (
+          alignment: Alignment.topLeft,
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child: new DefinitionBlock( header: "Example 1", body: (vd.examplesBundle.length > 0 ) ? vd.examplesBundle[0].sentence : "" , initiallyExpanded: false, ),                        
+        ),  
+        Container
+        (
+          alignment: Alignment.topLeft,
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child: new DefinitionBlock( header: "Example 2", body: (vd.examplesBundle.length > 1 ) ? vd.examplesBundle[1].sentence : "" , initiallyExpanded: false,),                        
         ),
-
         Container
         (
           alignment: Alignment.topLeft,
           padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new DefinitionBlock( header: "Example Sentence", body: vd.examplesBundle[0].sentence ),                        
-        ), 
-        
-        Container
-        (
-          alignment: Alignment.topLeft,
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new DefinitionBlock( header: "Synonyms", body: ""),                        
-        ),
-
-        Container
-        (
-          alignment: Alignment.topLeft,
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new DefinitionBlock( header: "Synonyms", body: ""),                        
+          child: new DefinitionBlock( header: "Example 3", body: (vd.examplesBundle.length > 2 ) ? vd.examplesBundle[2].sentence : "" , initiallyExpanded: false,),                        
         ),
     ],);
   }
@@ -260,7 +253,13 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                         topRight: Radius.circular(20),
                       )),
                       tabs: targetWord.definitionsBundle.isEmpty ? <Widget>[] :  targetWord.definitionsBundle.map((context){
-                        return Tab(
+                        //* if too many definitions
+                        if (targetWord.definitionsBundle.length > 5 ){
+                          return Tab (
+                            child: Text("*"),
+                          );
+                        }
+                        else return Tab(
                           child: Text("DEF", style: TextStyle(fontSize: 14),),
                         );
                       }).toList(),

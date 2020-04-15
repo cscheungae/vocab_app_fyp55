@@ -28,16 +28,16 @@ class VocabBundle
 
 
   // Constructor
-  VocabBundle({ vid, word, imageUrl, wordFreq, trackFreq, status, flashcardBundle, definitionsBundle })
+  VocabBundle({ this.vid, this.word, this.imageUrl, this.wordFreq, this.trackFreq, this.status, this.flashcardBundle, this.definitionsBundle })
   {
-    this.vid = vid ?? null;
-    this.word = word ?? "";
-    this.imageUrl = imageUrl ?? "";
-    this.wordFreq = wordFreq ?? null;
-    this.trackFreq = trackFreq ?? null;
-    this.status = status ?? null;
-    this.flashcardBundle = flashcardBundle ?? null;
-    this.definitionsBundle = definitionsBundle ?? null;
+    this.vid = this.vid ?? null;
+    this.word = this.word ?? "";
+    this.imageUrl = this.imageUrl ?? "";
+    this.wordFreq = this.wordFreq ?? null;
+    this.trackFreq = this.trackFreq ?? null;
+    this.status = this.status ?? null;
+    this.flashcardBundle = this.flashcardBundle ?? null;
+    this.definitionsBundle = this.definitionsBundle ?? null;
   }
 
   @override

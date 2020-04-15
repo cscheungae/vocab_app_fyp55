@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vocab_app_fyp55/pages/DebugPage.dart';
 import 'package:vocab_app_fyp55/pages/PrepareCardPage.dart';
+import 'package:vocab_app_fyp55/pages/QuizPage.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../components/NavigationBlock.dart';
 import '../components/CircleStatisticsIndicator.dart';
@@ -69,7 +70,6 @@ class _HomePageState extends State<HomePage>
                 },
               ),
             ),
-
             Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: GestureDetector(
@@ -89,17 +89,15 @@ class _HomePageState extends State<HomePage>
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: GestureDetector(
                 child: NavigationBlock(
-                  title: "Study",
+                  title: "Quiz",
                   body: "Want to test your skill? Challenge yourself here!",
                   colors: CustomTheme.GREEN_GRADIENT_COLORS,
                 ),
                 onTap:(){
-                  //Something
+                  Navigator.push(context, Router.AnimatedRoute(newWidget: new QuizPage()  ));
                 },
               ),
             ),
-
-
             //Debug Use only
             GestureDetector(
               onTap: (){
@@ -111,10 +109,6 @@ class _HomePageState extends State<HomePage>
                 child: Icon(Icons.alarm),
               ),
             ),
-
-
-
-
           ],
         ),
       ),

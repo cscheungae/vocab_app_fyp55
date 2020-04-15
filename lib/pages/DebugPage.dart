@@ -2,9 +2,11 @@
 /* This page is used for debug purpose only */
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
+import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
+import 'package:vocab_app_fyp55/services/fetchdata_OxfordAPI.dart';
 
 class DebugPage extends StatefulWidget {
   
@@ -85,6 +87,20 @@ class _DebugPage extends State<DebugPage>{
               }catch (exception){ debugPrint("DebugPage Error:\n" + exception.toString()); }
             },
           ),
+        ),
+
+        Text(" "),
+
+        RaisedButton(
+          textColor: Colors.white,
+          child: Text("Testing the Oxford API with word \"read\""),
+          onPressed: () async {
+            VocabBundle vb = await FetchDataOxfordAPI.requestFromAPI("read");
+            if (vb == null )
+              Toast.show("Ooch, it failed", context);
+            else Toast.show("success!", context);
+          },
+
         ),        
 
 
