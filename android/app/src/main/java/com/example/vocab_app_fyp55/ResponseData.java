@@ -5,9 +5,14 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import org.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import okhttp3.Response;
+
 
 //*
 // The class modelling the response from wordsAPI without specifying arguments.
@@ -67,11 +72,10 @@ import java.util.List;
 //
 //
 // */
-public class WordsAPIResponseData {
+public class ResponseData {
     public String word;
     public List <WordDefinitions> results;
     public HashMap<String,?> syllables;
-    public HashMap<String,?> pronunciation;
     public double frequency;//zipf
 
     public String getWord() {
@@ -98,14 +102,6 @@ public class WordsAPIResponseData {
         this.syllables = syllables;
     }
 
-    public HashMap<String, ?> getPronunciation() {
-        return pronunciation;
-    }
-
-    public void setPronunciation(HashMap<String, ?> pronunciation) {
-        this.pronunciation = pronunciation;
-    }
-
     public double getFrequency() {
         return frequency;
     }
@@ -125,6 +121,7 @@ public class WordsAPIResponseData {
         return "word: "+word+"\n"+definitions;
 
     }
+
 }
 
 
@@ -132,9 +129,8 @@ class WordDefinitions{
     private String definition;
     private String partOfSpeech;
     private List<String> typeof;
-    private List<String> hasTypes;
-    private List<String> derivation;
     private List<String> examples;
+    public HashMap<String,?> pronunciation;
 
     public String getDefinition() {
         return definition;
@@ -160,21 +156,6 @@ class WordDefinitions{
         this.typeof = typeof;
     }
 
-    public List<String> getHasTypes() {
-        return hasTypes;
-    }
-
-    public void setHasTypes(List<String> hasTypes) {
-        this.hasTypes = hasTypes;
-    }
-
-    public List<String> getDerivation() {
-        return derivation;
-    }
-
-    public void setDerivation(List<String> derivation) {
-        this.derivation = derivation;
-    }
 
     public List<String> getExamples() {
         return examples;
@@ -184,6 +165,9 @@ class WordDefinitions{
         this.examples = examples;
     }
 
+    public void setPronunciation(HashMap<String, ?> pronunciation) {
+        this.pronunciation = pronunciation;
+    }
 
     public String toString() {
         return  "definition: "+definition+"\n"+
