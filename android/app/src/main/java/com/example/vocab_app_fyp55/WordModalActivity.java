@@ -5,10 +5,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Choreographer;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,25 +19,33 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.room.Room;
 
 import Entities.Example;
+import Entities.User;
 import Entities.VocabBank;
 import Entities.VocabDefinitions;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import org.w3c.dom.Text;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static android.os.Build.VERSION_CODES.N;
 
 
 public class WordModalActivity extends Activity {
@@ -53,10 +60,13 @@ public class WordModalActivity extends Activity {
     private TextView examplesView;
     private Button trackButton,cancelButton;
 
+    private final int RESULT_NOT_AUTHORIZED=8888;
+
     //data and metadata
     private int page;
     private String word;
-    private WordsAPIResponseData rsp=null;
+    private ResponseData rsp=null;
+    private User user;
     /*
      * References:
      *
@@ -66,9 +76,6 @@ public class WordModalActivity extends Activity {
      */
 
     // Configuration of the api request link
-    private String baseUrl = "https://wordsapiv1.p.rapidapi.com/";
-    private String apiKey = "03c9331e71mshfe2c9a490b60397p1a8fc5jsn9cf06f851149";
-    private String host = "wordsapiv1.p.rapidapi.com";
 
     // Initialize a http client
     //private final OkHttpClient client = new OkHttpClient();
@@ -77,54 +84,46 @@ public class WordModalActivity extends Activity {
             .addNetworkInterceptor(new StethoInterceptor())
             .build();
 
-
-    VocabDB database;
+    //DB
+    private VocabDB database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.word_model_v2);
+        database = Room.databaseBuilder(getApplicationContext(),VocabDB.class,Config.DBName).createFromAsset(Config.DBName).build();
 
         word = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().trim().toLowerCase();
-        Log.d("DDDDD",word);
         LoadView();
 
-
-        database = Room.databaseBuilder(getApplicationContext(),VocabDB.class,"FYPVocabDB2.db").createFromAsset("FYPVocabDB.db").build();
-        createNotification();
-
-        trackButton.setOnClickListener((View view)->{
+        trackButton.setOnClickListener((View view) -> {
             try {
-                AccessSQLite task = new AccessSQLite();
-                VocabBank vocab = new VocabBank(word,null,0,(int) rsp.frequency);
-                VocabDefinitions   defs = new VocabDefinitions(posView.getText().toString(),definitionsView.getText().toString());
-                Example example = new Example(rsp.getResult(page).getExamples()!=null && !rsp.getResult(page).getExamples().isEmpty()
+                AddVocabTask task = new AddVocabTask();
+                VocabBank vocab = new VocabBank(word, null, 0, (int) rsp.frequency);
+                VocabDefinitions defs = new VocabDefinitions(posView.getText().toString(), definitionsView.getText().toString());
+                Example example = new Example(rsp.getResult(page).getExamples() != null && !rsp.getResult(page).getExamples().isEmpty()
                         ? rsp.getResult(page).getExamples().get(0)
-                        :"No example :(");
+                        : "No example :(");
 
-                HashMap<String,Object> vocabInfo = new HashMap<>();
-                vocabInfo.put("vocab",vocab);
-                vocabInfo.put("defs",defs);
-                vocabInfo.put("example",example);
+                HashMap<String, Object> vocabInfo = new HashMap<>();
+                vocabInfo.put("vocab", vocab);
+                vocabInfo.put("defs", defs);
+                vocabInfo.put("example", example);
                 //run background task.
                 Integer result = task.execute(vocabInfo).get();
 
 
-                Intent navToArticles= new Intent(getApplicationContext(), MainActivity.class);
+                Intent navToArticles = new Intent(getApplicationContext(), MainActivity.class);
                 navToArticles.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 navToArticles.setAction(Intent.ACTION_RUN);
-                navToArticles.putExtra("route","/articles");
+                navToArticles.putExtra("route", "/articles");
                 startActivity(navToArticles);
 
                 finish();
-            }
-            catch(ExecutionException e){
+            } catch (ExecutionException e) {
                 System.out.println("Execution Exception");
-            }
-            catch(InterruptedException e){
+            } catch (InterruptedException e) {
                 System.out.println("The thread got interrupted!");
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Exception occurred");
             }
@@ -132,31 +131,13 @@ public class WordModalActivity extends Activity {
         cancelButton.setOnClickListener((View view) -> {
             try {
                 finish();
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Exception occurred");
             }
 
         });
-
-
     }
-
-
-    private void createNotification(){
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "12h3k123")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Hi from Flutter")
-                .setContentText("This is a native notification lol")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(false);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-
-        notificationManager.notify(1, builder.build());
-    }
-
 
     @Override
     protected void onResume() {
@@ -166,6 +147,7 @@ public class WordModalActivity extends Activity {
     }
     //set the contents of the views in the background.To show the view you should use RenderViewWithPageNumber instead.
     private void LoadView(){
+        setContentView(R.layout.word_model_v2);
         buttonNav = (RelativeLayout) findViewById(R.id.navButtons);
         prevButton = (Button) findViewById(R.id.prevButton);
         nextButton = (Button) findViewById(R.id.nextButton);
@@ -179,23 +161,20 @@ public class WordModalActivity extends Activity {
         trackButton = (Button) findViewById(R.id.trackButton);
         cancelButton = (Button) findViewById(R.id.cancelButton);
     }
+
+    private void AskForLogin(){
+        Toast toast = Toast.makeText(getApplicationContext(),"Looks like you have not log in.",Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+    private void AskForAddingNewWords(){
+        Toast toast = Toast.makeText(getApplicationContext(),"Looks like the word is not found on the dictionary,Would you like to add this word?",Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
     //render the view.Eg,
-
-    private void RenderViewWithPageNumber(int i){
+    private void RenderViewWithPageNumber(int i) {
         findViewById(R.id.word_model_v2).setVisibility(View.VISIBLE);
-        //word model
-        /*
-        wordmodelView.setVisibility(View.VISIBLE);
-        nameView.setVisibility(View.VISIBLE);
-        posView.setVisibility(View.VISIBLE);
-        definitionsView.setVisibility(View.VISIBLE);
-        examplesView.setVisibility(View.VISIBLE);
-        trackButton.setVisibility(View.VISIBLE);
-        cancelButton.setVisibility(View.VISIBLE);
-
-        prevButton.setVisibility(View.VISIBLE);
-        nextButton.setVisibility(View.VISIBLE);
-        */
 
         //set content
         WordDefinitions model = rsp.getResult(i);
@@ -203,41 +182,40 @@ public class WordModalActivity extends Activity {
         nameView.setText(word);
         posView.setText(model.getPartOfSpeech());
 
-        if(model.getDefinition()!=null)
+        if (model.getDefinition() != null)
             definitionsView.setText(model.getDefinition());
-        if(model.getExamples()!=null)
-            examplesView.setText(model.getExamples().stream().reduce("",(sub,string)->sub+string+"\n"));
+        if (model.getExamples() != null)
+            examplesView.setText(model.getExamples().stream().reduce("", (sub, string) -> sub + string + "\n"));
 
         prevButton.setVisibility(View.VISIBLE);
         nextButton.setVisibility(View.VISIBLE);
 
-        prevButton.setOnClickListener((View view)->{
-            try{
+        prevButton.setOnClickListener((View view) -> {
+            try {
                 page--;
                 RenderViewWithPageNumber(page);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Navigating to data which is out of bounds.");
             }
         });
 
-        nextButton.setOnClickListener((View view)->{
-            try{
+        nextButton.setOnClickListener((View view) -> {
+            try {
                 page++;
                 RenderViewWithPageNumber(page);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Navigating to data which is out of bounds.");
             }
         });
 
-        if(i==0){
+        if (i == 0) {
             prevButton.setVisibility(View.INVISIBLE);
         }
-        if (i==rsp.getResults().size()-1){
+        if (i == rsp.getResults().size() - 1) {
             nextButton.setVisibility(View.INVISIBLE);
         }
-
 
 
     }
@@ -251,8 +229,13 @@ public class WordModalActivity extends Activity {
 
             if (code == RESULT_OK) {
                 return;
-            } else {
-                Toast.makeText(getApplicationContext(), "Failed uploading. Code: RESULT_CANCELED", Toast.LENGTH_SHORT).show();
+            }
+            else if (code==RESULT_NOT_AUTHORIZED){
+                AskForLogin();
+                finish();
+            }
+            else {
+                AskForAddingNewWords();
                 finish();
             }
         } catch (TimeoutException ex) {
@@ -268,28 +251,52 @@ public class WordModalActivity extends Activity {
     }
 
     protected void onDestroy() {
-        //Toast.makeText(getApplicationContext(), "Finished uploading. You can proceed reading.", Toast.LENGTH_SHORT).show();
         super.onDestroy();
+        if(database.isOpen())
+            database.close();
     }
-
+    //Build the request body and call it to get the result of the word we are interested.
+    /*
+    returns: RESULT_NOT_AUTHORIZED if the user has not logged in yet.
+             RESULT_CANCELLED if the word is not recognized by the service provider.
+             RESULT_SUCCESS if found.
+    */
     private class CheckDictTask extends AsyncTask<String, Void, Integer> {
-        // Do the long-running work in here
+
 
         protected Integer doInBackground(String... word) {
+            List<User> userList = database.UserDao().getUser();
+            if(userList.isEmpty())
+                return RESULT_NOT_AUTHORIZED;
+            user = database.UserDao().getUser().get(0);
+
+            RequestBody body = new FormBody.Builder()
+                    .add("uid",user.uid.toString())
+                    .add("password",user.password)
+                    .build();
+
+            HttpUrl.Builder url = HttpUrl.parse(Config.serverIP+"/ext/api/vocab").newBuilder();
+            if(url==null){ //server is not open or the port is dead
+                return RESULT_CANCELED;
+            }
+            url.addQueryParameter("word",word[0])
+                .addQueryParameter("region",user.region);
+
+
             Request request = new Request.Builder()
-                    .url(baseUrl + "words/" + word[0] )
-                    .header("X-RapidAPI-Host", host)
-                    .addHeader("X-RapidAPI-Key", apiKey)
+                    .url(url.build())
+                    .post(body)
                     .build();
 
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                //WIP: change the implementation of response data
+                ResponseDataJSONDeserializer deserializer = (ResponseDataJSONDeserializer) ResponseDataJSONDeserializer.getDeserializer();
+                Gson gson = new GsonBuilder().registerTypeAdapter(ResponseData.class,deserializer).create();
 
-                rsp = new Gson().fromJson(response.body().string(),WordsAPIResponseData.class);
-                System.out.println(rsp);
+                rsp = gson.fromJson(response.body().string(),ResponseData.class);
                 page = 0;
                 RenderViewWithPageNumber(page);
-
                 return RESULT_OK;
 
             } catch (IOException ex) {
@@ -299,7 +306,7 @@ public class WordModalActivity extends Activity {
         }
     }
 
-    private class AccessSQLite extends AsyncTask<HashMap<String,?>,Void,Integer>{
+    private class AddVocabTask extends AsyncTask<HashMap<String,?>,Void,Integer>{
 
 
         @Override
@@ -329,8 +336,7 @@ public class WordModalActivity extends Activity {
                 Log.e("DBException","DB access error...");
                 return RESULT_CANCELED;
             }finally{
-                if(database.isOpen())
-                    database.close();
+
             }
         }
         //where you will update UI after the async task is complete

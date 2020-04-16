@@ -17,11 +17,13 @@ import Converters.TimestampConverter;
 import Dao.ExampleDao;
 import Dao.PronunciationDao;
 import Dao.StatisticsDao;
+import Dao.UserDao;
 import Dao.VocabDao;
 import Dao.VocabDefinitionsDao;
 import Entities.Example;
 import Entities.Pronunciation;
 import Entities.Statistics;
+import Entities.User;
 import Entities.VocabBank;
 import Entities.VocabDefinitions;
 
@@ -41,19 +43,19 @@ public class VocabDataBase{
         }
     }
     public static VocabDB getInstance(){
-        assert database!=null;
-        return database;
+            return database;
     }
 
 }
 
 
-@Database(entities = {VocabBank.class, VocabDefinitions.class, Example.class, Statistics.class, Pronunciation.class}, version = 1, exportSchema = false)
+@Database(entities = {VocabBank.class, VocabDefinitions.class, Example.class, Statistics.class, Pronunciation.class, User.class}, version = 1, exportSchema = false)
 @TypeConverters({TimestampConverter.class})
 abstract class VocabDB extends RoomDatabase {
     public abstract VocabDao VocabDao();
     public abstract VocabDefinitionsDao VocabDefinitionsDao();
     public abstract ExampleDao ExampleDao();
+    public abstract UserDao UserDao();
     public abstract PronunciationDao PronunciationDao();
     public abstract StatisticsDao StatisticsDao();
 
