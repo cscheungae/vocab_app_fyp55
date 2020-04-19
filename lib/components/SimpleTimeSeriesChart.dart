@@ -93,7 +93,7 @@ class _SimpleTimeSeriesChartState extends State<SimpleTimeSeriesChart> {
         Widget widget;
         if (snapshot.hasData) {
           widget = Card(
-//            color: Colors.black,
+//            color: Color.fromRGBO(50, 50, 50, .98),
             elevation: 8.0,
             child: Container(
               padding: EdgeInsets.fromLTRB(10,20,10,10),
@@ -108,8 +108,8 @@ class _SimpleTimeSeriesChartState extends State<SimpleTimeSeriesChart> {
                         domainAxis: new charts.DateTimeAxisSpec(
                           renderSpec: new charts.SmallTickRendererSpec(
                               labelStyle: new charts.TextStyleSpec(
-                                  color: charts.MaterialPalette.white)
-                          )
+                                  color: charts.MaterialPalette.white),
+                          ),
                         ),
                       primaryMeasureAxis: new charts.NumericAxisSpec(
                           renderSpec: new charts.SmallTickRendererSpec(
@@ -125,21 +125,46 @@ class _SimpleTimeSeriesChartState extends State<SimpleTimeSeriesChart> {
                         )
                       ],
                       behaviors: [
-                        new charts.SeriesLegend(),
+                        new charts.SeriesLegend(
+                          desiredMaxRows: 2,
+                          entryTextStyle: charts.TextStyleSpec(
+//                              color: charts.Color(r: 80, g: 80, b: 80),
+                              fontSize: 14),
+                        ),
+                        new charts.ChartTitle('Time',
+                            titleStyleSpec: new charts.TextStyleSpec(
+                              fontSize: 16,
+                              color: charts.MaterialPalette.white,
+                            ),
+                            behaviorPosition: charts.BehaviorPosition.bottom,
+                            titleOutsideJustification:
+                            charts.OutsideJustification.middleDrawArea),
+                        new charts.ChartTitle('Count',
+                            titleStyleSpec: new charts.TextStyleSpec(
+                              fontSize: 14,
+                              color: charts.MaterialPalette.white
+                            ),
+                            behaviorPosition: charts.BehaviorPosition.start,
+                            titleOutsideJustification:
+                            charts.OutsideJustification.middleDrawArea),
                       ],
                     ),
                   ),
                   Flexible(
                     flex: 0,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 6, 0, 3),
-                      child: _time != null ? Text('${_time.day.toString()}-${_time.month.toString()}-${_time.year.toString()}'): Text(""),
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+                      child: _time != null ? Text('${_time.day.toString()}-${_time.month.toString()}-${_time.year.toString()}', style: TextStyle(color: Colors.white70),): Text(""),
                     ),
                   ),
                   Flexible(
                     flex: 0,
-                    child: Column(
-                      children: _measures != null ? _measures.entries.map((entry) => new Text('${entry.key}: ${entry.value}')).toList() : [],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _measures != null ? _measures.entries.map((entry) => Padding(
+                        padding: const EdgeInsets.fromLTRB(4,0,4,0),
+                        child: new Text('${entry.key}: ${entry.value}', style: TextStyle(color: Colors.white70),),
+                      )).toList() : [],
                     ),
                   ),
                 ],
