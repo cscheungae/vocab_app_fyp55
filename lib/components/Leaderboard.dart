@@ -8,6 +8,7 @@ import 'package:vocab_app_fyp55/model/stat.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/services/FetchStats.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 
 class Leaderboard extends StatefulWidget {
   @override
@@ -47,7 +48,8 @@ class _LeaderboardState extends State<Leaderboard> {
 
 
   Future<void> syncServerStat({int uid}) async {
-    Stat stat = await Provider.of<DatabaseNotifier>(context, listen: false).dbHelper.readLatestStat();
+    Stat stat = await DatabaseProvider.instance.readLatestStat();
+    print("syncServerStat - latestStat: " + stat.toString());
     if(stat != null) {
       await FetchStats.pushStats(uid: uid, sid: stat.sid, logDate: stat.logDate, learningCount: stat.learningCount, matureCount: stat.maturedCount, trackingCount: stat.trackingCount);
     }
@@ -60,7 +62,7 @@ class _LeaderboardState extends State<Leaderboard> {
         future: statsList,
         builder: (BuildContext context,
             AsyncSnapshot<List<StatResponse>> snapshot) {
-//          print("snapshot: " + snapshot.toString());
+          print("Leaderboard: " + snapshot.toString());
           Widget widget;
           if (snapshot.hasData) {
 //            print("hasData");
