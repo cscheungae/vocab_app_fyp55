@@ -14,7 +14,6 @@ class StatisticsPage extends StatefulWidget {
 
 class _StatisticsPage extends State<StatisticsPage>
     with SingleTickerProviderStateMixin {
-
   /// Tabs
   final List<Tab> tabs = <Tab>[
     Tab(
@@ -24,7 +23,6 @@ class _StatisticsPage extends State<StatisticsPage>
       text: 'Leaderboard',
     ),
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +41,7 @@ class _StatisticsPage extends State<StatisticsPage>
               padding: const EdgeInsets.all(25.0),
               child: SimpleTimeSeriesChart(),
             ),
-            Leaderboard()
+            SingleChildScrollView(child: Leaderboard())
           ],
         ),
       ),

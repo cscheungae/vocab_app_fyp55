@@ -32,12 +32,14 @@ class _LeaderboardState extends State<Leaderboard> {
 
   @override
   void initState() {
-    print("Stat initState()");
-    super.initState();
     getCurrentUser().then((user) {
       currentUser = user;
-      syncServerStat(uid: user.uid).whenComplete(() => statsList = initStatsList(sortByParams: this.sortByParams));
+      syncServerStat(uid: user.uid).whenComplete(() => {
+        setState(() {
+          statsList = initStatsList(sortByParams: this.sortByParams);
+        })});
     });
+    super.initState();
   }
 
   Future<User> getCurrentUser() async {
@@ -49,7 +51,6 @@ class _LeaderboardState extends State<Leaderboard> {
 
   Future<void> syncServerStat({int uid}) async {
     Stat stat = await DatabaseProvider.instance.readLatestStat();
-    print("syncServerStat - latestStat: " + stat.toString());
     if(stat != null) {
       await FetchStats.pushStats(uid: uid, sid: stat.sid, logDate: stat.logDate, learningCount: stat.learningCount, matureCount: stat.maturedCount, trackingCount: stat.trackingCount);
     }
@@ -62,10 +63,8 @@ class _LeaderboardState extends State<Leaderboard> {
         future: statsList,
         builder: (BuildContext context,
             AsyncSnapshot<List<StatResponse>> snapshot) {
-          print("Leaderboard: " + snapshot.toString());
           Widget widget;
           if (snapshot.hasData) {
-//            print("hasData");
             /// flutter table
             List<DataRow> dataRows = [];
             snapshot.data.forEach((StatResponse statResponse) {

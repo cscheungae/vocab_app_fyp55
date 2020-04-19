@@ -53,7 +53,6 @@ class _LeaderBoardPage extends State<LeaderBoardPage> with SingleTickerProviderS
   @override
   Widget build(BuildContext context){
     return new Scaffold(
-
       appBar: AppBar(
         title: Text("Statistics"),
       ),
