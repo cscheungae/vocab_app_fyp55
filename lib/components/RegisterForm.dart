@@ -55,10 +55,11 @@ class _RegisterFormState extends State<RegisterForm> {
           SizedBox(
             width: double.infinity,
             child: RaisedButton(
+              color: Theme.of(context).accentColor,
               onPressed: () async {
                 if (_formKey.currentState.validate()) {
                   Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text('Processing ... ')));
+                      SnackBar(content: Text('Updating your settings')));
                   // TODO:: call the middleware api to register
                   try {
                     Map<String, String> headers = {

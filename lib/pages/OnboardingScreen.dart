@@ -301,7 +301,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     ),
                                     SizedBox(height: 15.0),
                                     Text(
-                                      'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt ut labore et.',
+                                      'All the settings have been set up. Enjoy your vocabulary learning journey.',
                                       style: kSubtitleStyle,
                                     ),
                                   ],

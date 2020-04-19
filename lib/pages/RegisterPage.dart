@@ -13,7 +13,7 @@ class RegisterPage extends StatelessWidget {
           children: <Widget>[
             Center(
               child: Image(
-                image: AssetImage('assets/FlutterIcon.png'),
+                image: AssetImage('assets/logo_green.png'),
                 height: 150.0,
                 width: 150.0,
               ),
