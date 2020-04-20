@@ -44,7 +44,7 @@ class CircleStatisticsIndicator extends StatelessWidget {
                           radius: 155.0,
                           lineWidth: 8.0,
                           animation: true,
-                          percent: (stat.learningCount != 0 && stat.trackingCount != 0) ? stat.learningCount / stat.trackingCount : 0,
+                          percent: (stat.learningCount != 0 && stat.trackingCount != 0) ? stat.learningCount / (stat.learningCount + stat.trackingCount) : 0,
                           center: Container(
                             padding: const EdgeInsets.all(38.0),
                             child: Column(

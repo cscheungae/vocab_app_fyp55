@@ -623,7 +623,7 @@ class DatabaseProvider {
         : null;
   }
 
-  Future<List<Flashcard>> getStudyFlashcards(int quantity) async {
+  Future<List<Flashcard>> getStudyFlashcards(int quantity, {bool obtainOverdueItem = true}) async {
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
@@ -638,13 +638,24 @@ class DatabaseProvider {
         WHERE overdue > 2
         ''');
       // TODO:: rank the flashcard table by descending overdue order
-      response = await db.rawQuery('''
+      /// obtainOverdueItem is true, it means it will only consider the flashcards that are overdue w.r.t. to daysBetweenReview
+      if(obtainOverdueItem == true) {
+        response = await db.rawQuery('''
         SELECT * 
         FROM $flashcardTableName
         WHERE strftime('%s','now', 'localtime') - strftime('%s', dateLastReviewed) > strftime('%s', daysBetweenReview)
         ORDER BY overdue DESC
         LIMIT $quantity
         ''');
+      } else {
+        response = await db.rawQuery('''
+        SELECT * 
+        FROM $flashcardTableName
+        ORDER BY overdue DESC
+        LIMIT $quantity
+        ''');
+      }
+
     } catch (e) {
       debugPrint(e.toString() + " failure in getStudyFlashcards");
       response = null;
@@ -654,16 +665,18 @@ class DatabaseProvider {
         : null;
   }
 
-  Future<List<VocabBundle>> getStudyVocabs(int quantity) async {
-    List<VocabBundle> response = [];
+  Future<List<Vocab>> getStudyVocabs(int quantity, {bool obtainOverdueItem = true}) async {
+    List<Vocab> response = [];
     try {
       // TODO:: call the getStudyFlashcards which return a set of Flashcard
-      List<Flashcard> flashcards = await getStudyFlashcards(quantity);
+      List<Flashcard> flashcards = await getStudyFlashcards(quantity, obtainOverdueItem: obtainOverdueItem);
       // TODO:: by looping through the set of flashcards, get its vocabBundle and attach the the response
-      await Future.forEach(flashcards, (flashcard) async {
-        VocabBundle vocab = await readVocabBundle(flashcard.vid);
-        response.add(vocab);
-      });
+      if(flashcards.isNotEmpty) {
+        await Future.forEach(flashcards, (flashcard) async {
+          Vocab vocab = await readVocab(flashcard.vid);
+          response.add(vocab);
+        });
+      }
     } catch (e) {
       debugPrint(e.toString());
     }

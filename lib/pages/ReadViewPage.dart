@@ -79,7 +79,7 @@ class _ReadViewPageState extends State<ReadViewPage>
   Future<List<WordnikResponse>> initWordnikResponseList() async {
     if(wordnikResponsesList == null) {
       // TODO::get the user readyvocab - bil
-      List<VocabBundle> vocabs = await DatabaseProvider.instance.getStudyVocabs(7);
+      List<Vocab> vocabs = await DatabaseProvider.instance.getStudyVocabs(7, obtainOverdueItem: false);
       if(vocabs == null) return null;
       List<String> requestedWords = vocabs.map((vocab) => vocab.word).toList();
       wordnikResponsesList = await FetchSentences.requestAPIData(words: requestedWords);
@@ -135,8 +135,13 @@ class _ReadViewPageState extends State<ReadViewPage>
                   return CustomExpansionTile(wordnikResponse: wordnikResponsesList[position]);
                 }
             );
-          } else if(snapshot.hasError) widget = new ErrorAlert("Sentences");
-          else widget = new ErrorAlert("Sentences Not Available");
+          }
+          else if(snapshot.hasError) {
+            // REMOVE: DEBUG PRINT
+            // print(snapshot.error.toString());
+            widget = new ErrorAlert("Sentences");
+          }
+          else widget = new ErrorAlert("notAvail");
         }
           else widget = new LoadingIndicator();
         return widget;
