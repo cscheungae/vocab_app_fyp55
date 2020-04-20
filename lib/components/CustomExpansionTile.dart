@@ -44,9 +44,21 @@ class CustomExpansionTile extends StatelessWidget {
                       children: <Widget>[
                         Flexible(
                           flex: 3,
-                          child: Text(
-                            hyperSentence.text,
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                          child: RichText(
+                            text: TextSpan(
+                              text: hyperSentence.text.substring(0, hyperSentence.text.indexOf(wordnikResponse.word)),
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                              children: [
+                                TextSpan(
+                                    text: hyperSentence.text.substring(hyperSentence.text.indexOf(wordnikResponse.word), hyperSentence.text.indexOf(wordnikResponse.word) + wordnikResponse.word.length),
+                                    style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 16, fontStyle: FontStyle.italic),
+                                ),
+                                TextSpan(
+                                  text: hyperSentence.text.substring(hyperSentence.text.indexOf(wordnikResponse.word) + wordnikResponse.word.length),
+                                  style: TextStyle(fontSize: 16, color: Colors.black),
+                                ),
+                              ]
+                            )
                           ),
                         ),
                         Flexible(
