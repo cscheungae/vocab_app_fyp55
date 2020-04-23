@@ -39,39 +39,41 @@ public class ResponseDataJSONDeserializer implements JsonDeserializer<ResponseDa
             rsp.forEach(result -> {
 
                 JsonArray LexicalEntries = result.getAsJsonObject().getAsJsonArray("lexicalEntries");
-                LexicalEntries.forEach((LexicalEntry) -> {
-                    HashMap<String, String> hmap = new HashMap<String,String>();
-                    JsonObject pronunciation = LexicalEntry.getAsJsonObject().getAsJsonArray("pronunciations").get(0).getAsJsonObject();
-                    if(pronunciation!=null) {
-                        hmap.put("audioUrl", pronunciation.get("audioFile").getAsString());
-                        hmap.put("ipa", pronunciation.get("phoneticSpelling").getAsString());
-                    }
-                    //Part of speech
-                    String pos = LexicalEntry.getAsJsonObject().get("lexicalCategory").getAsJsonObject().get("text").getAsString();
+                if(LexicalEntries!=null) {
+                    LexicalEntries.forEach((LexicalEntry) -> {
+                        HashMap<String, String> hmap = new HashMap<String, String>();
+                        JsonObject pronunciation = LexicalEntry.getAsJsonObject().getAsJsonArray("pronunciations").get(0).getAsJsonObject();
+                        if (pronunciation != null) {
+                            hmap.put("audioUrl", pronunciation.get("audioFile").getAsString());
+                            hmap.put("ipa", pronunciation.get("phoneticSpelling").getAsString());
+                        }
+                        //Part of speech
+                        String pos = LexicalEntry.getAsJsonObject().get("lexicalCategory").getAsJsonObject().get("text").getAsString();
 
-                    JsonArray entries = LexicalEntry.getAsJsonObject().getAsJsonArray("entries");
+                        JsonArray entries = LexicalEntry.getAsJsonObject().getAsJsonArray("entries");
+                        if(entries!=null) {
+                            entries.forEach(entry -> {
+                                WordDefinitions def = new WordDefinitions();
+                                def.setPartOfSpeech(pos);
 
-                    entries.forEach(entry -> {
-                        WordDefinitions def = new WordDefinitions();
-                        def.setPartOfSpeech(pos);
 
+                                if (hmap != null)
+                                    def.setPronunciation(hmap);
 
-                        if(hmap!=null)
-                            def.setPronunciation(hmap);
-
-                        JsonArray senses = entry.getAsJsonObject().getAsJsonArray("senses");
-                        senses.forEach(sense -> {
-                            def.setDefinition(sense.getAsJsonObject().getAsJsonArray("definitions").get(0).getAsString());
-                            List<String> examples = new ArrayList<String>();
-                            sense.getAsJsonObject().getAsJsonArray("examples").forEach(example -> {
-                                examples.add(example.getAsJsonObject().get("text").getAsString());
+                                JsonArray senses = entry.getAsJsonObject().getAsJsonArray("senses");
+                                senses.forEach(sense -> {
+                                    def.setDefinition(sense.getAsJsonObject().getAsJsonArray("definitions").get(0).getAsString());
+                                    List<String> examples = new ArrayList<String>();
+                                    sense.getAsJsonObject().getAsJsonArray("examples").forEach(example -> {
+                                        examples.add(example.getAsJsonObject().get("text").getAsString());
+                                    });
+                                    def.setExamples(examples);
+                                });
+                                defs.add(def);
                             });
-                            def.setExamples(examples);
-                        });
-                        defs.add(def);
+                        }
                     });
-                });
-
+                }
             });
 
             return results;
