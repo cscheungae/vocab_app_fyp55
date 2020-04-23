@@ -50,10 +50,14 @@ class _VocabDetailsPageView extends State<VocabDetailsPageView>
 
   Future<List<VocabBundle>> initVocabBundleList() async {
     this.vocabBundlesList = [];
-    for ( int i = 0; i < widget._vocabList.length; i++ ){
-      VocabBundle vb = await DatabaseProvider.instance.readVocabBundle( widget._vocabList[i].vid );
-      this.vocabBundlesList.add(vb);
+    
+    if (widget._vocabList != null ){
+      for ( int i = 0; i < widget._vocabList.length; i++ ){
+        VocabBundle vb = await DatabaseProvider.instance.readVocabBundle( widget._vocabList[i].vid );
+        this.vocabBundlesList.add(vb);
+      }
     }
+    
     return this.vocabBundlesList;
   }
 

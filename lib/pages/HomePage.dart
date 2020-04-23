@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage>
             */
             
 
-            /*
+            
             //Debug Use only
             GestureDetector(
               onTap: (){
@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage>
                 child: Icon(Icons.alarm),
               ),
             ),
-            */
+            
           ],
         ),
       ),

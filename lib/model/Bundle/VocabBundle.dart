@@ -21,7 +21,7 @@ class VocabBundle
   Widget getImage(){
     return new CachedNetworkImage(
       imageUrl: imageUrl,
-      placeholder: (context, url) => Image( image: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover,),
+      placeholder: (context, url) => Image( image: AssetImage("assets/initialAddVocab.jpg"), fit: BoxFit.cover,),
       fit: BoxFit.cover,
     );
   }

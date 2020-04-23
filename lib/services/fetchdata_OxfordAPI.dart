@@ -57,7 +57,7 @@ class FetchDataOxfordAPI {
     final String query = "word=" + word.toLowerCase() + "&" + "region=" + "gb";
 
     try {
-      var returnedResponse = await http.get( apiAdress + query );
+      var returnedResponse = await http.post( apiAdress + query );
       if (returnedResponse.statusCode == 200 ){
         FetchDataOxfordAPI fd = FetchDataOxfordAPI.fromJson(json.decode(returnedResponse.body));
         return fd._vb;

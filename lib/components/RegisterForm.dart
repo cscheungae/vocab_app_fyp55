@@ -65,6 +65,7 @@ class _RegisterFormState extends State<RegisterForm> {
                     Map<String, String> headers = {
                       'Content-type': 'application/json'
                     };
+                    print(AddressMiddleWare.address + '/user/reg');
                     http.Response response = await http.post(
                         AddressMiddleWare.address + '/user/reg',
                         headers: headers,

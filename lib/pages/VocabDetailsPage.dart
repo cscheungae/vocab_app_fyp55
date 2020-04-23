@@ -36,7 +36,8 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
   @override
   void initState(){ 
     super.initState(); 
-    _defTabController =  TabController(length: targetWord.definitionsBundle.length, vsync: this );
+    int deflength = ( targetWord.definitionsBundle != null ) ? targetWord.definitionsBundle.length : 0;
+    _defTabController =  TabController(length: deflength, vsync: this );
     _defTabController.addListener((){ 
       if (_defTabController.indexIsChanging){ setState(() {
         defIndex = _defTabController.index;
