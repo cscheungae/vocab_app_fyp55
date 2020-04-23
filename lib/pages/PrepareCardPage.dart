@@ -146,7 +146,9 @@ class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderS
                     child: Column(children: <Widget>[
                       Container(
                         padding: EdgeInsets.all(10.0),
-                        child: Icon(Icons.hourglass_empty),
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: Image(image: AssetImage("assets/empty.png"), fit: BoxFit.contain, ),
                       ),
                       Text("Currently, there is no word ready for perparing flashcard"),
                     ],),

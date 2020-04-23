@@ -157,7 +157,9 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
                   child: Column(children: <Widget>[
                     Container(
                       padding: EdgeInsets.all(10.0),
-                      child: Icon(Icons.hourglass_empty),
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: Image(image: AssetImage("assets/empty.png"), fit: BoxFit.contain, ),
                     ),
                     Text("It seems like you have all flashcards revised! Great job!!"),
                   ],),
@@ -247,26 +249,26 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
           (
             alignment: Alignment.topLeft,
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: new DefinitionBlock( header: "Meaning", body: context.defineText, initiallyExpanded: false, ),                        
+            child: new DefinitionBlock( header: "Meaning", body: context.defineText ?? "", initiallyExpanded: false, ),                        
           ),
-          Container
+          (context.examplesBundle.length > 0 ) ? Container
           (
             alignment: Alignment.topLeft,
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: new DefinitionBlock( header: "Example 1", body: (context.examplesBundle.length > 0 ) ? context.examplesBundle[0].sentence : "" , initiallyExpanded: false, ),                        
-          ),  
-          Container
+            child: new DefinitionBlock( header: "Example 1", body:  context.examplesBundle[0].sentence, initiallyExpanded: false, ),                        
+          ) : Container(),  
+          (context.examplesBundle.length > 1 ) ? Container
           (
             alignment: Alignment.topLeft,
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: new DefinitionBlock( header: "Example 2", body: (context.examplesBundle.length > 1 ) ? context.examplesBundle[1].sentence : "" , initiallyExpanded: false,),                        
-          ),
-          Container
+            child: new DefinitionBlock( header: "Example 2", body: context.examplesBundle[1].sentence, initiallyExpanded: false,),                        
+          ) : Container(),
+          (context.examplesBundle.length > 2 ) ? Container
           (
             alignment: Alignment.topLeft,
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: new DefinitionBlock( header: "Example 3", body: (context.examplesBundle.length > 2 ) ? context.examplesBundle[2].sentence : "" , initiallyExpanded: false,),                        
-          ),
+            child: new DefinitionBlock( header: "Example 3", body: context.examplesBundle[2].sentence, initiallyExpanded: false,),                        
+          ): Container() ,
         ],
       );
     }).toList();

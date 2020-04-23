@@ -58,7 +58,7 @@ class _CustomVocabCard extends State<CustomVocabCard>
   Widget getImage(Vocab vocab){
     return new CachedNetworkImage(
       imageUrl: vocab.imageUrl,
-      placeholder: (context, url) => Image( image: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover,),
+      placeholder: (context, url) => Image( image: AssetImage("assets/initialAddVocab.png"), fit: BoxFit.cover,),
       fit: BoxFit.cover,
     );
   }

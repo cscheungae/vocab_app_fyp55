@@ -66,6 +66,10 @@ flutter:
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
   assets:
+    - assets/bug.png
+    - assets/empty.png
+    - assets/gettingStarted.png
+    - assets/threshold.png
     - assets/FlutterLogo.png
     - assets/initialAddVocab.jpg  # - source: https://www.flickr.com/photos/abee5/8314929977
     - assets/images/

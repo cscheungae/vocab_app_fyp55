@@ -76,3 +76,4 @@
 **/lib/services/AddressMiddleWare.dart
 **/lib/services/APIKey.dart
 **/android/app/src/main/java/com/example/vocab_app_fyp55/Config.java
+android/app/src/main/java/com/example/Config.java

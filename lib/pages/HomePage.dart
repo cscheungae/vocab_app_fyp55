@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vocab_app_fyp55/pages/DebugPage.dart';
 import 'package:vocab_app_fyp55/pages/PrepareCardPage.dart';
+import 'package:vocab_app_fyp55/pages/DebugPage.dart';
 import 'package:vocab_app_fyp55/pages/QuizPage.dart';
 import '../res/theme.dart' as CustomTheme;
 import '../components/NavigationBlock.dart';
@@ -85,6 +85,8 @@ class _HomePageState extends State<HomePage>
               ),
             ),
 
+            /*
+
             Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
               child: GestureDetector(
@@ -98,6 +100,10 @@ class _HomePageState extends State<HomePage>
                 },
               ),
             ),
+            */
+            
+
+            /*
             //Debug Use only
             GestureDetector(
               onTap: (){
@@ -109,6 +115,7 @@ class _HomePageState extends State<HomePage>
                 child: Icon(Icons.alarm),
               ),
             ),
+            */
           ],
         ),
       ),

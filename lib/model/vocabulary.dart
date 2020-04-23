@@ -43,7 +43,7 @@ class vocabulary
   Widget getImage(){
     return new CachedNetworkImage(
       imageUrl: _imageURL,
-      placeholder: (context, url) => Image( image: AssetImage("assets/FlutterLogo.png"), fit: BoxFit.cover,),
+      placeholder: (context, url) => Image( image: AssetImage("assets/initialAddVocab.png"), fit: BoxFit.cover,),
       fit: BoxFit.cover,
     );
   }
