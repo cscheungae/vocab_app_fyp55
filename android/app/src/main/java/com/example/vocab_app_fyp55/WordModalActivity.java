@@ -19,6 +19,8 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.room.Room;
 
 import Entities.Example;
+import Entities.Pronunciation;
+import Entities.Statistics;
 import Entities.User;
 import Entities.VocabBank;
 import Entities.VocabDefinitions;
@@ -27,6 +29,8 @@ import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,6 +69,7 @@ public class WordModalActivity extends Activity {
     //data and metadata
     private int page;
     private String word;
+    private Long zipf;
     private ResponseData rsp=null;
     private User user;
     /*
@@ -95,22 +100,48 @@ public class WordModalActivity extends Activity {
         word = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().trim().toLowerCase();
         LoadView();
 
+
         trackButton.setOnClickListener((View view) -> {
             try {
-                AddVocabTask task = new AddVocabTask();
-                VocabBank vocab = new VocabBank(word, null, 0, (int) rsp.frequency);
+
+                VocabBank vocab = new VocabBank(word, null, zipf.intValue(), 1);
                 VocabDefinitions defs = new VocabDefinitions(posView.getText().toString(), definitionsView.getText().toString());
-                Example example = new Example(rsp.getResult(page).getExamples() != null && !rsp.getResult(page).getExamples().isEmpty()
-                        ? rsp.getResult(page).getExamples().get(0)
-                        : "No example :(");
+                Example example0 = null;
+                Example example1 = null;
+                Example example2 = null;
+                Pronunciation pronunciation1 = null;
+                List<String> examples = rsp.getResult(page).getExamples();
+                if(!examples.isEmpty()) {
+                    example0 = new Example(rsp.getResults().get(page).getExamples().get(0));
+                    if(examples.size()>1)
+                        example1 = new Example(rsp.getResults().get(page).getExamples().get(1));
+                    if(examples.size()>2)
+                        example2 = new Example(rsp.getResults().get(page).getExamples().get(2));
+
+                }
+                HashMap<String,?> pronunciation = rsp.getResult(page).getPronunciation();
+                if(pronunciation!=null) {
+                    pronunciation1 = new Pronunciation(pronunciation.get("ipa").toString(), pronunciation.get("audioUrl").toString());
+                }
 
                 HashMap<String, Object> vocabInfo = new HashMap<>();
                 vocabInfo.put("vocab", vocab);
                 vocabInfo.put("defs", defs);
-                vocabInfo.put("example", example);
+                if(example0!=null)
+                    vocabInfo.put("example0", example0);
+                if(example1!=null)
+                    vocabInfo.put("example1", example1);
+                if(example2!=null)
+                    vocabInfo.put("example2", example2);
+                if(pronunciation1!=null){
+                    vocabInfo.put("pronunciation",pronunciation1);
+                }
                 //run background task.
-                Integer result = task.execute(vocabInfo).get();
-
+                Integer result = new AddVocabTask().execute(vocabInfo).get();
+                if(result==RESULT_CANCELED){
+                    AskForRetry("Something wrong happened.Please retry");
+                    return;
+                }
 
                 Intent navToArticles = new Intent(getApplicationContext(), MainActivity.class);
                 navToArticles.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -121,6 +152,7 @@ public class WordModalActivity extends Activity {
                 finish();
             } catch (ExecutionException e) {
                 System.out.println("Execution Exception");
+                
             } catch (InterruptedException e) {
                 System.out.println("The thread got interrupted!");
             } catch (Exception e) {
@@ -169,6 +201,11 @@ public class WordModalActivity extends Activity {
 
     private void AskForAddingNewWords(){
         Toast toast = Toast.makeText(getApplicationContext(),"Looks like the word is not found on the dictionary,Would you like to add this word?",Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    private void AskForRetry(String message){
+        Toast toast = Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG);
         toast.show();
     }
 
@@ -226,9 +263,14 @@ public class WordModalActivity extends Activity {
         // call the worker to check the dictionary and upload the word
         try {
             Integer code = new CheckDictTask().execute(word).get(10000, TimeUnit.MILLISECONDS);
-
             if (code == RESULT_OK) {
-                return;
+                Integer getVocabWordFrequencyResult = new GetVocabFrequencyTask().execute(word).get(10000, TimeUnit.MILLISECONDS);
+                if(getVocabWordFrequencyResult==RESULT_NOT_AUTHORIZED){
+                    AskForLogin();
+                }
+                page = 0;
+                RenderViewWithPageNumber(page);
+
             }
             else if (code==RESULT_NOT_AUTHORIZED){
                 AskForLogin();
@@ -295,12 +337,41 @@ public class WordModalActivity extends Activity {
                 Gson gson = new GsonBuilder().registerTypeAdapter(ResponseData.class,deserializer).create();
 
                 rsp = gson.fromJson(response.body().string(),ResponseData.class);
-                page = 0;
-                RenderViewWithPageNumber(page);
                 return RESULT_OK;
 
             } catch (IOException ex) {
                 ex.printStackTrace();
+                return RESULT_CANCELED;
+            }
+        }
+    }
+
+    private class GetVocabFrequencyTask extends AsyncTask<String, Void, Integer>{
+        @Override
+        protected Integer doInBackground(String... words){
+            List<User> user = database.UserDao().getUser();
+            if(user.isEmpty())
+                return RESULT_NOT_AUTHORIZED;
+
+            HttpUrl.Builder url = HttpUrl.parse(Config.serverIP+"/ext/api/wordfreq").newBuilder();
+            url.addQueryParameter("word",words[0]);
+            Request request =  new Request.Builder()
+                                .url(url.build())
+                                .get()
+                                .build();
+
+            try(Response response = client.newCall(request).execute()){
+                if(!response.isSuccessful()) throw new IOException("Request failure "+response);
+                JsonObject wordFrequency = new JsonParser().parse(response.body().string()).getAsJsonObject();
+                zipf = wordFrequency.get("frequency").getAsJsonObject().get("zipf").getAsLong();
+
+                return RESULT_OK;
+            }
+            catch(IOException e){
+                e.printStackTrace();
+                return RESULT_CANCELED;
+            }
+            catch(Exception e) {
                 return RESULT_CANCELED;
             }
         }
@@ -315,14 +386,41 @@ public class WordModalActivity extends Activity {
                 if(info[0].get("vocab").getClass()==VocabBank.class && info[0].get("defs").getClass()==VocabDefinitions.class) {
                     VocabBank vocab = (VocabBank) (info[0].get("vocab"));
                     VocabDefinitions def = (VocabDefinitions) (info[0].get("defs"));
-                    Example example = (Example) (info[0].get("example"));
+                    Example example0 = (Example) (info[0].get("example0"));
+                    Example example1 = (Example) (info[0].get("example1"));
+                    Example example2 = (Example) (info[0].get("example2"));
+                    Pronunciation pronunciation = (Pronunciation) (info[0].get("pronunciation"));
+
                     database.runInTransaction(() -> {
+                        List<VocabBank> existingVocab = database.VocabDao().findByName(vocab.word);
                         //insertID
-                        Long insertedVID =  database.VocabDao().insert(vocab);
+                        Long insertedVID =  existingVocab.isEmpty()
+                                ?database.VocabDao().insert(vocab)
+                                :existingVocab.get(0).vid;
                         def.ReferencesVocab(insertedVID.intValue());
                         Long insertedDID = database.VocabDefinitionsDao().insert(def);
-                        example.ReferenceDefinition(insertedDID.intValue());
-                        Long insertedEID = database.ExampleDao().insert(example);
+
+                        if(pronunciation!=null){
+                            pronunciation.ReferenceDefinitions(insertedDID.intValue());
+                            Long insertedPID = database.PronunciationDao().insert(pronunciation);
+                        }
+
+                        if(example0!=null){
+                            example0.ReferenceDefinition(insertedDID.intValue());
+                            Long insertedEID0 = database.ExampleDao().insert(example0);
+                        }
+                        if(example1!=null){
+                            example1.ReferenceDefinition(insertedDID.intValue());
+                            Long insertedEID1 = database.ExampleDao().insert(example1);
+                        }
+                        if(example2!=null){
+                            example2.ReferenceDefinition(insertedDID.intValue());
+                            Long insertedEID2 = database.ExampleDao().insert(example2);
+                        }
+
+                        //change user statistics
+
+
                     });
                     return RESULT_OK;
                 }
@@ -330,13 +428,15 @@ public class WordModalActivity extends Activity {
                     throw new IllegalArgumentException("Please Check if the arguments are correct.");
 
             }
+            catch(IllegalArgumentException e){
+                e.printStackTrace();
+                return RESULT_CANCELED;
+            }
             catch(Exception e){
                 e.printStackTrace();
                 System.out.println("\n\n");
                 Log.e("DBException","DB access error...");
                 return RESULT_CANCELED;
-            }finally{
-
             }
         }
         //where you will update UI after the async task is complete

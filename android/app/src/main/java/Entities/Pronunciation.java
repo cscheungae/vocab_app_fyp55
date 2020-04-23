@@ -28,7 +28,7 @@ public class Pronunciation {
         this.audioUrl = audioUrl;
     }
 
-    public void ReferenceDefinitions(VocabDefinitions d){
-        did = d.did;
+    public void ReferenceDefinitions(Integer did){
+        this.did = did;
     }
 }

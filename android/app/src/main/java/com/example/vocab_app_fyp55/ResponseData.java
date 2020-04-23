@@ -165,6 +165,10 @@ class WordDefinitions{
         this.examples = examples;
     }
 
+    public HashMap<String,?> getPronunciation(){
+        return this.pronunciation;
+    }
+
     public void setPronunciation(HashMap<String, ?> pronunciation) {
         this.pronunciation = pronunciation;
     }
