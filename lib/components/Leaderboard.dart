@@ -75,7 +75,7 @@ class _LeaderboardState extends State<Leaderboard> {
                 }
                 dataRows.add(DataRow(cells: [
                   DataCell(Text(statResponse.ranking.toString(), style: TextStyle(color: textColor),)),
-                  DataCell(Text(statResponse.username, style: TextStyle(color: textColor))),
+                  DataCell(Container(width: 80, child: Text(statResponse.username, style: TextStyle(color: textColor)))),
                   DataCell(Text(statResponse.trackingCount.toString(), style: TextStyle(color: textColor))),
                   DataCell(Text(statResponse.learningCount.toString(), style: TextStyle(color: textColor))),
                   DataCell(Text(statResponse.matureCount.toString(), style: TextStyle(color: textColor))),
