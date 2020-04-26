@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:vocab_app_fyp55/model/flashcard.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
 import 'package:vocab_app_fyp55/pages/VocabDetailsPageView.dart';
+import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import 'package:vocab_app_fyp55/res/theme.dart' as CustomTheme;
 import 'package:vocab_app_fyp55/pages/VocabDetailsPage.dart';
 import 'package:vocab_app_fyp55/util/Router.dart' as Router;
@@ -40,17 +42,42 @@ class CustomVocabCard extends StatefulWidget
 
 class _CustomVocabCard extends State<CustomVocabCard>
 {
+  //Theme
+  int theme = 0;
+
   bool isDeleted = false;
 
-  //AssetImage("assets/initialAddVocab.jpg");
-
+  ///Image related
   Image placeholderImage;
+  static List<Image> cardImgs = [cardImg1, cardImg2, cardImg3, cardImg4, cardImg5 ];
+  static Image cardImg1;
+  static Image cardImg2;
+  static Image cardImg3;
+  static Image cardImg4;
+  static Image cardImg5;
+
+  List<Color> bgColors = [
+    Colors.purple[200],
+    Colors.lightGreen,
+    Colors.orange[300],
+    Colors.lightBlue[200],
+    Colors.redAccent[100]
+  ];
+  
 
 
   @override
   void initState() {
     super.initState();
-    placeholderImage = Image( image: AssetImage("assets/initialAddVocab.jpg"), fit: BoxFit.cover,);
+    placeholderImage = Image( image: AssetImage("assets/initialAddVocab.jpg"), fit: BoxFit.cover,);  
+    cardImg1 = Image(image: AssetImage("assets/cardImg1.png"), fit: BoxFit.cover,);
+    cardImg2 = Image(image: AssetImage("assets/cardImg2.png"), fit: BoxFit.cover,);  
+    cardImg3 = Image(image: AssetImage("assets/cardImg3.png"), fit: BoxFit.cover,);  
+    cardImg4 = Image(image: AssetImage("assets/cardImg4.png"), fit: BoxFit.cover,);  
+    cardImg5 = Image(image: AssetImage("assets/cardImg5.png"), fit: BoxFit.cover,);  
+
+    
+    theme = widget._item.word.codeUnitAt(0) % 5 ;
   }
 
 
@@ -58,6 +85,17 @@ class _CustomVocabCard extends State<CustomVocabCard>
   void didChangeDependencies() {
     super.didChangeDependencies();
     precacheImage(placeholderImage.image, context);
+    precacheImage(cardImg1.image, context);
+    precacheImage(cardImg2.image, context);
+    precacheImage(cardImg3.image, context);
+    precacheImage(cardImg4.image, context);
+    precacheImage(cardImg5.image, context);
+  }
+
+
+  ///getFlashCard
+  Future<Flashcard> initFlashCard(int vid) async{
+    return (await DatabaseProvider.instance.readFlashcard(vid));
   }
 
 
@@ -101,6 +139,13 @@ class _CustomVocabCard extends State<CustomVocabCard>
   { 
     final double cardHeight = MediaQuery.of(context).size.height * 0.25;
     final double cardWidth = MediaQuery.of(context).size.width;
+
+    final TextStyle textStyle = TextStyle(
+      fontSize: 17,
+      fontWeight: FontWeight.w300,
+      color: Colors.black87,
+    );
+
     return isDeleted ? Container() : Card 
     (
       elevation: 7.0,
@@ -163,22 +208,58 @@ class _CustomVocabCard extends State<CustomVocabCard>
             ),
           
 
-            Visibility
+            //Description
+            AnimatedContainer
             (
-              visible: widget.isVisibleCardDescription,
-              child: Container
-              (
-                decoration: new BoxDecoration
-                ( 
-                  color: Color.fromRGBO(200, 200, 250, 0.6),
-                  //borderRadius: new BorderRadius.all(const Radius.circular(15.0)),
-                ),
-                alignment: Alignment.topLeft,
-                height: cardHeight * 0.75,
-                width: cardWidth,
-                child: Text( "Hello Everyone this is a lovely vocab card description about " + widget.item.word + ", you can learn more about it in here",  ),               
+              duration: Duration(milliseconds: 200),
+              curve: Curves.fastOutSlowIn,
+              decoration: new BoxDecoration
+              ( 
+                color: this.bgColors[theme],
+                borderRadius: new BorderRadius.only( bottomLeft: const Radius.circular(10.0), bottomRight:const Radius.circular(10.0)  ),
               ),
+              alignment: Alignment.topLeft,
+              height: cardHeight * 0.75 * ((widget.isVisibleCardDescription) ? 1 : 0),
+              width: cardWidth,
+              child: Stack(children: <Widget>[
+                Container(
+                  height: cardHeight * 0.75 * ((widget.isVisibleCardDescription) ? 1 : 0),
+                  width: cardWidth,
+                  child: ClipRRect(
+                    borderRadius: new BorderRadius.only( bottomLeft: const Radius.circular(10.0), bottomRight:const Radius.circular(10.0)  ), 
+                    child: Opacity( 
+                      child: cardImgs[theme],
+                      opacity: 0.12,
+                    ),
+                  ),
+                ),
+
+                
+                  
+                FutureBuilder<Flashcard>(
+                  future: initFlashCard(widget.item.vid),
+                  builder: (BuildContext context, AsyncSnapshot<Flashcard> snapshot) {
+                    if (snapshot.hasData){
+                      if (snapshot.data == null )
+                        return Container();
+
+                      return Wrap(
+                        runSpacing: 5.0,
+                        children: <Widget>[
+                          Text("flash card last reviewed since:", style: textStyle,  ),
+                          Text(snapshot.data.dateLastReviewed.toString().split('.')[0], style: textStyle, ),
+                          Text("will be reviewed on a basis of: " + snapshot.data.daysBetweenReview.toString() + " day(s)", style: textStyle, ),
+                        ],
+                      );
+                    }
+                    else return Container();
+                  },
+                ),
+                
+
+              ],)            
             ),
+            
 
           ],
         ),
