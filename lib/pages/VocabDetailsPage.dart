@@ -1,4 +1,6 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:toast/toast.dart';
 import 'package:vocab_app_fyp55/pages/MainPageView.dart';
 import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
 import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
@@ -29,14 +31,23 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
   @override
   _VocabDetailsUIPage( VocabBundle vocab ){  this.targetWord = vocab; }
 
+  /// Tab related variable
   TabController _defTabController;
   int defIndex = 0;
+
+  /// Audio button color
+  static final Color idleAudioColor = Colors.black;
+  static final Color runAudioColor = Colors.lightBlue;
+  Color audioColor = idleAudioColor;
+
 
 
   @override
   void initState(){ 
     super.initState(); 
-    int deflength = ( targetWord.definitionsBundle != null ) ? targetWord.definitionsBundle.length : 0;
+
+    //if nothing, it's still be 1 because we at least want to show the UI
+    int deflength = ( targetWord.definitionsBundle != null ) ? targetWord.definitionsBundle.length : 1;
     _defTabController =  TabController(length: deflength, vsync: this );
     _defTabController.addListener((){ 
       if (_defTabController.indexIsChanging){ setState(() {
@@ -75,9 +86,9 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                 //Do the actual deletion
                 try {
                   await DatabaseProvider.instance.deleteVocab(targetWord.vid);
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainPageView.instance ) );
+                  Navigator.of(context).pop("delete");
+                  Navigator.of(context).pop("delete");
+                  //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainPageView.instance ) );
                 }
                 catch (exception){ debugPrint("Failure in deletion\n" + exception); }
               },
@@ -147,14 +158,39 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
   
   //build Definitions
   Widget _buildDefinition( DefinitionBundle vd ){
+
+    if (vd==null){
+      vd = new DefinitionBundle();
+      vd.defineText = "";
+      vd.pos = "";
+      vd.examplesBundle = [];
+      vd.pronunciationsBundle = [];
+    }
+
+    String ipa = (vd.pronunciationsBundle != null && vd.pronunciationsBundle.isNotEmpty)
+    ? "/" + vd.pronunciationsBundle[0].ipa + "/" : "";
+      
+
+
     return Column(children: <Widget>[
-        //Part Of Speech
-        Container
-        (
-          alignment: Alignment.topLeft,
-          padding: EdgeInsets.fromLTRB(15, 10, 0, 0),
-          child: Text( vd.pos , style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
-        ),
+        
+        //Part Of Speech && ipa
+        Row(children: <Widget>[
+          Container
+          (
+            alignment: Alignment.topLeft,
+            padding: EdgeInsets.fromLTRB(15, 10, 0, 0),
+            child: Text( vd.pos , style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
+          ),
+          Container
+          (
+            alignment: Alignment.topLeft,
+            padding: EdgeInsets.fromLTRB(15, 10, 0, 0),
+            child: Text( ipa , style: TextStyle(color: Colors.blue, fontSize: 18, ),  ),
+          ),
+        ],),
+
+
        Container
         (
           alignment: Alignment.topLeft,
@@ -189,6 +225,16 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
   @override
   Widget build( BuildContext context )
   {
+    PronunciationBundle pb;
+    if (targetWord.definitionsBundle != null ){
+      for ( var def in targetWord.definitionsBundle ){
+        if (def.pronunciationsBundle != null && def.pronunciationsBundle.length != 0 ){
+          pb= def.pronunciationsBundle[0];
+        }
+      }
+    }
+
+
     return Scaffold
     (        
       backgroundColor: Colors.white, 
@@ -230,9 +276,28 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                   Container
                   (
                     alignment: Alignment.topLeft,
-                    padding: EdgeInsets.fromLTRB(15, 80, 0, 0),
+                    padding: EdgeInsets.fromLTRB(15, 80, 0, 5),
                     child: Text ( targetWord.word, style: TextStyle(color: Colors.blue, fontSize: 28, fontWeight: FontWeight.bold, ),  ),
                   ),
+
+                  
+                  (pb == null ) ? Container() : 
+                  Container(
+                    alignment: Alignment.topLeft,
+                    padding: EdgeInsets.fromLTRB(15, 10, 0, 5),
+                    child: GestureDetector(
+                      child: Icon( Icons.speaker, color: this.audioColor, size: 30, ), 
+                      onTap: () async {
+                        try {
+                          setState(() {  this.audioColor = runAudioColor; });
+                          AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.MEDIA_PLAYER);
+                          await audioPlayer.play(pb.audioUrl, isLocal: false );
+                          setState(() {  this.audioColor = idleAudioColor; });
+                        } catch(exception){ Toast.show("Oops, seems like audio having some trouble!", context); }
+                      },
+                    ),
+                  ),
+
 
 
                   Text("\n"),
@@ -253,7 +318,13 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                         topLeft: Radius.circular(20),
                         topRight: Radius.circular(20),
                       )),
-                      tabs: targetWord.definitionsBundle.isEmpty ? <Widget>[] :  targetWord.definitionsBundle.map((context){
+                      tabs: ( targetWord.definitionsBundle == null || targetWord.definitionsBundle.isEmpty )  ? 
+                      <Widget>[
+                        Tab(
+                          child: Text("DEF", style: TextStyle(fontSize: 14),),
+                        )
+                      ] 
+                      :  targetWord.definitionsBundle.map((context){
                         //* if too many definitions
                         if (targetWord.definitionsBundle.length > 5 ){
                           return Tab (
@@ -268,7 +339,7 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                   ),
 
                   //Definitions
-                  targetWord.definitionsBundle.isEmpty ? Container() : targetWord.definitionsBundle.map((context){
+                  ( targetWord.definitionsBundle == null || targetWord.definitionsBundle.isEmpty )  ? _buildDefinition(null) : targetWord.definitionsBundle.map((context){
                     return _buildDefinition(context);
                   }).toList()[defIndex],
                   

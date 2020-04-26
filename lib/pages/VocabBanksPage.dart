@@ -22,7 +22,7 @@ class VocabCardUIPage extends StatefulWidget
 
 
 
-class _VocabCardPage extends State<VocabCardUIPage>
+class _VocabCardPage extends State<VocabCardUIPage> with AutomaticKeepAliveClientMixin<VocabCardUIPage>
 {
   /// This stores the original state of [_vocabList]
   List<Vocab> _originalVocabList = []; 
@@ -39,7 +39,6 @@ class _VocabCardPage extends State<VocabCardUIPage>
   final TextEditingController _searchController = new TextEditingController();
 
 
-
   //initialize the vocab list 
   Future<List<Vocab>> initVocabCardList( {forceUpdate = false} ) async
   {
@@ -50,6 +49,11 @@ class _VocabCardPage extends State<VocabCardUIPage>
     }
     return this._vocabList;
   }
+
+
+  @override
+  bool get wantKeepAlive => true;
+
 
 
   

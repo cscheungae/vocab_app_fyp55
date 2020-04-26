@@ -40,16 +40,49 @@ class CustomVocabCard extends StatefulWidget
 
 class _CustomVocabCard extends State<CustomVocabCard>
 {
+  bool isDeleted = false;
+
+  //AssetImage("assets/initialAddVocab.jpg");
+
+  Image placeholderImage;
+
+
+  @override
+  void initState() {
+    super.initState();
+    placeholderImage = Image( image: AssetImage("assets/initialAddVocab.jpg"), fit: BoxFit.cover,);
+  }
+
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(placeholderImage.image, context);
+  }
+
+
   /// Function determining how the vocab details page will be opened upon pressing the card itself
   /// See also: 
   /// * [_vocablist], which determines how the page will be opened
   void openDetails(){
     if ( widget._vocablist.isEmpty || ! widget._vocablist.contains(widget.item) ){
       List<Vocab> list = [widget._item]; 
-      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsPageView( list , startPage: 0)  ));
+      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsPageView( list , startPage: 0)  ))
+      .then((value){
+        setState(() {
+          if (value == "delete")
+            isDeleted = true;
+        });
+      });
     }
     else {
-      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsPageView( widget._vocablist, startPage: widget._vocablist.indexOf(widget.item))  ));
+      Navigator.push(context, Router.AnimatedRoute(newWidget: VocabDetailsPageView( widget._vocablist, startPage: widget._vocablist.indexOf(widget.item))  ))
+      .then((value){
+        setState(() {
+          if (value == "delete")
+            isDeleted = true;
+        });
+      });
     }
   }
 
@@ -58,7 +91,7 @@ class _CustomVocabCard extends State<CustomVocabCard>
   Widget getImage(Vocab vocab){
     return new CachedNetworkImage(
       imageUrl: vocab.imageUrl,
-      placeholder: (context, url) => Image( image: AssetImage("assets/initialAddVocab.jpg"), fit: BoxFit.cover,),
+      placeholder: (context, url) => this.placeholderImage,
       fit: BoxFit.cover,
     );
   }
@@ -68,7 +101,7 @@ class _CustomVocabCard extends State<CustomVocabCard>
   { 
     final double cardHeight = MediaQuery.of(context).size.height * 0.25;
     final double cardWidth = MediaQuery.of(context).size.width;
-    return Card 
+    return isDeleted ? Container() : Card 
     (
       elevation: 7.0,
       shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(15.0),  ),

@@ -1030,7 +1030,7 @@ class DatabaseProvider {
       // request for the ready vocabs
       response = await db.query(vocabTableName,
           columns: null,
-          where: "status = ? AND trackFreq >= ? OR wordFreq >= ?",
+          where: "status = ? AND ( trackFreq >= ? OR wordFreq >= ?)",
           whereArgs: [
             Status.tracked.index,
             wordTrackThreshold,

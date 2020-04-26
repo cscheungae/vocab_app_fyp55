@@ -55,8 +55,9 @@ class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderS
   }
 
 
-  _refresh() async {
+  Future<void> _refresh() async {
     await initReadyWordsList(forceUpdate: true);
+    print("it's forced");
     setState(() { });
   }
   
@@ -67,6 +68,7 @@ class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderS
   {
     if (_readyVocabList == null || forceUpdate ){
       _readyVocabList = await DatabaseProvider.instance.getReadyVocab() ?? [];
+      print("Length of ready vocab is: " + _readyVocabList.length.toString() );
     }
     return _readyVocabList;
   }
@@ -102,8 +104,8 @@ class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderS
   Future<void> prepareTracedWord(Item item) async {
     VocabBundle vb = await DatabaseProvider.instance.readVocabBundle(  _readyVocabList[item.index].vid  );
     Navigator.push(context,  MaterialPageRoute(builder: (context) => VocabFormPage( title: "Prepare Traced Word - " + item.title,   vocab: vb, ) ) )
-    .then((value){
-      return value ? this._refresh() : null;
+    .then((value) async {
+      await this._refresh();
     });
   }
 

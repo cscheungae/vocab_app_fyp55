@@ -33,12 +33,12 @@ class _MainPageView extends State<MainPageView> {
 
   int currentPosition = 0;
 
-  PreloadPageController pController;
+  PageController pController;
 
   @override
   void initState() {
     super.initState();
-    pController = new PreloadPageController(initialPage: this.currentPosition,);
+    pController = new PageController(initialPage: this.currentPosition,);
   }
 
   @override
@@ -72,7 +72,7 @@ class _MainPageView extends State<MainPageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PreloadPageView.builder(
+      body: PageView.builder(
         itemBuilder: (context, position){
           return this.pages[position];
         },

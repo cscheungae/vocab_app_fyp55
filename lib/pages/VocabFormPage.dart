@@ -55,6 +55,9 @@ class _VocabFormPage extends State<VocabFormPage>
   //Each Form must have a related key
   List<GlobalKey<FormState>> formKeys = [new GlobalKey<FormState>()];
 
+  //audio
+  PronunciationBundle pb; 
+
   @override
   void initState() {
     super.initState();
@@ -76,6 +79,14 @@ class _VocabFormPage extends State<VocabFormPage>
     {
       if (vocab == null) 
         return false;
+
+      //Audio
+      if (vocab.definitionsBundle != null  ){
+        for ( var def in vocab.definitionsBundle ){
+          if (def.pronunciationsBundle != null && def.pronunciationsBundle.isNotEmpty )
+            this.pb = def.pronunciationsBundle[0];
+        }
+      }  
 
       //Update Word
       this.wordController.text = vocab.word;
@@ -216,13 +227,24 @@ class _VocabFormPage extends State<VocabFormPage>
 
       //Insert Definitions
       for (int i = 0; i < formControllers.length; i++) {
+
+        //Ignore empty form
+        if (formControllers[i].wordDefinitionController.text == "" &&
+            formControllers[i].wordPartOfSpeechController.text == "" &&
+            formControllers[i].wordExampleController1.text == "" &&
+            formControllers[i].wordExampleController2.text == "" &&
+            formControllers[i].wordExampleController2.text == ""
+        )
+          continue;
+
+
         String pos = formControllers[i].wordPartOfSpeechController.text;
         String defineText =  formControllers[i].wordDefinitionController.text;
         int did = await DatabaseProvider.instance.insertDefinition( new Definition( vid: vid, pos: pos, defineText: defineText, ) );
 
         //Insert Pronunciation
-        await DatabaseProvider.instance
-            .insertPronunciation(new Pronunciation(did: did));
+        if (pb != null )
+          await DatabaseProvider.instance.insertPronunciation(new Pronunciation(did: did, audioUrl: pb.audioUrl, ipa: pb.ipa ));
 
         //Insert Example
         if (formControllers[i].wordExampleController1.text != ""  )     
