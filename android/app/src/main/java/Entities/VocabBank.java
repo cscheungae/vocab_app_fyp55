@@ -30,7 +30,7 @@ public class VocabBank {
     public VocabBank(String word,@Nullable String imageUrl,Integer wordFreq,Integer trackFreq){
         this.word = word;
         this.wordFreq = wordFreq;
-        this.trackFreq=trackFreq;
+        this.trackFreq = trackFreq;
         if(imageUrl!=null)
             this.imageUrl = imageUrl;
         this.status=0;
