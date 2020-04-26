@@ -72,8 +72,14 @@ class _ReadViewPageState extends State<ReadViewPage>
               .readAllUser();
       newsList = await FetchNews.requestAPIData(categories: users[0].genres);
     }
-    newsLoad = newsList.length;
-    return newsList.sublist(newsLoad - 1);
+    if (newsList != null){ 
+      newsLoad = newsList.length;
+      return newsList.sublist(newsLoad - 1);
+    }
+    else {
+      newsLoad = 0;
+      return [];
+    }
   }
 
   Future<List<WordnikResponse>> initWordnikResponseList() async {
@@ -84,8 +90,14 @@ class _ReadViewPageState extends State<ReadViewPage>
       List<String> requestedWords = vocabs.map((vocab) => vocab.word).toList();
       wordnikResponsesList = await FetchSentences.requestAPIData(words: requestedWords);
     }
-    wordnikResponseLoad = wordnikResponsesList.length;
-    return wordnikResponsesList.sublist(wordnikResponseLoad - 1);
+    if (wordnikResponsesList != null && wordnikResponsesList.isNotEmpty ){
+      wordnikResponseLoad = wordnikResponsesList.length;
+      return wordnikResponsesList.sublist(wordnikResponseLoad - 1);
+    }
+    else {
+      wordnikResponseLoad = 0;
+      return [];
+    }
   }
 
 

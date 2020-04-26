@@ -239,7 +239,19 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
         ),
       ];
     
-    List <Widget> descriptions = (vb.definitionsBundle.isEmpty) ? [] : vb.definitionsBundle.map((context){
+    List <Widget> descriptions = (vb.definitionsBundle == null || vb.definitionsBundle.isEmpty) ? 
+    [
+      Container(
+        alignment: Alignment.topCenter,
+        height: MediaQuery.of(context).size.height * 0.25,
+        child: Image(image: AssetImage("assets/empty.png"), fit: BoxFit.contain, ),
+      ),
+      Container(
+        alignment: Alignment.topCenter,
+        child: Text("Seem like no definition for this word!")
+      ),
+    ] 
+    : vb.definitionsBundle.map((context){
     return 
       ExpansionTile(
       title: Text("Definition"),

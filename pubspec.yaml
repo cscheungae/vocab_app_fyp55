@@ -67,6 +67,11 @@ flutter:
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
   assets:
+    - assets/cardImg1.png
+    - assets/cardImg2.png
+    - assets/cardImg3.png
+    - assets/cardImg4.png
+    - assets/cardImg5.png
     - assets/bug.png
     - assets/empty.png
     - assets/gettingStarted.png
