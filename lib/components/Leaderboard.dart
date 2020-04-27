@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +8,7 @@ import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
 import 'package:vocab_app_fyp55/model/ResponseFormat/StatResponse.dart';
 import 'package:vocab_app_fyp55/model/stat.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
+import 'package:vocab_app_fyp55/provider/providerConstant.dart';
 import 'package:vocab_app_fyp55/services/FetchStats.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 import 'package:vocab_app_fyp55/provider/databaseProvider.dart';
@@ -24,7 +27,6 @@ class _LeaderboardState extends State<Leaderboard> {
 
   Future<List<StatResponse>> initStatsList(
       {String sortByParams = "learningCount"}) async {
-
     this.sortByParams = sortByParams;
 
     return FetchStats.requestRankStats(sortByParam: sortByParams);
@@ -35,91 +37,142 @@ class _LeaderboardState extends State<Leaderboard> {
     getCurrentUser().then((user) {
       currentUser = user;
       syncServerStat(uid: user.uid).whenComplete(() => {
-        setState(() {
-          statsList = initStatsList(sortByParams: this.sortByParams);
-        })});
+            setState(() {
+              statsList = initStatsList(sortByParams: this.sortByParams);
+            })
+          });
     });
     super.initState();
   }
 
   Future<User> getCurrentUser() async {
-    List<User> users = await Provider.of<DatabaseNotifier>(context, listen: false).dbHelper.readAllUser();
-    if(users != null) return users[0];
-    else return null;
+    List<User> users =
+        await Provider.of<DatabaseNotifier>(context, listen: false)
+            .dbHelper
+            .readAllUser();
+    if (users != null)
+      return users[0];
+    else
+      return null;
   }
 
-
-  Future<void> syncServerStat({int uid}) async {
+  Future syncServerStat({int uid}) async {
     Stat stat = await DatabaseProvider.instance.readLatestStat();
-    if(stat != null) {
-      await FetchStats.pushStats(uid: uid, sid: stat.sid, logDate: stat.logDate, learningCount: stat.learningCount, matureCount: stat.maturedCount, trackingCount: stat.trackingCount);
+    if (stat != null) {
+      await FetchStats.pushStats(
+          uid: uid,
+          sid: stat.sid,
+          logDate: stat.logDate,
+          learningCount: stat.learningCount,
+          matureCount: stat.maturedCount,
+          trackingCount: stat.trackingCount);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<StatResponse>>(
         future: statsList,
-        builder: (BuildContext context,
-            AsyncSnapshot<List<StatResponse>> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<List<StatResponse>> snapshot) {
           Widget widget;
-          if (snapshot.hasData) {
-            /// flutter table
-            List<DataRow> dataRows = [];
-            snapshot.data.forEach((StatResponse statResponse) {
-              {
-                Color textColor = Colors.white70;
-                if ( currentUser != null && statResponse.uid == currentUser.uid) {
-                  textColor = Theme.of(context).accentColor;
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              /// flutter table
+              List<DataRow> dataRows = [];
+              snapshot.data.forEach((StatResponse statResponse) {
+                {
+                  Color textColor = Colors.white70;
+                  if (currentUser != null &&
+                      statResponse.uid == currentUser.uid) {
+                    textColor = Theme.of(context).accentColor;
+                  }
+                  dataRows.add(DataRow(cells: [
+                    DataCell(Text(
+                      statResponse.ranking.toString(),
+                      style: TextStyle(color: textColor),
+                    )),
+                    DataCell(Container(
+                      width: 80,
+                      child: Text(statResponse.username,
+                          style: TextStyle(color: textColor)),
+                    )),
+                    DataCell(Text(statResponse.trackingCount.toString(),
+                        style: TextStyle(color: textColor))),
+                    DataCell(Text(statResponse.learningCount.toString(),
+                        style: TextStyle(color: textColor))),
+                    DataCell(Text(statResponse.matureCount.toString(),
+                        style: TextStyle(color: textColor))),
+                  ]));
                 }
-                dataRows.add(DataRow(cells: [
-                  DataCell(Text(statResponse.ranking.toString(), style: TextStyle(color: textColor),)),
-                  DataCell(Text(statResponse.username, style: TextStyle(color: textColor))),
-                  DataCell(Text(statResponse.trackingCount.toString(), style: TextStyle(color: textColor))),
-                  DataCell(Text(statResponse.learningCount.toString(), style: TextStyle(color: textColor))),
-                  DataCell(Text(statResponse.matureCount.toString(), style: TextStyle(color: textColor))),
-                ]));
-              }
-            });
+              });
 
-            widget = DataTable(
-              columnSpacing: 10,
-              columns: [
-                DataColumn(label: Text('Rank')),
-                DataColumn(label: Text('Name')),
-                DataColumn(
-                    numeric: true,
-                    label: Text('Tracking', style: TextStyle(color: this.sortByParams == "trackingCount" ? Theme.of(context).accentColor : Colors.white70),),
-                    onSort: (_i, _b) {
-                      setState(() {
-                        if(this.sortByParams != 'trackingCount')
-                          statsList = initStatsList(sortByParams: "trackingCount");
-                      });
-                    }),
-                DataColumn(
-                    numeric: true,
-                    label: Text('Learning', style: TextStyle(color: this.sortByParams == "learningCount" ? Theme.of(context).accentColor : Colors.white70),),
-                    onSort: (_i, _b) {
-                      setState(() {
-                        if(this.sortByParams != 'learningCount')
-                          statsList = initStatsList(sortByParams: "learningCount");
-                      });
-                    }),
-                DataColumn(
-                    numeric: true,
-                    label: Text('Matured', style: TextStyle(color: this.sortByParams == "matureCount" ? Theme.of(context).accentColor : Colors.white70),),
-                    onSort: (_i, _b) {
-                      setState(() {
-                        if(this.sortByParams != 'matureCount')
-                          statsList = initStatsList(sortByParams: "matureCount");
-                      });
-                    }),
-              ],
-              rows: dataRows,
-            );
-          } else if (snapshot.hasError) widget = new ErrorAlert("Leaderboard");
-            else widget = new LoadingIndicator();
+              widget = SingleChildScrollView(
+                child: DataTable(
+                  columnSpacing: 10,
+                  columns: [
+                    DataColumn(label: Text('Rank')),
+                    DataColumn(label: Text('Name')),
+                    DataColumn(
+                        numeric: true,
+                        label: Text(
+                          'Tracking',
+                          style: TextStyle(
+                              color: this.sortByParams == "trackingCount"
+                                  ? Theme.of(context).accentColor
+                                  : Colors.white70),
+                        ),
+                        onSort: (_i, _b) {
+                          setState(() {
+                            if (this.sortByParams != 'trackingCount')
+                              statsList =
+                                  initStatsList(sortByParams: "trackingCount");
+                          });
+                        }),
+                    DataColumn(
+                        numeric: true,
+                        label: Text(
+                          'Learning',
+                          style: TextStyle(
+                              color: this.sortByParams == "learningCount"
+                                  ? Theme.of(context).accentColor
+                                  : Colors.white70),
+                        ),
+                        onSort: (_i, _b) {
+                          setState(() {
+                            if (this.sortByParams != 'learningCount')
+                              statsList =
+                                  initStatsList(sortByParams: "learningCount");
+                          });
+                        }),
+                    DataColumn(
+                        numeric: true,
+                        label: Text(
+                          'Matured',
+                          style: TextStyle(
+                              color: this.sortByParams == "matureCount"
+                                  ? Theme.of(context).accentColor
+                                  : Colors.white70),
+                        ),
+                        onSort: (_i, _b) {
+                          setState(() {
+                            if (this.sortByParams != 'matureCount')
+                              statsList =
+                                  initStatsList(sortByParams: "matureCount");
+                          });
+                        }),
+                  ],
+                  rows: dataRows,
+                ),
+              );
+            } else {
+              // data is null due to the server_connection_err
+              widget = Center(child: new ErrorAlert("server_connection_err"));
+            }
+          } else if (snapshot.hasError)
+            widget = new ErrorAlert(snapshot.error.toString());
+          else
+            widget = new LoadingIndicator();
           return widget;
         });
   }

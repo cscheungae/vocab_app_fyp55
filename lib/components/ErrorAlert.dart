@@ -20,7 +20,7 @@ class ErrorAlert extends StatelessWidget {
           color: Colors.yellow,
         ),
         Text(
-          "Sorry, something went wrong",
+          "Sorry, something went wrong.",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
         )
       ]);
@@ -47,7 +47,7 @@ class ErrorAlert extends StatelessWidget {
         Container(
             width: 300,
             child: Text(
-              type,
+              "Error: " + type + " - Please contact the admin for details.",
               textAlign: TextAlign.center,
             )),
       ]);

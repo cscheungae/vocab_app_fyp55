@@ -41,7 +41,7 @@ class _StatisticsPage extends State<StatisticsPage>
               padding: const EdgeInsets.all(25.0),
               child: SimpleTimeSeriesChart(),
             ),
-            SingleChildScrollView(child: Leaderboard())
+            Leaderboard()
           ],
         ),
       ),
