@@ -17,5 +17,5 @@ class ProviderConstant {
   static const double defaultDifficulty = 0.3;
   static const int maturePeriod = 21;
 
-  static const Duration duration = Duration(seconds: 1);
+  static const Duration duration = Duration(seconds: 10);
 }
