@@ -166,7 +166,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                       Center(
                                         child: Image(
                                           image: AssetImage(
-                                            'assets/images/onboarding1.png',
+                                            'assets/threshold.png',
                                           ),
                                           height: 150.0,
                                           width: 150.0,
@@ -288,7 +288,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     Center(
                                       child: Image(
                                         image: AssetImage(
-                                          'assets/images/onboarding2.png',
+                                          'assets/gettingStarted.png',
                                         ),
                                         height: 150.0,
                                         width: 150.0,

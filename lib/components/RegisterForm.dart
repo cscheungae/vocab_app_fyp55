@@ -59,7 +59,7 @@ class _RegisterFormState extends State<RegisterForm> {
               onPressed: () async {
                 if (_formKey.currentState.validate()) {
                   Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text('Updating your settings')));
+                      SnackBar(content: Text('Registering ...')));
                   // TODO:: call the middleware api to register
                   try {
                     Map<String, String> headers = {
@@ -89,7 +89,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   } on Exception catch (err) {
                     print("Network error: $err");
                     Scaffold.of(context).showSnackBar(
-                        SnackBar(content: Text('Network Error: ${err.toString()}'), backgroundColor: Colors.red,));
+                        SnackBar(content: Text('Network Error: Server Connection Refused. Please contact admin for details.'), backgroundColor: Colors.red,));
                   }
                 } else {
                   Scaffold.of(context).showSnackBar(
