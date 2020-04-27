@@ -16,4 +16,6 @@ class ProviderConstant {
   static const double passCutoff = 0.6;
   static const double defaultDifficulty = 0.3;
   static const int maturePeriod = 21;
+
+  static const Duration duration = Duration(seconds: 1);
 }

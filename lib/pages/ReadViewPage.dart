@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vocab_app_fyp55/components/CustomExpansionTile.dart';
 import 'package:vocab_app_fyp55/components/CustomNewsCard.dart';
 import 'package:vocab_app_fyp55/components/ErrorAlert.dart';
 import 'package:vocab_app_fyp55/components/LoadingIndicator.dart';
-import 'package:vocab_app_fyp55/model/Bundle/AllBundles.dart';
 import 'package:vocab_app_fyp55/model/ResponseFormat/WordnikResponse.dart';
 import 'package:vocab_app_fyp55/model/user.dart';
 import 'package:vocab_app_fyp55/model/vocab.dart';
@@ -13,6 +14,7 @@ import 'package:vocab_app_fyp55/services/fetchdata_sentences.dart';
 import 'package:vocab_app_fyp55/state/DatabaseNotifier.dart';
 import '../model/ResponseFormat/news.dart';
 import '../services/fetchdata_news.dart';
+import '../provider/providerConstant.dart';
 
 
 class ReadViewPage extends StatefulWidget {
@@ -64,13 +66,16 @@ class _ReadViewPageState extends State<ReadViewPage>
   }
 
   Future<List<NewsItem>> initNewsList() async {
-    if (newsList == null) {
+    if (newsList == null || newsList.isEmpty) {
       // get the user articles preference
       List<User> users =
           await Provider.of<DatabaseNotifier>(context, listen: false)
               .dbHelper
               .readAllUser();
-      newsList = await FetchNews.requestAPIData(categories: users[0].genres);
+      newsList = await FetchNews.requestAPIData(categories: users[0].genres)
+        .timeout(ProviderConstant.duration, onTimeout: () {
+          throw TimeoutException("server_connection_err", ProviderConstant.duration);
+      });
     }
     if (newsList != null){ 
       newsLoad = newsList.length;
@@ -86,9 +91,12 @@ class _ReadViewPageState extends State<ReadViewPage>
     if(wordnikResponsesList == null) {
       // TODO::get the user readyvocab - bil
       List<Vocab> vocabs = await DatabaseProvider.instance.getStudyVocabs(7, obtainOverdueItem: false);
-      if(vocabs == null) return null;
+      if(vocabs == null) return Future.error("notAvail");
       List<String> requestedWords = vocabs.map((vocab) => vocab.word).toList();
-      wordnikResponsesList = await FetchSentences.requestAPIData(words: requestedWords);
+      wordnikResponsesList = await FetchSentences.requestAPIData(words: requestedWords)
+        .timeout(ProviderConstant.duration, onTimeout: () {
+        throw TimeoutException("server_connection_err", ProviderConstant.duration);
+      });
     }
     if (wordnikResponsesList != null && wordnikResponsesList.isNotEmpty ){
       wordnikResponseLoad = wordnikResponsesList.length;
@@ -118,17 +126,21 @@ class _ReadViewPageState extends State<ReadViewPage>
         future: initNewsList(),
         builder:
             (BuildContext context, AsyncSnapshot<List<NewsItem>> snapshot) {
+//              print("Snapshot log of Article: " + snapshot.toString());
           Widget widget;
-          if (snapshot.hasData) {
-            widget = ListView.builder(
-                itemCount: newsLoad,
-                itemBuilder: (context, position) {
-                  return buildAnimatedCustomNewsCard(position);
-                  //return CustomNewsCard(newsList[position]);
-                });
+          if(snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              if (snapshot.data != null) {
+                widget = ListView.builder(
+                    itemCount: newsLoad,
+                    itemBuilder: (context, position) {
+                      return buildAnimatedCustomNewsCard(position);
+                      //return CustomNewsCard(newsList[position]);
+                    });
+              }
+            }
+            else if (snapshot.hasError) widget = new ErrorAlert(snapshot.error.toString());
           }
-          //Error Screen
-          else if (snapshot.hasError) widget = new ErrorAlert("articles");
           else widget = new LoadingIndicator();
           return widget;
         });
@@ -138,6 +150,7 @@ class _ReadViewPageState extends State<ReadViewPage>
     return FutureBuilder<List<WordnikResponse>>(
       future: initWordnikResponseList(),
       builder: (BuildContext context, AsyncSnapshot<List<WordnikResponse>> snapshot) {
+//        print("Sentence snapshot log: " + snapshot.toString());
         Widget widget;
         if(snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
@@ -149,11 +162,9 @@ class _ReadViewPageState extends State<ReadViewPage>
             );
           }
           else if(snapshot.hasError) {
-            // REMOVE: DEBUG PRINT
-            // print(snapshot.error.toString());
-            widget = new ErrorAlert("Sentences");
+            widget = new ErrorAlert(snapshot.error.toString());
           }
-          else widget = new ErrorAlert("notAvail");
+          else widget = new ErrorAlert("warn");
         }
           else widget = new LoadingIndicator();
         return widget;
