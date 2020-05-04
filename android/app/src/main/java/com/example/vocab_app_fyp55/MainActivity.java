@@ -6,12 +6,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
+import com.google.api.client.util.DateTime;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.SimpleTimeZone;
+import java.util.concurrent.TimeUnit;
 
+import Services.NotifyStudyTimeService;
 import io.flutter.app.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 import io.flutter.plugin.common.MethodChannel;
@@ -25,11 +39,29 @@ public class MainActivity extends FlutterActivity  {
   private int backticks = 0;
 
 
+
     @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     GeneratedPluginRegistrant.registerWith(this);
-    //createNotificationChannel();
+    createNotificationChannel();
+        new MethodChannel(getFlutterView(), "com.example.vocab_app_fyp55/flashVocab").setMethodCallHandler(
+                (call, result) -> {
+                    try {
+                        if (call.method.equals("notifyUserToStudy")) {
+                            String reviseTime = ((HashMap<String, String>) call.arguments).get("reviseTime");
+                            Date notifyTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").parse(reviseTime);
+                            Log.d("MethodChannel-flashVocab","Time received: "+notifyTime.toString());
+                            NotifyUsersToStudy();
+                        }
+                    }
+                    catch(ParseException e){
+                        e.printStackTrace();
+                    }
+                }
+        );
+
+
   }
 
     @Override
@@ -52,5 +84,19 @@ public class MainActivity extends FlutterActivity  {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    private void NotifyUsersToStudy(){
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.SECOND,30);
+        long diff = c.getTime().getTime() - new Date().getTime();
+
+
+        Data data = new Data.Builder().putString("date",c.toString()).build();
+        OneTimeWorkRequest promptStudyRequest = new OneTimeWorkRequest.Builder(NotifyStudyTimeService.class)
+                .setInitialDelay(diff, TimeUnit.MILLISECONDS)
+                .setInputData(data).build();
+
+        WorkManager.getInstance(getApplicationContext()).enqueue(promptStudyRequest);
     }
 }

@@ -93,6 +93,9 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:2.2.3"
     //todo:material library
     implementation 'com.google.android.material:material:1.1.0'
+    //todo:WorkManager library
+    def work_version = "2.3.4"
+    implementation "androidx.work:work-runtime:$work_version"
 }
 
 //apply plugin: 'com.google.gms.google-services'

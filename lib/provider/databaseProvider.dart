@@ -21,6 +21,8 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'package:vocab_app_fyp55/services/NativeChannelService.dart';
+
 class DatabaseProvider {
   static final DatabaseProvider _instance = DatabaseProvider._();
   DatabaseProvider._();
@@ -154,18 +156,17 @@ class DatabaseProvider {
   /// **********************************************************************
   Future<bool> isUserExist() async {
     bool response;
-    try{
+    try {
       List<User> users = await readAllUser();
-      if(users.isNotEmpty)
+      if (users.isNotEmpty)
         response = false;
       else
         response = true;
-    } catch(e) {
+    } catch (e) {
       print("error in isUserExist: " + e.toString());
     }
     return response;
   }
-
 
   Future<int> insertUser(User user) async {
     int response;
@@ -623,7 +624,8 @@ class DatabaseProvider {
         : null;
   }
 
-  Future<List<Flashcard>> getStudyFlashcards(int quantity, {bool obtainOverdueItem = true}) async {
+  Future<List<Flashcard>> getStudyFlashcards(int quantity,
+      {bool obtainOverdueItem = true}) async {
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
@@ -639,7 +641,7 @@ class DatabaseProvider {
         ''');
       // TODO:: rank the flashcard table by descending overdue order
       /// obtainOverdueItem is true, it means it will only consider the flashcards that are overdue w.r.t. to daysBetweenReview
-      if(obtainOverdueItem == true) {
+      if (obtainOverdueItem == true) {
         response = await db.rawQuery('''
         SELECT * 
         FROM $flashcardTableName
@@ -655,7 +657,6 @@ class DatabaseProvider {
         LIMIT $quantity
         ''');
       }
-
     } catch (e) {
       debugPrint(e.toString() + " failure in getStudyFlashcards");
       response = null;
@@ -665,13 +666,15 @@ class DatabaseProvider {
         : null;
   }
 
-  Future<List<Vocab>> getStudyVocabs(int quantity, {bool obtainOverdueItem = true}) async {
+  Future<List<Vocab>> getStudyVocabs(int quantity,
+      {bool obtainOverdueItem = true}) async {
     List<Vocab> response = [];
     try {
       // TODO:: call the getStudyFlashcards which return a set of Flashcard
-      List<Flashcard> flashcards = await getStudyFlashcards(quantity, obtainOverdueItem: obtainOverdueItem);
+      List<Flashcard> flashcards = await getStudyFlashcards(quantity,
+          obtainOverdueItem: obtainOverdueItem);
       // TODO:: by looping through the set of flashcards, get its vocabBundle and attach the the response
-      if(flashcards.isNotEmpty) {
+      if (flashcards.isNotEmpty) {
         await Future.forEach(flashcards, (flashcard) async {
           Vocab vocab = await readVocab(flashcard.vid);
           response.add(vocab);
@@ -763,6 +766,11 @@ class DatabaseProvider {
         debugPrint(e.toString() + "failure in reviseFlashcard");
       }
     }
+
+    //pend notifications in Android side at the next time to revise.
+    NativeChannelService.notifyUserToStudy(oldFlashcard.dateLastReviewed
+        .add(Duration(days: newDaysBetweenReviews)));
+
     return await updateFlashcard(Flashcard(
         vid: oldFlashcard.vid,
         fid: oldFlashcard.fid,
@@ -896,7 +904,10 @@ class DatabaseProvider {
     final db = await database;
     List<Map<String, dynamic>> response;
     try {
-      response = await db.rawQuery("SELECT MAX(sid) as sid, logDate, trackingCount, learningCount, maturedCount FROM " + statisticTableName + " GROUP BY logDate");
+      response = await db.rawQuery(
+          "SELECT MAX(sid) as sid, logDate, trackingCount, learningCount, maturedCount FROM " +
+              statisticTableName +
+              " GROUP BY logDate");
     } catch (e) {
       debugPrint(e.toString() + " read all statistics failure");
       response = null;
@@ -910,12 +921,16 @@ class DatabaseProvider {
     final db = await database;
     List<Map<String, dynamic>> response;
     try {
-      response = await db.rawQuery(("SELECT MAX(sid) as sid, logDate, trackingCount, learningCount, maturedCount FROM " + statisticTableName));
+      response = await db.rawQuery(
+          ("SELECT MAX(sid) as sid, logDate, trackingCount, learningCount, maturedCount FROM " +
+              statisticTableName));
     } catch (e) {
       debugPrint(e.toString() + " read all statistics failure");
       response = null;
     }
-    return response != null ? response.map((item) => Stat.fromJson(item)).toList().first : null;
+    return response != null
+        ? response.map((item) => Stat.fromJson(item)).toList().first
+        : null;
   }
 
   /// This function returns a list of Statistics in which each statistic is the
@@ -1045,19 +1060,21 @@ class DatabaseProvider {
         : null;
   }
 
-
   //This function returns all vocabs that are already prepared as Flashcards ( i.e. status of learning)
   Future<List<Vocab>> getLearningVocabs() async {
     List<Map<String, dynamic>> response;
     try {
       final db = await database;
-      response = await db.query(vocabTableName, where: "status = ?", whereArgs: [Status.learning.index]);
-    } catch(e) { debugPrint(e.toString() + "getLearningVocabs failure"); response = null;}
-    return response != null ? response.map((item) => Vocab.fromJson(item)).toList() : null;
+      response = await db.query(vocabTableName,
+          where: "status = ?", whereArgs: [Status.learning.index]);
+    } catch (e) {
+      debugPrint(e.toString() + "getLearningVocabs failure");
+      response = null;
+    }
+    return response != null
+        ? response.map((item) => Vocab.fromJson(item)).toList()
+        : null;
   }
-
-
-
 
   /// This function will be used when user lands on the vocabulary bank page
   Future<List<Vocab>> readAllVocab() async {
@@ -1100,19 +1117,22 @@ class DatabaseProvider {
         List<Pronunciation> pronunciations =
             await readPronunciation(definition.did);
         List<Example> examples = await readExample(definition.did);
-        
+
         // construct pronunciationsBundle and examplesBundle, possible to be null
-        List<PronunciationBundle> pronunciationsBundle = (pronunciations != null ) ? pronunciations
-            .map((item) => PronunciationBundle(
-                pid: item.pid, ipa: item.ipa, audioUrl: item.audioUrl))
-            .toList() : [] ;
+        List<PronunciationBundle> pronunciationsBundle =
+            (pronunciations != null)
+                ? pronunciations
+                    .map((item) => PronunciationBundle(
+                        pid: item.pid, ipa: item.ipa, audioUrl: item.audioUrl))
+                    .toList()
+                : [];
 
-
-        List<ExampleBundle> examplesBundle = ( examples != null ) ? examples
-            .map(
-                (item) => ExampleBundle(eid: item.eid, sentence: item.sentence))
-            .toList() : [] ;
-
+        List<ExampleBundle> examplesBundle = (examples != null)
+            ? examples
+                .map((item) =>
+                    ExampleBundle(eid: item.eid, sentence: item.sentence))
+                .toList()
+            : [];
 
         definitionsBundle.add(DefinitionBundle(
           did: definition.did,

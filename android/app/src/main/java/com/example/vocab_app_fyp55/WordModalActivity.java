@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 
 import androidx.room.Room;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import Entities.Example;
 import Entities.Pronunciation;
@@ -36,12 +39,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import Services.NotifyStudyTimeService;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -257,6 +263,7 @@ public class WordModalActivity extends Activity {
         });
 
     }
+    //All the services and calls behind the scenes.
 
     // use set time out to mimic the delay of the call of api
     private boolean checkVocabAndUpload(String word) {
@@ -482,6 +489,8 @@ public class WordModalActivity extends Activity {
             finish();
         }
     }
+
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
