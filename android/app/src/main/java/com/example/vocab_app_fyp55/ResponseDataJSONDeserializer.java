@@ -30,8 +30,11 @@ public class ResponseDataJSONDeserializer implements JsonDeserializer<ResponseDa
     public ResponseData deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
         try {
             ResponseData results = new ResponseData();
-            results.setWord(json.getAsJsonObject().get("id").getAsString());
 
+            if(json.getAsJsonObject().get("error")!=null)
+                return null;
+
+            results.setWord(json.getAsJsonObject().get("id").getAsString());
 
             List<WordDefinitions> defs = new ArrayList<>();
             results.setResults(defs);
@@ -41,12 +44,6 @@ public class ResponseDataJSONDeserializer implements JsonDeserializer<ResponseDa
                 JsonArray LexicalEntries = result.getAsJsonObject().getAsJsonArray("lexicalEntries");
                 if(LexicalEntries!=null) {
                     LexicalEntries.forEach((LexicalEntry) -> {
-                        HashMap<String, String> hmap = new HashMap<String, String>();
-                        JsonObject pronunciation = LexicalEntry.getAsJsonObject().getAsJsonArray("pronunciations").get(0).getAsJsonObject();
-                        if (pronunciation != null) {
-                            hmap.put("audioUrl", pronunciation.get("audioFile").getAsString());
-                            hmap.put("ipa", pronunciation.get("phoneticSpelling").getAsString());
-                        }
                         //Part of speech
                         String pos = LexicalEntry.getAsJsonObject().get("lexicalCategory").getAsJsonObject().get("text").getAsString();
 
@@ -57,16 +54,18 @@ public class ResponseDataJSONDeserializer implements JsonDeserializer<ResponseDa
                                 def.setPartOfSpeech(pos);
 
 
-                                if (hmap != null)
-                                    def.setPronunciation(hmap);
 
                                 JsonArray senses = entry.getAsJsonObject().getAsJsonArray("senses");
                                 senses.forEach(sense -> {
                                     def.setDefinition(sense.getAsJsonObject().getAsJsonArray("definitions").get(0).getAsString());
                                     List<String> examples = new ArrayList<String>();
-                                    sense.getAsJsonObject().getAsJsonArray("examples").forEach(example -> {
+                                    JsonArray rsp_examples = sense.getAsJsonObject().getAsJsonArray("examples");
+
+                                    if(rsp_examples!=null)
+                                    rsp_examples.forEach(example -> {
                                         examples.add(example.getAsJsonObject().get("text").getAsString());
                                     });
+
                                     def.setExamples(examples);
                                 });
                                 defs.add(def);
@@ -79,6 +78,8 @@ public class ResponseDataJSONDeserializer implements JsonDeserializer<ResponseDa
             return results;
         } catch (NoSuchElementException ex) {
 
+        } catch(NullPointerException ex){
+            ex.printStackTrace();
         }
         return null;
     }
