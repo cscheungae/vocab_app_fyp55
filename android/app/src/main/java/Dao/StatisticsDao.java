@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -22,4 +23,7 @@ public abstract class StatisticsDao {
 
     @Delete
     public abstract void deleteAll(Statistics... st);
+
+    @Update
+    public abstract void update(Statistics... st);
 }

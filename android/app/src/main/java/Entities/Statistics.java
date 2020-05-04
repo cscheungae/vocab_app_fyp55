@@ -9,6 +9,9 @@ import androidx.room.TypeConverters;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import Converters.TimestampConverter;
@@ -30,16 +33,15 @@ public class Statistics {
     @NotNull
     public Integer maturedCount;
 
-    @TypeConverters({TimestampConverter.class})
     @ColumnInfo(name="logDate")
     @NotNull
-    public Date logDate;
+    public String logDate;
 
     public Statistics(int trackingCount ,int learningCount, int maturedCount){
             this.trackingCount=trackingCount;
             this.learningCount=learningCount;
             this.maturedCount=maturedCount;
-            this.logDate=new Date();
+            this.logDate=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date());
     }
     public Statistics(){
         this(1,1,0);

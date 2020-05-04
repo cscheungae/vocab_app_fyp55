@@ -1,6 +1,5 @@
-
 class ProviderConstant {
-  static const String databaseName = "FYPVocabDB.db";  
+  static const String databaseName = "FYPVocabDB.db";
   static const String vocabBankTableName = "VocabBank";
   static const String vocabDefinitionTableName = "VocabDefinitions";
 
@@ -17,5 +16,5 @@ class ProviderConstant {
   static const double defaultDifficulty = 0.3;
   static const int maturePeriod = 21;
 
-  static const Duration duration = Duration(seconds: 10);
+  static const Duration duration = Duration(seconds: 5);
 }

@@ -9,13 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.room.Room;
 
 import Entities.Example;
@@ -54,6 +53,7 @@ import okhttp3.Response;
 
 public class WordModalActivity extends Activity {
     //UI Component
+    private ProgressBar circularProgressBar;
     private LinearLayout wordmodelView;
     private RelativeLayout buttonNav;
     private View divider;
@@ -65,6 +65,7 @@ public class WordModalActivity extends Activity {
     private Button trackButton,cancelButton;
 
     private final int RESULT_NOT_AUTHORIZED=8888;
+    private final int RESULT_NO_ZIPF = 8889;
 
     //data and metadata
     private int page;
@@ -92,94 +93,12 @@ public class WordModalActivity extends Activity {
     //DB
     private VocabDB database;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        database = Room.databaseBuilder(getApplicationContext(),VocabDB.class,Config.DBName).createFromAsset(Config.DBName).build();
-
-        word = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().trim().toLowerCase();
-        LoadView();
-
-
-        trackButton.setOnClickListener((View view) -> {
-            try {
-
-                VocabBank vocab = new VocabBank(word, null, zipf.intValue(), 1);
-                VocabDefinitions defs = new VocabDefinitions(posView.getText().toString(), definitionsView.getText().toString());
-                Example example0 = null;
-                Example example1 = null;
-                Example example2 = null;
-                Pronunciation pronunciation1 = null;
-                List<String> examples = rsp.getResult(page).getExamples();
-                if(!examples.isEmpty()) {
-                    example0 = new Example(rsp.getResults().get(page).getExamples().get(0));
-                    if(examples.size()>1)
-                        example1 = new Example(rsp.getResults().get(page).getExamples().get(1));
-                    if(examples.size()>2)
-                        example2 = new Example(rsp.getResults().get(page).getExamples().get(2));
-
-                }
-                HashMap<String,?> pronunciation = rsp.getResult(page).getPronunciation();
-                if(pronunciation!=null) {
-                    pronunciation1 = new Pronunciation(pronunciation.get("ipa").toString(), pronunciation.get("audioUrl").toString());
-                }
-
-                HashMap<String, Object> vocabInfo = new HashMap<>();
-                vocabInfo.put("vocab", vocab);
-                vocabInfo.put("defs", defs);
-                if(example0!=null)
-                    vocabInfo.put("example0", example0);
-                if(example1!=null)
-                    vocabInfo.put("example1", example1);
-                if(example2!=null)
-                    vocabInfo.put("example2", example2);
-                if(pronunciation1!=null){
-                    vocabInfo.put("pronunciation",pronunciation1);
-                }
-                //run background task.
-                Integer result = new AddVocabTask().execute(vocabInfo).get();
-                if(result==RESULT_CANCELED){
-                    AskForRetry("Something wrong happened.Please retry");
-                    return;
-                }
-
-                Intent navToArticles = new Intent(getApplicationContext(), MainActivity.class);
-                navToArticles.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                navToArticles.setAction(Intent.ACTION_RUN);
-                navToArticles.putExtra("route", "/articles");
-                startActivity(navToArticles);
-
-                finish();
-            } catch (ExecutionException e) {
-                System.out.println("Execution Exception");
-                
-            } catch (InterruptedException e) {
-                System.out.println("The thread got interrupted!");
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Exception occurred");
-            }
-        });
-        cancelButton.setOnClickListener((View view) -> {
-            try {
-                finish();
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Exception occurred");
-            }
-
-        });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // call the service to upload word
-        checkVocabAndUpload(word);
-    }
     //set the contents of the views in the background.To show the view you should use RenderViewWithPageNumber instead.
     private void LoadView(){
         setContentView(R.layout.word_model_v2);
+
+        circularProgressBar = (ProgressBar) findViewById(R.id.circularProgressBar);
+
         buttonNav = (RelativeLayout) findViewById(R.id.navButtons);
         prevButton = (Button) findViewById(R.id.prevButton);
         nextButton = (Button) findViewById(R.id.nextButton);
@@ -192,6 +111,10 @@ public class WordModalActivity extends Activity {
         examplesView = (TextView) findViewById(R.id.examples);
         trackButton = (Button) findViewById(R.id.trackButton);
         cancelButton = (Button) findViewById(R.id.cancelButton);
+
+        circularProgressBar.setVisibility(View.INVISIBLE);
+        buttonNav.setVisibility(View.INVISIBLE);
+        wordmodelView.setVisibility(View.INVISIBLE);
     }
 
     private void AskForLogin(){
@@ -209,10 +132,16 @@ public class WordModalActivity extends Activity {
         toast.show();
     }
 
+    private void ShowSuccessMessage(){
+        Toast toast = Toast.makeText(getApplicationContext(),"The word tracked successfully.You can proceed reading.",Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+
     //render the view.Eg,
     private void RenderViewWithPageNumber(int i) {
-        findViewById(R.id.word_model_v2).setVisibility(View.VISIBLE);
-
+        wordmodelView.setVisibility(View.VISIBLE);
+        buttonNav.setVisibility(View.VISIBLE);
         //set content
         WordDefinitions model = rsp.getResult(i);
 
@@ -254,11 +183,83 @@ public class WordModalActivity extends Activity {
             nextButton.setVisibility(View.INVISIBLE);
         }
 
+        trackButton.setOnClickListener((View view) -> {
+            try {
+
+                VocabBank vocab = new VocabBank(word, null, zipf.intValue(), 1);
+                /*
+                VocabDefinitions defs = new VocabDefinitions(posView.getText().toString(), definitionsView.getText().toString());
+                Example example0 = null;
+                Example example1 = null;
+                Example example2 = null;
+                Pronunciation pronunciation1 = null;
+                List<String> examples = rsp.getResult(page).getExamples();
+                if(!examples.isEmpty()) {
+                    example0 = new Example(rsp.getResults().get(page).getExamples().get(0));
+                    if(examples.size()>1)
+                        example1 = new Example(rsp.getResults().get(page).getExamples().get(1));
+                    if(examples.size()>2)
+                        example2 = new Example(rsp.getResults().get(page).getExamples().get(2));
+
+                }
+                HashMap<String,?> pronunciation = rsp.getResult(page).getPronunciation();
+                if(pronunciation!=null) {
+                    pronunciation1 = new Pronunciation(pronunciation.get("ipa").toString(), pronunciation.get("audioUrl").toString());
+                }
+                */
+                HashMap<String, Object> vocabInfo = new HashMap<>();
+                vocabInfo.put("vocab", vocab);
+                /*
+                vocabInfo.put("defs", defs);
+                if(example0!=null)
+                    vocabInfo.put("example0", example0);
+                if(example1!=null)
+                    vocabInfo.put("example1", example1);
+                if(example2!=null)
+                    vocabInfo.put("example2", example2);
+                if(pronunciation1!=null){
+                    vocabInfo.put("pronunciation",pronunciation1);
+                }
+                */
+
+                //run background task.
+                new AddVocabTask().execute(vocabInfo).get();
+
+            /*
+                Intent navToArticles = new Intent(getApplicationContext(), MainActivity.class);
+                navToArticles.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                navToArticles.setAction(Intent.ACTION_RUN);
+                navToArticles.putExtra("route", "/articles");
+                startActivity(navToArticles);
+            */
+                finish();
+            } catch (ExecutionException e) {
+                System.out.println("Execution Exception");
+
+            } catch (InterruptedException e) {
+                System.out.println("The thread got interrupted!");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Exception occurred");
+            }
+            finally {
+                database.close();
+            }
+        });
+        cancelButton.setOnClickListener((View view) -> {
+            try {
+                finish();
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Exception occurred");
+            }
+
+        });
 
     }
 
     // use set time out to mimic the delay of the call of api
-    private void checkVocabAndUpload(String word) {
+    private boolean checkVocabAndUpload(String word) {
 
         // call the worker to check the dictionary and upload the word
         try {
@@ -268,27 +269,25 @@ public class WordModalActivity extends Activity {
                 if(getVocabWordFrequencyResult==RESULT_NOT_AUTHORIZED){
                     AskForLogin();
                 }
-                page = 0;
-                RenderViewWithPageNumber(page);
-
+                return true;
             }
             else if (code==RESULT_NOT_AUTHORIZED){
                 AskForLogin();
-                finish();
+                return false;
             }
             else {
                 AskForAddingNewWords();
-                finish();
+                return false;
             }
         } catch (TimeoutException ex) {
             Toast.makeText(getApplicationContext(), "Timeout()", Toast.LENGTH_SHORT).show();
-            finish();
+            return false;
         } catch (InterruptedException ex) {
             Toast.makeText(getApplicationContext(), "Interrupted Exception", Toast.LENGTH_SHORT).show();
-            finish();
+            return false;
         } catch (ExecutionException ex) {
             Toast.makeText(getApplicationContext(), "Execution Exception", Toast.LENGTH_SHORT).show();
-            finish();
+            return false;
         }
     }
 
@@ -304,7 +303,6 @@ public class WordModalActivity extends Activity {
              RESULT_SUCCESS if found.
     */
     private class CheckDictTask extends AsyncTask<String, Void, Integer> {
-
 
         protected Integer doInBackground(String... word) {
             List<User> userList = database.UserDao().getUser();
@@ -334,7 +332,9 @@ public class WordModalActivity extends Activity {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
                 //WIP: change the implementation of response data
                 ResponseDataJSONDeserializer deserializer = (ResponseDataJSONDeserializer) ResponseDataJSONDeserializer.getDeserializer();
-                Gson gson = new GsonBuilder().registerTypeAdapter(ResponseData.class,deserializer).create();
+                Gson gson = new GsonBuilder()
+                        .serializeNulls()
+                        .registerTypeAdapter(ResponseData.class,deserializer).create();
 
                 rsp = gson.fromJson(response.body().string(),ResponseData.class);
                 return RESULT_OK;
@@ -343,7 +343,38 @@ public class WordModalActivity extends Activity {
                 ex.printStackTrace();
                 return RESULT_CANCELED;
             }
+            catch (NullPointerException ex){
+                ex.printStackTrace();
+                return RESULT_CANCELED;
+            }
+
         }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            circularProgressBar.setVisibility(View.VISIBLE);
+            database = Room.databaseBuilder(getApplicationContext(),VocabDB.class,Config.DBName).createFromAsset(Config.DBName).build();
+        }
+
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            if(integer.equals(RESULT_CANCELED)){
+                AskForAddingNewWords();
+                finish();
+            }
+            else if (integer.equals(RESULT_NOT_AUTHORIZED)){
+                AskForLogin();
+            }
+            else{
+                circularProgressBar.setVisibility(View.GONE);
+                page = 0;
+                RenderViewWithPageNumber(page);
+            }
+        }
+
     }
 
     private class GetVocabFrequencyTask extends AsyncTask<String, Void, Integer>{
@@ -371,9 +402,18 @@ public class WordModalActivity extends Activity {
                 e.printStackTrace();
                 return RESULT_CANCELED;
             }
+            catch(NullPointerException e){
+                return RESULT_NO_ZIPF;
+            }
             catch(Exception e) {
                 return RESULT_CANCELED;
             }
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if(integer==RESULT_NO_ZIPF)
+                zipf = (long) 7.0;
         }
     }
 
@@ -383,43 +423,27 @@ public class WordModalActivity extends Activity {
         @Override
         protected Integer doInBackground(HashMap<String,?>... info) {
             try {
-                if(info[0].get("vocab").getClass()==VocabBank.class && info[0].get("defs").getClass()==VocabDefinitions.class) {
+                if(info[0].get("vocab").getClass()==VocabBank.class) {
                     VocabBank vocab = (VocabBank) (info[0].get("vocab"));
-                    VocabDefinitions def = (VocabDefinitions) (info[0].get("defs"));
-                    Example example0 = (Example) (info[0].get("example0"));
-                    Example example1 = (Example) (info[0].get("example1"));
-                    Example example2 = (Example) (info[0].get("example2"));
-                    Pronunciation pronunciation = (Pronunciation) (info[0].get("pronunciation"));
 
                     database.runInTransaction(() -> {
                         List<VocabBank> existingVocab = database.VocabDao().findByName(vocab.word);
-                        //insertID
-                        Long insertedVID =  existingVocab.isEmpty()
-                                ?database.VocabDao().insert(vocab)
-                                :existingVocab.get(0).vid;
-                        def.ReferencesVocab(insertedVID.intValue());
-                        Long insertedDID = database.VocabDefinitionsDao().insert(def);
 
-                        if(pronunciation!=null){
-                            pronunciation.ReferenceDefinitions(insertedDID.intValue());
-                            Long insertedPID = database.PronunciationDao().insert(pronunciation);
-                        }
-
-                        if(example0!=null){
-                            example0.ReferenceDefinition(insertedDID.intValue());
-                            Long insertedEID0 = database.ExampleDao().insert(example0);
-                        }
-                        if(example1!=null){
-                            example1.ReferenceDefinition(insertedDID.intValue());
-                            Long insertedEID1 = database.ExampleDao().insert(example1);
-                        }
-                        if(example2!=null){
-                            example2.ReferenceDefinition(insertedDID.intValue());
-                            Long insertedEID2 = database.ExampleDao().insert(example2);
+                        if(existingVocab.isEmpty()) {
+                            database.VocabDao().insert(vocab);
                         }
 
                         //change user statistics
-
+                        List<Statistics> userStats = database.StatisticsDao().getAll();
+                        if(!userStats.isEmpty()) {
+                            Statistics latestStat = userStats.get(userStats.size()-1);
+                            Statistics stat = new Statistics(latestStat.trackingCount+1,latestStat.learningCount,latestStat.maturedCount);
+                            database.StatisticsDao().insert(stat);
+                        }
+                        else{
+                            Statistics stat = new Statistics(1,0,0);
+                            database.StatisticsDao().insert(stat);
+                        }
 
                     });
                     return RESULT_OK;
@@ -439,11 +463,38 @@ public class WordModalActivity extends Activity {
                 return RESULT_CANCELED;
             }
         }
-        //where you will update UI after the async task is complete
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
 
+        @Override
+        protected void onPostExecute(Integer integer) {
+            switch(integer){
+                case RESULT_OK:
+                    ShowSuccessMessage();
+                    break;
+                case RESULT_NOT_AUTHORIZED:
+                    AskForLogin();
+                    break;
+                case RESULT_CANCELED:
+                    AskForRetry("Looks like there are some errors while adding the word.");
+                    break;
+                default:
+                    break;
+            }
+            finish();
         }
+    }
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        LoadView();
+
+        word = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().trim().toLowerCase();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!checkVocabAndUpload(word)) finish();
     }
 }
