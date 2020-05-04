@@ -12,7 +12,6 @@
         android:orientation="horizontal">
 
 
-
         <LinearLayout
             android:id="@+id/wordModel"
             android:layout_width="match_parent"
@@ -33,6 +32,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="word"
+                android:textColor="#FF606060"
                 android:textSize="30sp" />
 
             <View
@@ -42,7 +42,7 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp"
                 android:background="@android:drawable/divider_horizontal_bright"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="#FFDFE6AA"
                 android:minHeight="15dp" />
 
             <TextView
@@ -60,7 +60,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:minLines="2"
-                android:text=""
+                android:text="definition"
+                android:textColor="#FF808080"
                 android:textSize="20sp" />
 
             <TextView
@@ -70,6 +71,7 @@
                 android:gravity="center"
                 android:minLines="3"
                 android:text=""
+                android:textColor="#ff808080"
                 android:textStyle="italic" />
 
             <RelativeLayout
@@ -94,7 +96,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:backgroundTint="#FF0000"
+                    android:backgroundTint="#FFE26D5A"
                     android:text="Cancel" />
             </RelativeLayout>
 
@@ -137,5 +139,13 @@
             android:translationX="-25dp" />
 
     </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/circularProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="116dp"
+        android:layout_height="88dp"
+        android:layout_gravity="center|center_vertical"
+        android:layout_weight="0.7" />
 
 </FrameLayout>

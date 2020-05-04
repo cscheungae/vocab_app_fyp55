@@ -3,12 +3,12 @@
 
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#33FF33"/>
+            <solid android:color="#FF343434"/>
             <corners android:radius="8dp"/>
             <size android:width="28dp" android:height="100dp"/>
         </shape>
     </item>
 
-    <item android:drawable="@drawable/ic_keyboard_arrow_right_black_24dp"/>
+    <item android:drawable="@drawable/ic_keyboard_arrow_right_white_24dp" />
 
 </layer-list>
