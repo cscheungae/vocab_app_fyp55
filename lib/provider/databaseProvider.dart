@@ -856,7 +856,7 @@ class DatabaseProvider {
       int maturedCount = Sqflite.firstIntValue(res);
 
       DateTime now = new DateTime.now();
-      DateTime date = new DateTime(now.year, now.month, now.day);
+      DateTime date = new DateTime(now.year, now.month, now.day, now.hour, now.minute);
       // TODO:: create a stat instance
       Stat stat = Stat(
           logDate: date,

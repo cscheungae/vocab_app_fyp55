@@ -41,18 +41,18 @@ class _SimpleTimeSeriesChartState extends State<SimpleTimeSeriesChart> {
 
     return [
       new charts.Series<TimeSeriesCount, DateTime>(
-        id: 'Learning',
-        colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
-        domainFn: (TimeSeriesCount timeSeriesCount, _) => timeSeriesCount.time,
-        measureFn: (TimeSeriesCount timeSeriesCount, _) => timeSeriesCount.count,
-        data: learningData,
-      ),
-      new charts.Series<TimeSeriesCount, DateTime>(
         id: 'Tracking',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         domainFn: (TimeSeriesCount timeSeriesCount, _) => timeSeriesCount.time,
         measureFn: (TimeSeriesCount timeSeriesCount, _) => timeSeriesCount.count,
         data: trackingData,
+      ),
+      new charts.Series<TimeSeriesCount, DateTime>(
+        id: 'Learning',
+        colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
+        domainFn: (TimeSeriesCount timeSeriesCount, _) => timeSeriesCount.time,
+        measureFn: (TimeSeriesCount timeSeriesCount, _) => timeSeriesCount.count,
+        data: learningData,
       ),
       new charts.Series<TimeSeriesCount, DateTime>(
         id: 'Matured',

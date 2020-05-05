@@ -23,7 +23,7 @@ class Stat {
   //Dart data to Json
   Map<String, dynamic> toJson(){
     return {
-      "logDate" : logDate.toIso8601String(), // TODO:: Issue - is it problematic not to parse the datetime object into string
+      "logDate" : logDate.toIso8601String(),
       "trackingCount" : trackingCount,
       "learningCount" : learningCount,
       "maturedCount" : maturedCount,
