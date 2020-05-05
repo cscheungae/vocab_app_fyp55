@@ -136,9 +136,9 @@ public class WordModalActivity extends Activity {
         //set content
         WordDefinitions model = rsp.getResult(i);
 
-        nameView.setText(word);
-        posView.setText(model.getPartOfSpeech());
-
+        nameView.setText(rsp.getWord());
+        if(model.getPartOfSpeech()!=null)
+            posView.setText(model.getPartOfSpeech());
         if (model.getDefinition() != null)
             definitionsView.setText(model.getDefinition());
         if (model.getExamples() != null)
@@ -177,7 +177,7 @@ public class WordModalActivity extends Activity {
         trackButton.setOnClickListener((View view) -> {
             try {
 
-                VocabBank vocab = new VocabBank(word, null, zipf.intValue(), 1);
+                VocabBank vocab = new VocabBank(rsp.getWord(), null, zipf.intValue(), 1);
                 /*
                 VocabDefinitions defs = new VocabDefinitions(posView.getText().toString(), definitionsView.getText().toString());
                 Example example0 = null;
@@ -257,7 +257,8 @@ public class WordModalActivity extends Activity {
         try {
             Integer code = new CheckDictTask().execute(word).get(10000, TimeUnit.MILLISECONDS);
             if (code == RESULT_OK) {
-                Integer getVocabWordFrequencyResult = new GetVocabFrequencyTask().execute(word).get(10000, TimeUnit.MILLISECONDS);
+                String requested_word = rsp.word;
+                Integer getVocabWordFrequencyResult = new GetVocabFrequencyTask().execute(requested_word).get(10000, TimeUnit.MILLISECONDS);
                 if(getVocabWordFrequencyResult==RESULT_NOT_AUTHORIZED){
                     AskForLogin();
                 }
@@ -292,7 +293,7 @@ public class WordModalActivity extends Activity {
     /*
     returns: RESULT_NOT_AUTHORIZED if the user has not logged in yet.
              RESULT_CANCELLED if the word is not recognized by the service provider.
-             RESULT_SUCCESS if found.
+             if found, try to get the word frequency and return RESULT_SUCCESS.
     */
     private class CheckDictTask extends AsyncTask<String, Void, Integer> {
 
@@ -312,8 +313,8 @@ public class WordModalActivity extends Activity {
                 return RESULT_CANCELED;
             }
             url.addQueryParameter("word",word[0])
-                .addQueryParameter("region",user.region);
-
+                .addQueryParameter("region",user.region)
+                .addQueryParameter("shortDefinitions","true");
 
             Request request = new Request.Builder()
                     .url(url.build())
@@ -339,6 +340,10 @@ public class WordModalActivity extends Activity {
                 ex.printStackTrace();
                 return RESULT_CANCELED;
             }
+            catch (Exception ex){
+                ex.printStackTrace();
+                return RESULT_CANCELED;
+            }
 
         }
 
@@ -359,6 +364,7 @@ public class WordModalActivity extends Activity {
             }
             else if (integer.equals(RESULT_NOT_AUTHORIZED)){
                 AskForLogin();
+                finish();
             }
             else{
                 circularProgressBar.setVisibility(View.GONE);
@@ -368,7 +374,7 @@ public class WordModalActivity extends Activity {
         }
 
     }
-
+    //API call to /wordfreq. If it is not found set zipf to "Very Rare".
     private class GetVocabFrequencyTask extends AsyncTask<String, Void, Integer>{
         @Override
         protected Integer doInBackground(String... words){
@@ -479,16 +485,13 @@ public class WordModalActivity extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        LoadView();
-
         word = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().trim().toLowerCase();
-
+        LoadView();
+        if(!checkVocabAndUpload(word)) finish();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(!checkVocabAndUpload(word)) finish();
     }
 }
