@@ -1,17 +1,11 @@
-package com.example.vocab_app_fyp55;
+package com.example.flashVocab;
 
 import android.content.Context;
 
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import Converters.TimestampConverter;
 import Dao.ExampleDao;

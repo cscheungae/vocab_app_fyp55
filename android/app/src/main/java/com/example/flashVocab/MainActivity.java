@@ -1,36 +1,27 @@
-package com.example.vocab_app_fyp55;
+package com.example.flashVocab;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-
-import com.google.api.client.util.DateTime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.SimpleTimeZone;
 import java.util.concurrent.TimeUnit;
 
 import Services.NotifyStudyTimeService;
 import io.flutter.app.FlutterActivity;
-import io.flutter.embedding.engine.FlutterEngine;
-import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.view.FlutterNativeView;
-import io.flutter.view.FlutterView;
 
 
 public class MainActivity extends FlutterActivity  {

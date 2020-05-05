@@ -1,4 +1,4 @@
-package com.example.vocab_app_fyp55;
+package com.example.flashVocab;
 
 import com.facebook.stetho.Stetho;
 

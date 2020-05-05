@@ -1,17 +1,7 @@
-package com.example.vocab_app_fyp55;
-import android.annotation.SuppressLint;
-import android.os.Build;
+package com.example.flashVocab;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-
-import org.json.JSONObject;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import okhttp3.Response;
 
 
 //*
