@@ -105,6 +105,7 @@ class _HomePageState extends State<HomePage>
 
             
             //Debug Use only
+            /*
             GestureDetector(
               onTap: (){
                 Navigator.push(context, Router.AnimatedRoute(newWidget: new DebugPage()  ));
@@ -115,6 +116,7 @@ class _HomePageState extends State<HomePage>
                 child: Icon(Icons.alarm),
               ),
             ),
+            */
             
             
           ],
