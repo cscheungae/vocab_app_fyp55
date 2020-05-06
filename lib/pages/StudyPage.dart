@@ -67,7 +67,7 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
   {
     try {
       if (_vocabList == null || forceUpdate == true ){
-        _vocabList = await DatabaseProvider.instance.getStudyVocabs(50);
+        _vocabList = await DatabaseProvider.instance.getStudyVocabs(15, obtainOverdueItem: false);
         _vocabList = _vocabList ?? {};
       }
     } catch (exception){print("Failure in getting vocab"); _vocabList = [];  }
@@ -114,8 +114,9 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
   Future<void> submitRanking(int vid, double rating ) async {
     try {
       /* Update Scheduling Time */
+      print("Rating: " + rating.toString());
       var flashcard = await DatabaseProvider.instance.readFlashcard(vid);
-      await DatabaseProvider.instance.reviseFlashcard( flashcard, rating );
+      await DatabaseProvider.instance.reviseFlashcard( flashcard, rating / 5 );
       this._vocabList.removeAt(this._studyIndex);
       this._studyIndex--;
       await this.gotoNextStudyVocabPage();
