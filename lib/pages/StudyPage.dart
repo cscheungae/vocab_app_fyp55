@@ -67,7 +67,8 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
   {
     try {
       if (_vocabList == null || forceUpdate == true ){
-        _vocabList = await DatabaseProvider.instance.getLearningVocabs();
+        _vocabList = await DatabaseProvider.instance.getStudyVocabs(50);
+        _vocabList = _vocabList ?? {};
       }
     } catch (exception){print("Failure in getting vocab"); _vocabList = [];  }
     return _vocabList;
@@ -80,7 +81,7 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
   /// Move to next vocab page
   /// [value] - how much steps to jump
   Future<void> gotoNextStudyVocabPage({int value = 1}) async {
-    if (_vocabList.length == 0 ){
+    if ( _vocabList == null || _vocabList.length == 0 ){
       setState(() {
         this._studyIndex = -1;
         this.vb = null;
@@ -152,7 +153,7 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
             if ( snapshot.hasData )
             {
               //No Vocabulary
-              if ( _vocabList.length == 0 ){
+              if (  _vocabList.length == 0 ){
                 return Container(
                   child: Column(children: <Widget>[
                     Container(
@@ -161,7 +162,7 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
                       height: MediaQuery.of(context).size.height * 0.5,
                       child: Image(image: AssetImage("assets/empty.png"), fit: BoxFit.contain, ),
                     ),
-                    Text("It seems like you have all flashcards revised! Great job!!"),
+                    Text("Seems like everything's done! Great job!!"),
                   ],),
                 );
               }
@@ -183,7 +184,7 @@ class _StudyPage extends State<StudyPage> with TickerProviderStateMixin {
             } else if ( snapshot.hasError ){
               return Container(child: Text("Problem in loading the words", style: TextStyle(color: Colors.red),),);
             }
-            else return Container();
+            else return  Container();
           }
         ), 
       ],

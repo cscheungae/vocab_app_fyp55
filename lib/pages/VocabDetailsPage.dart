@@ -281,13 +281,17 @@ class _VocabDetailsUIPage extends State<VocabDetailsUIPage> with SingleTickerPro
                   ),
 
                   
-                  (pb == null ) ? Container() : 
+                  (pb == null  ) ? Container() : 
                   Container(
                     alignment: Alignment.topLeft,
                     padding: EdgeInsets.fromLTRB(15, 10, 0, 5),
                     child: GestureDetector(
                       child: Icon( Icons.speaker, color: this.audioColor, size: 30, ), 
                       onTap: () async {
+
+                        if (pb.audioUrl == "")
+                          return;
+
                         try {
                           setState(() {  this.audioColor = runAudioColor; });
                           AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.MEDIA_PLAYER);

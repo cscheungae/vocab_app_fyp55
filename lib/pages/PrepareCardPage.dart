@@ -87,7 +87,9 @@ class _PrepareCardPage extends State<PrepareCardPage> with SingleTickerProviderS
         for ( int i = 0; i < vb.definitionsBundle.length; i++){
           var dB = vb.definitionsBundle[i];
           int did = await DatabaseProvider.instance.insertDefinition(new Definition(vid: vocab.vid, pos: dB.pos, defineText: dB.defineText ));
-          await DatabaseProvider.instance.insertPronunciation( new Pronunciation( did: did));        
+          
+          if (dB.pronunciationsBundle != null && dB.pronunciationsBundle.isNotEmpty )
+            await DatabaseProvider.instance.insertPronunciation( new Pronunciation( did: did, audioUrl: dB.pronunciationsBundle[0].audioUrl, ipa: dB.pronunciationsBundle[0].ipa));        
           for ( int j = 0; j < dB.examplesBundle.length  ; j++ ){
             if (j==3) break;
             await DatabaseProvider.instance.insertExample( new Example(did: did, sentence: dB.examplesBundle[j].sentence  ));

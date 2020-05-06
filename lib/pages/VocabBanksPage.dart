@@ -187,7 +187,7 @@ class _VocabCardPage extends State<VocabCardUIPage> with AutomaticKeepAliveClien
                 PopupMenuItem(value: 0, child: Text("Sorted by letters"),  ),
                 PopupMenuItem(value: 1, child: Text("Directly add a flashcard"), ),
                 PopupMenuItem(value: 2, child: Text("Delete all vocabularies", style: TextStyle(color: Colors.red),), ),
-                PopupMenuItem(value: 3, child: Text("Delete database", style: TextStyle(color: Colors.red),), ),
+                //PopupMenuItem(value: 3, child: Text("Delete database", style: TextStyle(color: Colors.red),), ),
               ],
             ),
           ],
