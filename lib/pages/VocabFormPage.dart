@@ -166,7 +166,11 @@ class _VocabFormPage extends State<VocabFormPage>
     try {
       Toast.show("processing", context);
       VocabBundle vocab = await FetchDataOxfordAPI.requestFromAPI(wordController.value.text);
-      Toast.show("success!", context);
+      
+      if (vocab != null){
+        Toast.show("success!", context);
+      } else { Toast.show("failed!", context);  return false;}
+      
       return fillVocabForm(vocab);
     } catch (Exception) {
       debugPrint("Failed to auto-fill form");

@@ -21,32 +21,44 @@ class FetchDataOxfordAPI {
         definitionsBundle: <DefinitionBundle>[],
       );
 
+      List<dynamic> results = json["results"] ?? [];
 
-      List<dynamic> lexicalEntries = json["results"][0]["lexicalEntries"];
-      
-      for (var leItem in lexicalEntries ?? [] ){
-        List<dynamic> senses = leItem["entries"][0]["senses"];
-        String pos = leItem["lexicalCategory"]["text"];
-        String soundUrl = leItem["pronunciations"][0]["audioFile"] ?? "";
-        String ipa = leItem["pronunciations"][0]["phoneticSpelling"] ?? "";
-        
-        for ( var sItem in senses ?? [] ){
-          //Definition and pos
-          String definition = sItem["definitions"][0];
-          PronunciationBundle pb = new PronunciationBundle(audioUrl: soundUrl, ipa: ipa);
-          DefinitionBundle db = new DefinitionBundle(
-            defineText: definition, 
-            pos: pos,
-            pronunciationsBundle: [pb],
-            examplesBundle: [],
-            );
-          //Example
-          for ( var example in sItem["examples"] ?? [] ){
-            db.examplesBundle.add(new ExampleBundle(sentence: example["text"]) );
+      for (var result in results ){
+        List<dynamic> lexicalEntries = result["lexicalEntries"] ?? [];      
+        for (var leItem in lexicalEntries ?? [] ){
+          List<dynamic> senses = leItem["entries"][0]["senses"];
+          String pos = leItem["lexicalCategory"]["text"] ?? "";
+
+          List<dynamic> prons = leItem["pronunciations"] ?? []; 
+
+          String soundUrl = "";
+          String ipa = "";
+          if (prons.isNotEmpty ){
+            soundUrl = leItem["pronunciations"][0]["audioFile"] ?? "";
+            ipa = leItem["pronunciations"][0]["phoneticSpelling"] ?? "";
           }
-          vb.definitionsBundle.add(db);
+          
+          for ( var sItem in senses ?? [] ){
+            //Definition and pos
+            String definition = sItem["definitions"][0];
+
+            PronunciationBundle pb = new PronunciationBundle(audioUrl: soundUrl, ipa: ipa);
+            List<PronunciationBundle> pbs = (pb.audioUrl != "" && pb.ipa != "" ) ? [pb] : [];
+            DefinitionBundle db = new DefinitionBundle(
+              defineText: definition, 
+              pos: pos,
+              pronunciationsBundle: pbs,
+              examplesBundle: [],
+            );
+            //Example
+            for ( var example in sItem["examples"] ?? [] ){
+              db.examplesBundle.add(new ExampleBundle(sentence: example["text"]) );
+            }
+            vb.definitionsBundle.add(db);
+          }
         }
       }
+
       return new FetchDataOxfordAPI(vb);
     } catch (exception){ print("Error in converting Json"); return null; }
   }
