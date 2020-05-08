@@ -425,10 +425,15 @@ public class WordModalActivity extends Activity {
                     VocabBank vocab = (VocabBank) (info[0].get("vocab"));
 
                     database.runInTransaction(() -> {
-                        List<VocabBank> existingVocab = database.VocabDao().findByName(vocab.word);
+                        List<VocabBank> existingVocabs = database.VocabDao().findByName(vocab.word);
 
-                        if(existingVocab.isEmpty()) {
+                        if(existingVocabs.isEmpty()) {
                             database.VocabDao().insert(vocab);
+                        }
+                        else{
+                            VocabBank existingVocab= existingVocabs.get(0);
+                            existingVocab.trackFreq++;
+                            database.VocabDao().update(existingVocab);
                         }
 
                         //change user statistics

@@ -43,7 +43,7 @@ public class MainActivity extends FlutterActivity  {
                             String reviseTime = ((HashMap<String, String>) call.arguments).get("reviseTime");
                             Date notifyTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").parse(reviseTime);
                             Log.d("MethodChannel-flashVocab","Time received: "+notifyTime.toString());
-                            NotifyUsersToStudy();
+                            NotifyUsersToStudy(notifyTime);
                         }
                     }
                     catch(ParseException e){
@@ -77,17 +77,18 @@ public class MainActivity extends FlutterActivity  {
         }
     }
 
-    private void NotifyUsersToStudy(){
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.SECOND,30);
-        long diff = c.getTime().getTime() - new Date().getTime();
+    private void NotifyUsersToStudy(Date notifyTime){
+        //Calendar c = Calendar.getInstance();
+        //c.set(Calendar.SECOND,0);
+        long diff = notifyTime.getTime() - new Date().getTime();
 
 
-        Data data = new Data.Builder().putString("date",c.toString()).build();
+        Data data = new Data.Builder().putString("date",notifyTime.toString()).build();
         OneTimeWorkRequest promptStudyRequest = new OneTimeWorkRequest.Builder(NotifyStudyTimeService.class)
-                .setInitialDelay(diff, TimeUnit.MILLISECONDS)
-                .setInputData(data).build();
+                .setInitialDelay(diff,TimeUnit.MILLISECONDS)
+                .setInputData(data).build();//the data is for debug purpose only
 
         WorkManager.getInstance(getApplicationContext()).enqueue(promptStudyRequest);
+
     }
 }

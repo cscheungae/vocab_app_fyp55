@@ -1,4 +1,5 @@
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:flutter/services.dart';
 import 'package:vocab_app_fyp55/components/Leaderboard.dart';
 import 'package:vocab_app_fyp55/components/SimpleTimeSeriesChart.dart';
 import '../res/theme.dart' as CustomTheme;
@@ -26,23 +27,26 @@ class _StatisticsPage extends State<StatisticsPage>
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: TabBar(
-            tabs: tabs,
-          ),
-        ),
-        body: TabBarView(
-          children: [
-//            Container(child: Text("hello")),
-            Padding(
-              padding: const EdgeInsets.all(25.0),
-              child: SimpleTimeSeriesChart(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+          value:SystemUiOverlayStyle.dark,
+          child: DefaultTabController(
+        length: tabs.length,
+        child: Scaffold(
+          appBar: AppBar(
+            title: TabBar(
+              tabs: tabs,
             ),
-            Leaderboard()
-          ],
+          ),
+          body: TabBarView(
+            children: [
+//            Container(child: Text("hello")),
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: SimpleTimeSeriesChart(),
+              ),
+              Leaderboard()
+            ],
+          ),
         ),
       ),
     );

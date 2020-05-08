@@ -17,45 +17,55 @@ import 'pages/HomePage.dart';
 import 'pages/ReadViewPage.dart';
 import 'pages/SettingsPage.dart';
 import 'pages/MainPageView.dart';
+import 'pages/StudyPage.dart';
 
 import 'package:flutter/services.dart';
 
-void main() => runApp(MultiProvider(
+void main() {
+  runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => DatabaseNotifier()),
       ],
       child: MyApp(),
-    ));
+    ));}
 
 class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: Provider.of<DatabaseNotifier>(context, listen: false).dbHelper.isUserExist(),
-      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: FutureBuilder<bool>(
+        future: Provider.of<DatabaseNotifier>(context, listen: false)
+            .dbHelper
+            .isUserExist(),
+        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           Widget widget;
-          if(snapshot.hasData) {
-            widget =
-              MaterialApp(
-                title: 'FlashVocab',
-                theme: CustomTheme.customThemeData,
-                initialRoute: (!!snapshot.data == false) ? '/' : '/register',
-                routes: {
-                  // When navigating to the "/" route, build the HomeScreen
-                  '/': (context) => MainPageView.instance,
-                  '/register': (context) => RegisterPage(),
-                  '/login': (context) => LoginPage(),
-                  '/welcome': (context) => OnboardingScreen(),
-                  '/articles': (context) => ReadViewPage(title: "Article"),
-                  '/settings': (context) => SettingsPage(),
-                  '/dictionary': (context) => VocabCardUIPage(),
-                  '/LeaderBoardPage' : ( context ) => LeaderBoardPage(),
-                  '/statistics': (context) => StatisticsPage(),
-                },
-              );
-          } else if (snapshot.hasError) widget = new ErrorAlert("Error");
-            else widget = new LoadingIndicator();
+          if (snapshot.hasData) {
+            widget = MaterialApp(
+              title: 'FlashVocab',
+              theme: CustomTheme.customThemeData,
+              initialRoute: (!!snapshot.data == false) ? '/' : '/register',
+              routes: {
+                
+                // When navigating to the "/" route, build the HomeScreen
+                '/': (context) => MainPageView.instance,
+                '/register': (context) => RegisterPage(),
+                '/login': (context) => LoginPage(),
+                '/welcome': (context) => OnboardingScreen(),
+                '/articles': (context) => ReadViewPage(title: "Article"),
+                '/settings': (context) => SettingsPage(),
+                '/dictionary': (context) => VocabCardUIPage(),
+                '/LeaderBoardPage': (context) => LeaderBoardPage(),
+                '/statistics': (context) => StatisticsPage(),
+                '/study': (context) => StudyPage(),
+              },
+            );
+          } else if (snapshot.hasError)
+            widget = new ErrorAlert("Error");
+          else
+            widget = new LoadingIndicator();
           return widget;
-      },
+        },
+      ),
     );
   }
 }
